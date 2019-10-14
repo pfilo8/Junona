@@ -1,4 +1,7 @@
-data/
-.ipynb_checkpoints/
+# Data
+data/*.csv
 outputs/*.csv
 
+# Editors' files
+.ipynb_checkpoints/
+.idea/
