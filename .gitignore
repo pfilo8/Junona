@@ -5,3 +5,9 @@ outputs/*.csv
 # Editors' files
 .ipynb_checkpoints/
 .idea/
+
+# Python cache
+src/__pycache__/
+
+# Presentation data
+docs/
