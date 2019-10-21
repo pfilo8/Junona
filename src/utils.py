@@ -18,6 +18,7 @@ from costcla.models import CostSensitiveDecisionTreeClassifier, CostSensitiveLog
 from costcla.models import CostSensitiveRandomForestClassifier, CostSensitiveBaggingClassifier, \
     CostSensitivePastingClassifier, CostSensitiveRandomPatchesClassifier
 
+N_JOBS = -1
 RANDOM_STATE = 42
 
 CI_MODELS = [LogisticRegression, DecisionTreeClassifier, RandomForestClassifier]
@@ -35,6 +36,7 @@ def get_script_args():
     ap = argparse.ArgumentParser()
     ap.add_argument("-d", "--data", required=True, help="Path to data.")
     ap.add_argument("-c", "--config", required=True, help="Path to config.")
+    ap.add_argument("-n", "--n_iters", required=False, default=10, help="Number of MC iterations.")
     args = vars(ap.parse_args())
     return args
 
@@ -75,11 +77,11 @@ def _create_bmr_model(model, X_val, y_val, calibration=True):
     return model, bmr
 
 
-def _create_threshold_optimized_model(model, X_train, y_train, cost_matrix_train, calibration=True):
-    y_hat_train_proba = model.predict_proba(X_train.values)
+def _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_train, calibration=True):
+    y_hat_train_proba = model.predict_proba(X_val.values)
 
     threshold_opt = ThresholdingOptimization(calibration=calibration)
-    threshold_opt.fit(y_hat_train_proba, cost_matrix_train, y_train.values)
+    threshold_opt.fit(y_hat_train_proba, cost_matrix_train, y_val.values)
 
     return model, threshold_opt
 
@@ -91,11 +93,24 @@ def generate_models():
         'CI-RandomForest': RandomForestClassifier(random_state=RANDOM_STATE),
         'CI-XGBoost': xgboost.XGBClassifier(random_state=RANDOM_STATE, verbosity=0),
         'CST-CostSensitiveLogisticRegression': CostSensitiveLogisticRegression(),
-        'CST-CostSensitiveDecisionTreeClassifier': CostSensitiveDecisionTreeClassifier(),
-        'ECSDT-CostSensitiveRandomForestClassifier': CostSensitiveRandomForestClassifier(),
-        'ECSDT-CostSensitiveRandomPatchesClassifier': CostSensitiveRandomPatchesClassifier()
+        'CST-CostSensitiveDecisionTreeClassifier': CostSensitiveDecisionTreeClassifier()
     }
+
+    #ecsdt_models = generate_ecsdt_models()
+    #models.update(ecsdt_models)
     return models
+
+
+def generate_ecsdt_models():
+    ecsdt_models = {}
+
+    combinations = ["majority_voting", "weighted_voting", "stacking"]
+    for model in ECSDT_MODELS:
+        for combination in combinations:
+            name = f'ECSDT-{model}_{combination}'
+            ecsdt_models[name] = model(combination=combination, n_jobs=N_JOBS)
+
+    return ecsdt_models
 
 
 def train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, models):
@@ -123,8 +138,7 @@ def train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, mod
     return trained_models
 
 
-def train_to_models(X_train, y_train, cost_matrix_train, X_val, y_val, models):
-    # Shouldn't we do this on val set???
+def train_to_models(X_val, y_val, cost_matrix_train, models):
     trained_models = {}
 
     for name, model in models.items():
@@ -132,9 +146,9 @@ def train_to_models(X_train, y_train, cost_matrix_train, X_val, y_val, models):
         if model_type in XGB_MODELS or model_type in CI_MODELS:
             for calibration in [True]:
                 print(model_type, calibration)
-                to_model = _create_threshold_optimized_model(model, X_train, y_train, cost_matrix_train,
+                to_model = _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_train,
                                                              calibration=calibration)
-                model_name = name + '-TO' + f'_{calibration}'
+                model_name = name + '-TO' #+ f'_{calibration}'
                 trained_models[model_name] = to_model
 
     return trained_models
@@ -147,10 +161,10 @@ def train_bmr_models(X_val, y_val, models):
         model_type = type(model)
         print(model_type)
         if model_type in XGB_MODELS or model_type in CI_MODELS:
-            for calibration in [True, False]:
+            for calibration in [True]:
                 print(calibration)
                 to_model = _create_bmr_model(model, X_val, y_val, calibration=calibration)
-                model_name = name + '-BMR' + f'_{calibration}'
+                model_name = name + '-BMR' #+ f'_{calibration}'
                 trained_models[model_name] = to_model
 
     return trained_models
