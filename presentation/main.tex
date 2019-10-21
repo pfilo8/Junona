@@ -1,0 +1,284 @@
+\documentclass[10pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\usepackage{listings}
+
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{makecell} % for more vertical space in cells
+\setcellgapes{5pt}
+
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+
+\title{Detekcja oszustw z wykorzystaniem metod wrażliwych na koszt}
+\author{Patryk Wielopolski}
+\institute{Promotor: dr inż. Andrzej Giniewicz}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Oszustwa}
+    Oszustwo, wyłudzenie – przestępstwo polegające na doprowadzeniu innej osoby do niekorzystnego rozporządzenia mieniem własnym lub cudzym za pomocą wprowadzenia jej w błąd albo wyzyskania jej błędu lub niezdolności do należytego pojmowania przedsiębranego działania, w celu osiągnięcia korzyści majątkowej. 
+    
+    
+    Przykłady oszustw:
+    \begin{itemize}
+        \item Podrabianie czeków
+        \item Wykorzystywanie kradzionych kart kredytowych
+        \item Zawyżanie strat w roszczeniach
+        \item Umyślne spowodowanie wypadku w celu uzyskania odszkodowania
+    \end{itemize}{}
+    
+    \nocite{CSCCFD}
+    \nocite{ICCFD}
+    \nocite{alej2015ensemble}
+\end{frame}{}
+
+\begin{frame}{Techniki wykrywania oszustw}
+    Techniki wykrywania oszustw:
+    \begin{itemize}
+        \item Analiza parametrów statystycznych (ang. Calculating statistical parameters)
+        \item Analiza regresji (ang. Regression analysis)
+        \item Modele probabilistyczne (ang. Probability models)
+        \item Detekcja anomalii (ang. Anomaly detection)
+        \item Eksploracja danych (ang. Data mining)
+        \item Systemy reguł eksperckich (ang. Expert systems)
+        \item Rozpoznawanie wzorców (ang. Pattern recognition)
+        \item Uczenie maszynowe (ang. Machine learning)
+    \end{itemize}{}
+\end{frame}{}
+
+\begin{frame}{Problemy}
+    Problemy z modelowaniem detekcji oszustw:
+    \begin{itemize}
+        \item Brak skutecznej metryki oddającej charakter problemu
+        \item Bardzo często występująca silnie niezbalansowana próba \\ (proporcja klas od 1:100 do nawet 1:1000)
+        \item Przekłamania w danych dot. klas
+    \end{itemize}
+\end{frame}{}
+
+\section{Metodologie klasyfikacji}
+
+\begin{frame}{Klasyczna metodologia}
+    Klasyczna metodologia metod klasyfikacyjnych:
+    \begin{itemize}
+        \item Wykorzystanie standardowych modeli:
+            \begin{itemize}
+                \item Regresja Logistyczna
+                \item Drzewo Decyzyjne
+                \item Las Losowy
+            \end{itemize}
+        \item Wykorzystanie standardowych metryk:
+            \begin{itemize}
+                \item Skuteczność
+                \item Precyzja
+                \item Czułość
+                \item F1-Score
+            \end{itemize}{}
+    \end{itemize}
+\end{frame}{}
+
+\begin{frame}{Standardowa macierz pomyłek}
+    \begin{center}
+        \makegapedcells
+        \begin{tabular}{cc|cc}
+            \multicolumn{2}{c}{}
+                        &   \multicolumn{2}{c}{Predykcja} \\
+                &       &   Oszustwo &   Normalna              \\ 
+                \cline{2-4}
+            \multirow{2}{cc}{\rotatebox[origin=c]{90}{Prawda}}
+                & Oszustwo   & TP   & FN                 \\
+                & Normalna   & FP   & TN                \\ 
+                \cline{2-4}
+        \end{tabular}
+    \end{center}
+    
+    $$ \text{Skuteczność} = \frac{TP + TN}{TP + FP + FN + TN} $$
+    $$ \text{Precyzja} = \frac{TP}{TP + FP} $$
+    $$ \text{Czułość}= \frac{TP}{TP + FN} $$
+    $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} $$
+\end{frame}
+
+\begin{frame}{Metodologia wrażliwa na koszt}
+    Metodologia klasyfikacji wrażliwa na koszt:
+    \begin{itemize}
+        \item Wykorzystanie modeli klasyfikacji wrażliwych na koszt:
+            \begin{itemize}
+                \item Optymalizacja progu (Threshold optimization)
+                \item Minimalizacja ryzyka Bayesowskiego (Bayesian Minimum Risk)
+            \end{itemize}{}
+        \item Wykorzystanie niestandardowych modeli predykcyjnych:
+            \begin{itemize}
+                \item Regresja Logistyczna wrażliwa na koszt
+                \item Drzewo Decyzyjne wrażliwe na koszt
+            \end{itemize}
+        \item Wykorzystanie niestandardowych metryk:
+            \begin{itemize}
+                \item Koszt całkowity
+                \item Oszczędności (Savings)
+            \end{itemize}{}
+    \end{itemize}
+\end{frame}{}
+
+\begin{frame}{Macierz kosztu pomyłek}
+    \begin{center}
+        \makegapedcells
+        \begin{tabular}{cc|cc}
+            \multicolumn{2}{c}{}
+                        &   \multicolumn{2}{c}{Predykcja} \\
+                &       &   Oszustwo &   Normalna              \\ 
+                \cline{2-4}
+            \multirow{2}{cc}{\rotatebox[origin=c]{90}{Prawda}}
+                & Oszustwo   & C_{TP_{i}}   & C_{FN_{i}}                 \\
+                & Normalna   & C_{FP_{i}}   & C_{TN_{i}}                \\ 
+                \cline{2-4}
+        \end{tabular}
+    \end{center}
+    
+    $$ \text{Koszt}(f(\boldsymbol{x}_{i}^{*})) = y_i (c_i C_{TP_i} + (1-c_i)C_{FN_i}) + (1-y_i)(c_i C_{FP_i} + (1-c_i)C_{TN_i})$$
+
+    \begin{itemize}
+        \item $\boldsymbol{x}_{i}^{*} = [\boldsymbol{x}_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor atrybutów i-tej obserwacji rozszerzony o koszty pomyłek
+        \item $C_{x_i}$ - koszt klasyfikacji i-tej obserwacji
+        \item $f(\cdot)$ - model predykcyjny
+        \item $y_i$ - prawdziwe oznaczenie i-tej obserwacji
+        \item $c_i$ - predykcja modelu dla i-tej obserwacji
+    \end{itemize}{}
+    
+\end{frame}{}
+
+\begin{frame}{Miary wrażliwe na koszt}
+    Miary wrażliwe na koszt:
+    $$ \text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Koszt}(f(\boldsymbol{x}_{i}^{*})) $$
+    $$ \text{Oszczędności} = \frac{\text{Koszt}_{l}(\boldsymbol{S}) - \text{Koszt}(f(\boldsymbol{S}))}{\text{Koszt}_{l}(\boldsymbol{S})} $$
+
+    \begin{itemize}
+        \item $ \boldsymbol{S} $ - zbiór wszystkich obserwacji
+        \item $ \text{Koszt}_l = min\{\text{Koszt}(f_{0}(\boldsymbol{S}), \text{Koszt}(f_{1}(\boldsymbol{S})\} $
+        \item $ f_{a}(\boldsymbol{S}) = \boldsymbol{a} $, gdzie $a \in \{0,1\}$
+    \end{itemize}{}
+    
+\end{frame}{}
+
+\section{Eksperyment}
+
+\begin{frame}{Opis eksperymentu}
+    Zbiór danych:
+        \begin{itemize}
+            \item Credit Card Fraud Detection Dataset 
+            \item 284,807 transakcji w tym 492 oszustwa
+            \item Dysproporcja klas ok. 1:600 (0.172\% transakcji nielegalnych)
+        \end{itemize}{}
+    Podział danych na zbiory:
+        \begin{itemize}
+            \item Treningowy: 50\%
+            \item Walidacyjny: ok. 17\%
+            \item Testowy: ok. 33\%
+        \end{itemize}{}
+\end{frame}
+
+\begin{frame}{Macierz kosztu dla eksperymentu}
+    \begin{center}
+        \makegapedcells
+        \begin{tabular}{cc|cc}
+            \multicolumn{2}{c}{}
+                        &   \multicolumn{2}{c}{Predykcja} \\
+                &       &   Oszustwo &   Normalna              \\ 
+                \cline{2-4}
+            \multirow{2}{cc}{\rotatebox[origin=c]{90}{Prawda}}
+                & Oszustwo   & C_{TP_{i}} = C_a   & C_{FN_{i}} = \text{Amt}_i   \\
+                & Normalna   & C_{FP_{i}} = C_a & C_{TN_{i}} = 0                \\ 
+                \cline{2-4}
+        \end{tabular}
+    \end{center}
+    
+    \begin{itemize}
+        \item $\text{Amt}_i$ - Wartość transakcji
+        \item $C_a$ - koszt administracyjny obsługi sprawdzenia transakcji
+    \end{itemize}{}
+\end{frame}
+
+\begin{frame}{Pierwsze wyniki}
+\begin{center}
+    \begin{table}[]
+    \footnotesize
+        \begin{tabular}{llllll}
+        Name                      & Cost      & F1    & Precision & Recall & Savings \\
+        CI-LogisticRegression     & 6169.57   & 0.735 & 0.837     & 0.655  & 0.595   \\
+        CI-DecisionTree           & 5708.01   & 0.751 & 0.762     & 0.739  & 0.625   \\
+        CI-RandomForest           & 5017.6    & 0.827 & 0.938     & 0.739  & 0.671   \\
+        CI-XGBoost                & 6621.24   & 0.809 & 0.903     & 0.733  & 0.565   \\
+        CST-CostSensitiveLR       & 163631.29 & 0.003 & 0.002     & 0.6    & -9.745  \\
+        CST-CostSensitiveDT       & 4859.59   & 0.64  & 0.788     & 0.539  & 0.681   \\
+        ECSDT-CostSensitiveRF     & 5535.61   & 0.61  & 0.84      & 0.479  & 0.636   \\
+        ECSDT-CostSensitiveRP     & 5969.33   & 0.625 & 0.808     & 0.509  & 0.608   \\
+        CI-LogisticRegression-TO  & 6077.9    & 0.739 & 0.779     & 0.703  & 0.601   \\
+        CI-DecisionTree-TO        & 5708.01   & 0.751 & 0.762     & 0.739  & 0.625   \\
+        CI-RandomForest-TO        & 4384.27   & 0.852 & 0.91      & 0.8    & 0.712   \\
+        CI-XGBoost-TO             & 4419.05   & 0.809 & 0.811     & 0.806  & 0.71    \\
+        CI-LogisticRegression-BMR & 4345.56   & 0.367 & 0.32      & 0.43   & 0.715   \\
+        CI-DecisionTree-BMR       & 5585.96   & 0.502 & 0.711     & 0.388  & 0.633   \\
+        CI-RandomForest-BMR       & 4083.0    & 0.537 & 0.682     & 0.442  & 0.732   \\
+        CI-XGBoost-BMR            & 4034.62   & 0.249 & 0.171     & 0.455  & 0.735  
+        \end{tabular}
+    \end{table}
+\end{center}{}
+\end{frame}
+
+\begin{frame}{Dalsze prace}
+    Planowany dalszy rozwój pracy inżynierskiej:
+    \begin{itemize}
+        \item Dokładna analiza wyników
+        \item Sprawdzenie stabilności wyników
+        \item Sprawdzenie zależności wyników od kosztów administracyjnych
+        \item Rozszerzenie analizy modeli typu ensemble (Random Forest itp.)
+    \end{itemize}{}
+\end{frame}{}
+
+\begin{frame}{Jeszcze dalsze plany pracy}
+    Dalsze kroki w dłuższej perspektywie:
+    \begin{itemize}
+        \item Przeszukanie przestrzeni hiperparametrów modeli
+        \item Przetestowanie metod under/over-samplingu w celu zbalansowania próby
+        \item Wykorzystanie niestandardowej metryki optymalizacji oraz funkcji straty w XGBoost
+        \item Przetestowanie innych algorytmów opartych na drzewach wykorzystujących boosting, np. LightGBM, CatBoost
+        \item Znalezienie bądź stworzenie algorytmu wykorzystującego boosting bazującego na drzewach wrażliwych na koszt
+    \end{itemize}{}
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{References}
+
+  \bibliography{references}
+  \bibliographystyle{abbrv}
+
+\end{frame}
+
+{\setbeamercolor{palette primary}{fg=white, bg=black}
+\begin{frame}
+    \centering
+    {\Large Dziękuję za uwagę!}
+    
+    \bigskip
+    
+    Pytania?
+\end{frame}
+}
+
+\end{document}
+
