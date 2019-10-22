@@ -1,0 +1,8 @@
+{
+  "ClassColumn": "Class",
+  "FalsePositiveCost": 200,
+  "FalseNegativeCost": "Amount",
+  "TruePositiveCost": 200,
+  "TrueNegativeCost": 0,
+  "DropColumns": ["Amount", "Time"]
+}
