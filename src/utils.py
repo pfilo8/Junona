@@ -115,7 +115,6 @@ def generate_ecsdt_models():
 
 def train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, models):
     trained_models = models.copy()
-    print(y_train.sum(), y_val.sum())
     # Standard model training
     for model in trained_models.values():
         model_type = type(model)

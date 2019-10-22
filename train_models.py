@@ -18,19 +18,23 @@ OUTPUT_DIR = 'outputs'
 CURRENT_OUTPUT_DIR = 'results' + datetime.now().isoformat()
 
 warnings.filterwarnings('ignore')
+
+
 # np.random.seed(RANDOM_STATE)
 
 
-def train_iteration(i):
+def train_iteration(i, X, y, cost_matrix):
     print(f"Iteration: {i}.")
     models = generate_models()
 
     X_train, X_test, y_train, y_test, cost_matrix_train, cost_matrix_test = train_test_split(
-        X, y, cost_matrix, train_size=0.5, stratify=y  # , random_state=RANDOM_STATE
+        X, y, cost_matrix, train_size=0.5, stratify=y, random_state=i
     )
     X_val, X_test, y_val, y_test, cost_matrix_val, cost_matrix_test = train_test_split(
-        X_test, y_test, cost_matrix_test, train_size=0.33, stratify=y_test  # , random_state=RANDOM_STATE
+        X_test, y_test, cost_matrix_test, train_size=0.33, stratify=y_test, random_state=i
     )
+
+    print(cost_matrix_test.sum())
 
     standard_models = train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, models)
     threshold_optimized_models = train_to_models(X_val, y_val, cost_matrix_val, standard_models)
@@ -45,10 +49,16 @@ def train_iteration(i):
     results.to_csv(filepath, index=False)
 
 
+def unpack_train_iterations(arguments):
+    i, X, y, cost_matrix = arguments
+    train_iteration(i, X, y, cost_matrix)
+
+
 if __name__ == '__main__':
     args = get_script_args()
 
     config = load_json(args['config'])
+    n_iters = int(args['n_iters'])
     df = pd.read_csv(args['data'])
     X, y = create_X_y(
         data=df,
@@ -65,5 +75,11 @@ if __name__ == '__main__':
 
     os.mkdir(os.path.join(OUTPUT_DIR, CURRENT_OUTPUT_DIR))
 
-    pool = mp.Pool(mp.cpu_count() - 1)
-    results = pool.map(train_iteration, range(int(args["n_iters"])))
+    pool = mp.Pool(mp.cpu_count())
+    results = pool.map(unpack_train_iterations, [(i, X, y, cost_matrix) for i in range(n_iters)])
+
+# TODO:
+# Dokładna analiza wyników
+# Sprawdzenie stabilności wyników
+# Sprawdzenie zależności wyników od kosztów administracyjnych
+# Rozszerzenie analizy modeli typu ensemble (Random Forest itp.)
