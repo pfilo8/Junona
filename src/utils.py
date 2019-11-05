@@ -77,11 +77,11 @@ def _create_bmr_model(model, X_val, y_val, calibration=True):
     return model, bmr
 
 
-def _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_train, calibration=True):
-    y_hat_train_proba = model.predict_proba(X_val.values)
+def _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_val, calibration=True):
+    y_hat_val_proba = model.predict_proba(X_val.values)
 
     threshold_opt = ThresholdingOptimization(calibration=calibration)
-    threshold_opt.fit(y_hat_train_proba, cost_matrix_train, y_val.values)
+    threshold_opt.fit(y_hat_val_proba, cost_matrix_val, y_val.values)
 
     return model, threshold_opt
 
@@ -137,7 +137,7 @@ def train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, mod
     return trained_models
 
 
-def train_to_models(X_val, y_val, cost_matrix_train, models):
+def train_to_models(X_val, y_val, cost_matrix_val, models):
     trained_models = {}
 
     for name, model in models.items():
@@ -145,7 +145,7 @@ def train_to_models(X_val, y_val, cost_matrix_train, models):
         if model_type in XGB_MODELS or model_type in CI_MODELS:
             for calibration in [True]:
                 print(model_type, calibration)
-                to_model = _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_train,
+                to_model = _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_val,
                                                              calibration=calibration)
                 model_name = name + '-TO' #+ f'_{calibration}'
                 trained_models[model_name] = to_model
