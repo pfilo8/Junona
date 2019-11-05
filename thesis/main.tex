@@ -1,0 +1,91 @@
+\documentclass{book}
+
+\usepackage{amsmath}
+\usepackage{listings}
+
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{makecell}
+\setcellgapes{5pt}
+
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+
+\title{Detekcja oszustw z wykorzystaniem metod wrażliwych na koszt}
+\author{Patryk Wielopolski}
+
+\begin{document}
+
+\maketitle
+
+\chapter{Wstęp}
+Tutaj będzie wstęp.
+
+\chapter{Wprowadzenie teoretyczne}
+
+W tej części zostaną wprowadzone wszelkie potrzebne miary skuteczności modeli oraz modele predykcyjne, które zostaną wykorzystane do przeprowadzenia eksperymentu. 
+
+\section{Miary skuteczności modeli}
+
+\subsection{Macierz pomyłek}
+
+
+\begin{table}
+	\begin{center}
+		\makegapedcells
+		\begin{tabular}{cc|cc}
+			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
+			&            &   Oszustwo &   Normalna     \\ 
+			\cline{2-4}
+			\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Oszustwo   & TP         & FN              \\
+			& Normalna   & FP         & TN              \\ 
+			\cline{2-4}
+		\end{tabular}
+	\end{center}
+	\caption{Macierz pomyłek}
+	\label{macierz-pomylek}
+\end{table}
+
+
+Na podstawie podanej macierzy pomyłek w tabeli \ref{macierz-pomylek} definiujemy następujące miary skuteczności modeli:
+
+$$ \text{Skuteczność} = \frac{TP + TN}{TP + FP + FN + TN} $$
+$$ \text{Precyzja} = \frac{TP}{TP + FP} $$
+$$ \text{Czułość}= \frac{TP}{TP + FN} $$
+$$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} $$
+
+\subsection{Metryki wrażliwe na koszt}
+
+\section{Standardowe modele}
+
+\subsection{Regresja logistyczna}
+
+\subsection{Drzewo decyzyjne}
+
+\subsection{Las losowy}
+
+\subsection{XGBoost}
+
+\section{Cost Sensitive Training}
+
+\subsection{Regresja logistyczna wrażliwa na koszt}
+
+\subsection{Drzewo decyzyjne wrażliwe na koszt}
+
+\section{Cost Dependent Classification}
+
+\subsection{Optymalizacja progu}
+
+\subsection{Bayesian Minimum Risk}
+
+\chapter{Eksperyment}
+
+\chapter{Rezultaty}
+
+\chapter{Podsumowanie}
+
+\chapter{Dalsze prace}
+
+
+\end{document}

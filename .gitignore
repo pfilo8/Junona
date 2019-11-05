@@ -12,3 +12,8 @@ src/__pycache__/
 
 # Presentation data
 docs/
+
+# LaTeX files
+*.aux
+*.log
+*.synctex.gz
