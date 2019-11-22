@@ -11,7 +11,7 @@ outputs/results*/
 src/__pycache__/
 
 # Presentation data
-docs/
+docs/articles
 
 # LaTeX files
 *.aux
