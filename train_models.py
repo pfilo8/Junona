@@ -34,8 +34,13 @@ def train_iteration(i, X, y, cost_matrix):
         X_test, y_test, cost_matrix_test, train_size=0.33, stratify=y_test, random_state=i
     )
 
-    rus = RandomUnderSampler()
-    X_train, y_train = rus.fit_resample(X_train, y_train)
+    rus = RandomUnderSampler(return_indices=True)
+    rus.fit_resample(X_train, y_train)
+    selected_indicies = rus.sample_indices_
+    X_train = X_train.iloc[selected_indicies, :]
+    y_train = y_train.iloc[selected_indicies]
+    cost_matrix_train = cost_matrix_train[selected_indicies, :]
+    print(X_train.shape, y_train.shape, cost_matrix_train.shape)
 
     # TODO: Unded/Over-sampling + SMOTE
     # TODO: Ensembles with 100+ trees
