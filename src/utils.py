@@ -69,19 +69,19 @@ def create_X_y(data, class_column, drop_columns):
 
 
 def _create_bmr_model(model, X_val, y_val, calibration=True):
-    y_hat_val_proba = model.predict_proba(X_val.values)
+    y_hat_val_proba = model.predict_proba(X_val)
 
     bmr = BayesMinimumRiskClassifier(calibration=calibration)
-    bmr.fit(y_val.values, y_hat_val_proba)
+    bmr.fit(y_val, y_hat_val_proba)
 
     return model, bmr
 
 
 def _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_val, calibration=True):
-    y_hat_val_proba = model.predict_proba(X_val.values)
+    y_hat_val_proba = model.predict_proba(X_val)
 
     threshold_opt = ThresholdingOptimization(calibration=calibration)
-    threshold_opt.fit(y_hat_val_proba, cost_matrix_val, y_val.values)
+    threshold_opt.fit(y_hat_val_proba, cost_matrix_val, y_val)
 
     return model, threshold_opt
 
@@ -121,16 +121,16 @@ def train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, mod
         print(model_type)
         if model_type in XGB_MODELS:
             model.fit(
-                X_train.values, y_train.values,
-                eval_set=[(X_val.values, y_val.values), (X_train.values, y_train.values)],
+                X_train, y_train,
+                eval_set=[(X_val, y_val), (X_train, y_train)],
                 eval_metric='aucpr',
                 early_stopping_rounds=50,
                 verbose=False
             )
         elif model_type in CST_MODELS or model_type in ECSDT_MODELS:
-            model.fit(X_train.values, y_train.values, cost_matrix_train)
+            model.fit(X_train, y_train, cost_matrix_train)
         elif model_type in CI_MODELS:
-            model.fit(X_train.values, y_train.values)
+            model.fit(X_train, y_train)
         else:
             raise ValueError(f'Unknown model type: {model_type}.')
 
@@ -175,25 +175,25 @@ def _create_model_summary(model, name, X_test, y_test, cost_matrix_test):
         standard_model, extra_model = model
         extra_model_type = type(extra_model)
         if extra_model_type == BayesMinimumRiskClassifier:
-            y_hat_proba = standard_model.predict_proba(X_test.values)
+            y_hat_proba = standard_model.predict_proba(X_test)
             y_hat = extra_model.predict(y_hat_proba, cost_matrix_test)
         elif extra_model_type == ThresholdingOptimization:
-            y_hat_proba = standard_model.predict_proba(X_test.values)
+            y_hat_proba = standard_model.predict_proba(X_test)
             y_hat = extra_model.predict(y_hat_proba)
         else:
             raise ValueError(f'Unknown model type: {extra_model_type}.')
     elif standard_model_type in ECSDT_MODELS:
-        y_hat = model.predict(X_test.values, cost_matrix_test)
+        y_hat = model.predict(X_test, cost_matrix_test)
     else:
-        y_hat = model.predict(X_test.values)
+        y_hat = model.predict(X_test)
     return {
         'Name': name,
-        'Accuracy': accuracy_score(y_test.values, y_hat),
-        'Precision': precision_score(y_test.values, y_hat),
-        'Recall': recall_score(y_test.values, y_hat),
-        'F1': f1_score(y_test.values, y_hat),
-        'Cost': cost_loss(y_test.values, y_hat, cost_matrix_test),
-        'Savings': savings_score(y_test.values, y_hat, cost_matrix_test)
+        'Accuracy': accuracy_score(y_test, y_hat),
+        'Precision': precision_score(y_test, y_hat),
+        'Recall': recall_score(y_test, y_hat),
+        'F1': f1_score(y_test, y_hat),
+        'Cost': cost_loss(y_test, y_hat, cost_matrix_test),
+        'Savings': savings_score(y_test, y_hat, cost_matrix_test)
     }
 
 
