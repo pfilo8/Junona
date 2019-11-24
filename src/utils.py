@@ -92,7 +92,7 @@ def generate_models():
         'CI-DecisionTree': DecisionTreeClassifier(random_state=RANDOM_STATE),
         'CI-RandomForest': RandomForestClassifier(random_state=RANDOM_STATE),
         'CI-XGBoost': xgboost.XGBClassifier(random_state=RANDOM_STATE, verbosity=0),
-        'CST-CostSensitiveLogisticRegression': CostSensitiveLogisticRegression(),
+        'CST-CostSensitiveLogisticRegression': CostSensitiveLogisticRegression(solver='bfgs'),
         'CST-CostSensitiveDecisionTreeClassifier': CostSensitiveDecisionTreeClassifier()
     }
 

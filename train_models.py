@@ -7,6 +7,7 @@ import multiprocessing as mp
 
 from datetime import datetime
 from sklearn.model_selection import train_test_split
+from imblearn.under_sampling import RandomUnderSampler
 
 from src.utils import get_script_args, load_json, dict_union
 from src.utils import create_cost_matrix, create_X_y
@@ -19,8 +20,7 @@ CURRENT_OUTPUT_DIR = 'results' + datetime.now().isoformat()
 
 warnings.filterwarnings('ignore')
 
-
-# np.random.seed(RANDOM_STATE)
+np.random.seed(RANDOM_STATE)
 
 
 def train_iteration(i, X, y, cost_matrix):
@@ -34,6 +34,11 @@ def train_iteration(i, X, y, cost_matrix):
         X_test, y_test, cost_matrix_test, train_size=0.33, stratify=y_test, random_state=i
     )
 
+    rus = RandomUnderSampler()
+    X_train, y_train = rus.fit_resample(X_train, y_train)
+
+    # TODO: Unded/Over-sampling + SMOTE
+    # TODO: Ensembles with 100+ trees
     print(cost_matrix_test.sum())
 
     standard_models = train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, models)
@@ -77,9 +82,3 @@ if __name__ == '__main__':
 
     pool = mp.Pool(mp.cpu_count())
     results = pool.map(unpack_train_iterations, [(i, X, y, cost_matrix) for i in range(n_iters)])
-
-# TODO:
-# Dokładna analiza wyników
-# Sprawdzenie stabilności wyników
-# Sprawdzenie zależności wyników od kosztów administracyjnych
-# Rozszerzenie analizy modeli typu ensemble (Random Forest itp.)
