@@ -16,6 +16,16 @@
 \author{Patryk Wielopolski}
 
 \begin{document}
+	
+	\newcommand{\htx}{h_{\theta}(\boldsymbol{x_i})}
+	
+	\newenvironment{talign}
+	{\align}
+	{\endalign}
+	
+	\newenvironment{talign*}
+	{\csname align*\endcsname}
+	{\endalign}
 
 \maketitle
 
@@ -61,7 +71,44 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 
 \subsection{Regresja logistyczna}
 
+	Formulation of standard Logistic Regression:
+	
+	$$ \hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right) $$
+	
+	Where loss function is defined:
+	
+	$$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) $$
+	
+	Where:
+	
+	\begin{itemize}
+		\item $ \displaystyle g(z) = \frac{1}{(1+e^{-z})} $
+		\item $ \displaystyle J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) $
+	\end{itemize}{}
+
+    Standard costs:
+	$$
+	J_i(\theta) \approx \left\{
+	\begin{array}{rl}
+	0, &\mbox{if $y_i \approx \htx$}, \\
+	\infty, &\mbox{if $y_i \approx (1 - \htx)$}.
+	\end{array}{}
+	\right.
+	$$
+	
+	Thus
+	
+	$$ C_{TP_i} = C_{TN_i} \approx 0 $$
+	$$ C_{FP_i} = C_{FN_i} \approx \infty $$
+
 \subsection{Drzewo decyzyjne}
+
+	Standard impurity measures:
+	\begin{itemize}
+		\item Misclassification: $I_m(\pi_1) = 1 - \max(\pi_1, 1 - \pi_1)$
+		\item Entropy: $I_e(\pi_1) = -\pi_1 \log(\pi_1) - (1 - \pi_1) \log (1 - \pi_1)$
+		\item Gini: $I_g(\pi_1) = 2 \pi_1 (1 - \pi_1)$
+	\end{itemize}{}
 
 \subsection{Las losowy}
 
@@ -71,21 +118,86 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 
 \subsection{Regresja logistyczna wrażliwa na koszt}
 
+    Actual costs:
+
+	$$
+	J^c_i(\theta)=\left\{
+	\begin{array}{rl}
+	C_{TP_i}, &\mbox{if $y_i = 1$ and $\htx \approx 1$}, \\
+	C_{TN_i}, &\mbox{if $y_i = 0$ and $\htx \approx 0$}, \\
+	C_{FP_i}, &\mbox{if $y_i = 0$ and $\htx \approx 1$}, \\
+	C_{FN_i}, &\mbox{if $y_i = 1$ and $\htx \approx 0$}.
+	\end{array}
+	\right.
+	$$
+	
+	Cost sensitive loss function:
+	\begin{talign*}
+		J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) \\
+		&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
+	\end{talign*}
+
 \subsection{Drzewo decyzyjne wrażliwe na koszt}
+
+
+
+	
+	Cost Sensitive impurity measure:
+	\begin{itemize}
+		\item $I_c(\mathcal{S}) = min \left\{ Cost(f_0(\mathcal{S})), Cost(f_1(\mathcal{S})) \right\}$
+	\end{itemize}{}
+	
+	Where:
+	\begin{itemize}
+		\item $\pi_1 = \frac{|\mathcal{S}_{1}|}{|\mathcal{S}|}$ - percentage of positive class
+		\item $\mathcal{S}$ - set of samples
+	\end{itemize}{}
 
 \section{Cost Dependent Classification}
 
 \subsection{Optymalizacja progu}
 
+
+
 \subsection{Bayesian Minimum Risk}
 
+	Risk associated with predictions:
+	
+	$$ R(p_f|x) = L(p_f|y_f)P(p_f|x) + L(p_f|y_l)P(y_l|x) $$
+	$$ R(p_l|x) = L(p_l|y_l)P(p_l|x) + L(p_l|y_f)P(y_f|x) $$
+	
+	Classification threshold:
+	
+	$$ R(p_f|x) \leq R(p_l|x)$$
+	
+	Where:
+	
+	\begin{itemize}
+		\item $P(p_f|x)$, $P(p_l|x)$ - estimated probability of fraud/legimate transaction
+		\item $L(p_{i}|y_{j})$ and $i,j \in \{l,f\}$ - loss function
+	\end{itemize}{}
+	    Exact formula:
+	
+	$$ P(p_f|x) \ge \frac{L(p_f|y_l) - L(p_l|y_l)}{L(p_l|y_f) - L(p_f|y_f) - L(p_l|y_l) + L(p_f|y_l)}$$
+	
+	After reformulation:
+	
+	$$ p \ge \frac{C_{FP} - C_{TN}}{C_{FN} - C_{TP} - C_{TN} + C_{FP}}$$
+
 \chapter{Eksperyment}
+
+Celem eksperymentu jest zbadanie jaki wpływ mają na miarę F1 oraz oszczędności mają poszczególne algorytmy.
+
+Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to nienazwane, zanonimizowane zmienne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. 
+
+Rozkład kwoty...
+
+Eksperyment został przeprowadzony w następujący sposób:
+50-krotnie dzielimy zbiór danych w proporcjach 50:17:33 na zbiór treningowy, walidacyjny oraz testowy. Następnie uczymy wszystkie modele na zbiorze treningowym. Dla modelu XGBoost wykorzystujemy zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO korzystamy z tego zbioru jako zbiór treningowy. Następnie dla wszystkich modeli dokonujemy predykcyji na zbiorze testowym i mierzymy skuteczność typowań.
 
 \chapter{Rezultaty}
 
 \chapter{Podsumowanie}
-
-\chapter{Dalsze prace}
 
 
 \end{document}
