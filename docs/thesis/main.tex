@@ -18,6 +18,8 @@
 \begin{document}
 	
 	\newcommand{\htx}{h_{\theta}(\boldsymbol{x_i})}
+	\newcommand{\es}{\mathcal{S}}
+	\newcommand{\iks}{\boldsymbol{x}}
 	
 	\newenvironment{talign}
 	{\align}
@@ -93,8 +95,11 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 	\end{equation} 
 	Standardowa funkcja straty przyjmuje następującą postać:
 	$$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) $$
-	gdzie funkcja $g(z)$ jest funkcją łączącą typu \textit{logit} i przyjmuje postać $ \displaystyle g(z) = \frac{1}{(1+e^{-z})} $
-	Natomiast $ \displaystyle J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) $ to standardowa entropia krzyżowa.
+	gdzie funkcja $g(z)$ jest funkcją łączącą typu \textit{logit} i przyjmuje postać 
+	$$ g(z) = \frac{1}{(1+e^{-z})} $$
+	Natomiast 
+	$$ J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) $$
+	 to standardowa entropia krzyżowa.
 
 	% Analiza kosztów w regresji logistycznej
 
@@ -117,12 +122,30 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 
 \subsection{Drzewo decyzyjne}
 
-	Standard impurity measures:
+	Drzewo klasyfikacyjne to przykład jednego z rodzaju drzew decyzyjnych, którego celem jest znalezienie najlepszego rozróżnienia pomiędzy klasami. W ogólności drzewo decyzyjne składa się z zestawu reguł.
+	
+	Drzewo składa się z węzłów, które są reprezentowane przez parę $(\iks^j, l^j)$, która oznacza podział zbioru obserwacji $\es$ na dwa zbiory: $\es^{l}$ oraz $\es^{r}$ względem wektora obserwacji $\iks$ oraz progu decyzyjnego $\l^j$ w następujący sposób:
+	$$ \es^l = \{ \iks^* : \iks^* \in \es \land x^j_i \leq l^j \} \text{,} $$
+	$$ \es^r = \{ \iks^* : \iks^* \in \es \land x^j_i > l^j \} \text{,} $$
+	gdzie $\iks^j$ reprezentuje $j$-ty atrybut wektora $\iks$. Ponadto $\l^j$ jest wartością taką, że $\min{\iks^j} \leq l^j < \max{\iks^j}$. Ponadto warto zauważyć, że $\es^l \cup \es^r = \es$, co oznacza, że nasz podział rozdziela wektor obserwacji na dokładnie dwa rozłączne zbiory.
+	Po znalezieniu optymalnego podziału zliczamy ilość pozytywnych próbek:
+	$$ \es_1  = \{ \iks^* : \iks^* \in \es \land y_i = 1 \} \text{,} $$
+	a następnie zliczamy procent pozytywnych próbek jako:
+	$$ \pi_1 = \frac{|\es_1|}{|\es|} \text{.}$$
+	Następnie dla każdego z liści jest obliczana wielkość jego zanieczyszczenia.
 	\begin{itemize}
 		\item Misclassification: $I_m(\pi_1) = 1 - \max(\pi_1, 1 - \pi_1)$
 		\item Entropy: $I_e(\pi_1) = -\pi_1 \log(\pi_1) - (1 - \pi_1) \log (1 - \pi_1)$
 		\item Gini: $I_g(\pi_1) = 2 \pi_1 (1 - \pi_1)$
 	\end{itemize}{}
+	Następnie dla każdego proponowanego podziału dla danej reguły $(\iks^j, l^j)$ liczony jest przyrost czystości w następujący sposób:
+	$$ \text{Gain}(\iks^j, l^j) = I(\pi_1) - \frac{|\es^l|}{|\es|} I(\pi_1^l) - \frac{|\es^r|}{|\es|} I(\pi_1^r) \text{,}$$
+	gdzie $I(\pi_1)$ może być dowolną z zaproponowanych miar zanieczyszczenia.
+	Ostatecznie wybiera się ten podział, który maksymalizuje przyrost czystości, a następnie dzieli się zbiór $\es$ na podzbiory $\es^l$ i $\es^r$.
+	W taki sposób jest pokonywany pojedynczy podział zbioru dla konkretnego węzła. Całe drzewo tworzy się poprzez kolejne podziały węzłów aż do momentu dotarcia przez algorytm do kryterium stopu.
+	
+	% Dopisać kryteria stopu?
+	% Przycinanie drzew 
 
 \subsection{Las losowy}
 
@@ -190,15 +213,15 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 	
 		
 		Cost Sensitive impurity measure:
-		\begin{itemize}
-			\item $I_c(\mathcal{S}) = min \left\{ Cost(f_0(\mathcal{S})), Cost(f_1(\mathcal{S})) \right\}$
-		\end{itemize}{}
+		$ I_c(\es) = min \left\{ Cost(f_0(\es)), Cost(f_1(\es)) \right\}$
 		
-		Where:
-		\begin{itemize}
-			\item $\pi_1 = \frac{|\mathcal{S}_{1}|}{|\mathcal{S}|}$ - percentage of positive class
-			\item $\mathcal{S}$ - set of samples
-		\end{itemize}{}
+		$$ f(\es) =  \left\{
+			\begin{array}{rl}
+				0, &\mbox{jeżeli $\text{Cost}(f_0(\es)) \leq \text{Cost}(f_1(\es))$}, \\
+				1, &\mbox{w przeciwnym wypadku}.
+			\end{array}{}
+		\right.
+		$$
 	
 	
 
