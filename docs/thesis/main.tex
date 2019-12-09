@@ -30,11 +30,25 @@
 \maketitle
 
 \chapter{Wstęp}
-Tutaj będzie wstęp.
+	- Rosnąca ilość transakcji kartami kredytowymi
+	- Rosnący poziom fraudów na świecie
+	
+	- Flow transakcji oraz umiejscowienie systemu do detekcji fraudów
+	- Aktualna sytuacja if-then + predicitve models
+	
+	If-then:
+	- więcej niż 4 wypłaty z bankomatu w ciągu godziny
+	- więcej niż 2 transakcje w ciągu 5 minut
+	- transakcja w sklepie karta a następna zaraz w internecie
+	
+	Jeżeli więcej niż 1 reguła jest spełniona to odmowa transakcji. Pojawiają się problemy z niewykrywaniem nowych reguł oraz możliwe jest tworzenie tylko prostych reguł. Z drugiej strony są one proste do implementacji oraz interpretacji.
+	
 
 \chapter{Wprowadzenie teoretyczne}
 
 W tej części zostaną wprowadzone wszelkie potrzebne miary skuteczności modeli oraz modele predykcyjne, które zostaną wykorzystane do przeprowadzenia eksperymentu. 
+
+Modele predykcyjne zostały podzielone na dwie kategorie: standardowe oraz wrażliwe na koszt. Pierwsze z nich są powszechnie wykorzystywane w standardowych aplikacjach. Drugie z nich dzielą się na dwie podkategorie - \textit{Cost Sensitive Training} oraz \textit{Cost Sensitive Classification}.
 
 \section{Miary skuteczności modeli}
 
@@ -67,24 +81,22 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 
 \subsection{Metryki wrażliwe na koszt}
 
+Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fp i fn. Ponadto koszt fraudów znacząco różni się w zależności od przypadku.
+
 \section{Standardowe modele}
 
 \subsection{Regresja logistyczna}
 
-	Formulation of standard Logistic Regression:
-	
-	$$ \hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right) $$
-	
-	Where loss function is defined:
-	
+	Regresja logistyczna należy do jednego z najbardziej podstawowych modeli statystycznych używanych do problemów klasyfikacyjnych. 
+	\begin{equation}
+		\hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right)
+	\end{equation} 
+	Standardowa funkcja straty przyjmuje następującą postać:
 	$$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) $$
-	
-	Where:
-	
-	\begin{itemize}
-		\item $ \displaystyle g(z) = \frac{1}{(1+e^{-z})} $
-		\item $ \displaystyle J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) $
-	\end{itemize}{}
+	gdzie funkcja $g(z)$ jest funkcją łączącą typu \textit{logit} i przyjmuje postać $ \displaystyle g(z) = \frac{1}{(1+e^{-z})} $
+	Natomiast $ \displaystyle J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) $ to standardowa entropia krzyżowa.
+
+	% Analiza kosztów w regresji logistycznej
 
     Standard costs:
 	$$
@@ -101,6 +113,8 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	$$ C_{TP_i} = C_{TN_i} \approx 0 $$
 	$$ C_{FP_i} = C_{FN_i} \approx \infty $$
 
+	Wytrenowany, aby minimalizować błąd klasyfikacji, a ewaluowany na metryce kosztu.
+
 \subsection{Drzewo decyzyjne}
 
 	Standard impurity measures:
@@ -114,53 +128,14 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 
 \subsection{XGBoost}
 
-\section{Cost Sensitive Training}
-
-\subsection{Regresja logistyczna wrażliwa na koszt}
-
-    Actual costs:
-
-	$$
-	J^c_i(\theta)=\left\{
-	\begin{array}{rl}
-	C_{TP_i}, &\mbox{if $y_i = 1$ and $\htx \approx 1$}, \\
-	C_{TN_i}, &\mbox{if $y_i = 0$ and $\htx \approx 0$}, \\
-	C_{FP_i}, &\mbox{if $y_i = 0$ and $\htx \approx 1$}, \\
-	C_{FN_i}, &\mbox{if $y_i = 1$ and $\htx \approx 0$}.
-	\end{array}
-	\right.
-	$$
-	
-	Cost sensitive loss function:
-	\begin{talign*}
-		J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) \\
-		&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
-	\end{talign*}
-
-\subsection{Drzewo decyzyjne wrażliwe na koszt}
-
-
-
-	
-	Cost Sensitive impurity measure:
-	\begin{itemize}
-		\item $I_c(\mathcal{S}) = min \left\{ Cost(f_0(\mathcal{S})), Cost(f_1(\mathcal{S})) \right\}$
-	\end{itemize}{}
-	
-	Where:
-	\begin{itemize}
-		\item $\pi_1 = \frac{|\mathcal{S}_{1}|}{|\mathcal{S}|}$ - percentage of positive class
-		\item $\mathcal{S}$ - set of samples
-	\end{itemize}{}
-
 \section{Cost Dependent Classification}
-
-\subsection{Optymalizacja progu}
-
-
-
-\subsection{Bayesian Minimum Risk}
-
+	
+	\subsection{Optymalizacja progu}
+	
+	
+	
+	\subsection{Bayesian Minimum Risk}
+	
 	Risk associated with predictions:
 	
 	$$ R(p_f|x) = L(p_f|y_f)P(p_f|x) + L(p_f|y_l)P(y_l|x) $$
@@ -176,7 +151,7 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 		\item $P(p_f|x)$, $P(p_l|x)$ - estimated probability of fraud/legimate transaction
 		\item $L(p_{i}|y_{j})$ and $i,j \in \{l,f\}$ - loss function
 	\end{itemize}{}
-	    Exact formula:
+	Exact formula:
 	
 	$$ P(p_f|x) \ge \frac{L(p_f|y_l) - L(p_l|y_l)}{L(p_l|y_f) - L(p_f|y_f) - L(p_l|y_l) + L(p_f|y_l)}$$
 	
@@ -184,11 +159,62 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	
 	$$ p \ge \frac{C_{FP} - C_{TN}}{C_{FN} - C_{TP} - C_{TN} + C_{FP}}$$
 
+	\section{Cost Sensitive Training}
+	
+		Pierwszą podgrupą metod wrażliwych na koszt jest \textit{Cost Sensitive Trainig}. Są to metody, które 
+	
+	\subsection{Regresja logistyczna wrażliwa na koszt}
+	
+	    Actual costs:
+	
+		$$
+		J^c_i(\theta)=\left\{
+		\begin{array}{rl}
+		C_{TP_i}, &\mbox{if $y_i = 1$ and $\htx \approx 1$}, \\
+		C_{TN_i}, &\mbox{if $y_i = 0$ and $\htx \approx 0$}, \\
+		C_{FP_i}, &\mbox{if $y_i = 0$ and $\htx \approx 1$}, \\
+		C_{FN_i}, &\mbox{if $y_i = 1$ and $\htx \approx 0$}.
+		\end{array}
+		\right.
+		$$
+		
+		Cost sensitive loss function:
+		\begin{talign*}
+			J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) \\
+			&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
+		\end{talign*}
+	
+	\subsection{Drzewo decyzyjne wrażliwe na koszt}
+	
+	
+	
+		
+		Cost Sensitive impurity measure:
+		\begin{itemize}
+			\item $I_c(\mathcal{S}) = min \left\{ Cost(f_0(\mathcal{S})), Cost(f_1(\mathcal{S})) \right\}$
+		\end{itemize}{}
+		
+		Where:
+		\begin{itemize}
+			\item $\pi_1 = \frac{|\mathcal{S}_{1}|}{|\mathcal{S}|}$ - percentage of positive class
+			\item $\mathcal{S}$ - set of samples
+		\end{itemize}{}
+	
+	
+
 \chapter{Eksperyment}
 
 Celem eksperymentu jest zbadanie jaki wpływ mają na miarę F1 oraz oszczędności mają poszczególne algorytmy.
 
 Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to nienazwane, zanonimizowane zmienne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. 
+
+Mimo tego, że dane są zanonimizowane można mieć pewne intuicje na temat tego jakie zmienne zostały użyte z zbiorze danych. 
+Raw data:
+- ID klienta, data transakcji, kwota, lokalizacja, typ transakcji (internet, płatność w sklepie, wypłata z bankomatu), rodzaj transakcji (linie lotnicze, hotel, wypożyczalnia samochodów), fraud, wiek klienta, kraj zamieszkania, kod pocztowy, typ karty
+Na podstawie ref zmienne, które wykorzystuje się do tego typu problemów to:
+- agregaty czasowe, np. ilość transakcji dla tego samego klienta w ciągu ostatnich 6 godzin, suma transakcji z ostatnich 7 dni itp.
+W ogólności są to agregaty klient/karta kredytowa x typ transakcji/sklep/kategorai sklepu/kraj x ostatnie godziny/dni/tygodnie/miesiące x ilość/średnia/suma
+
 
 Rozkład kwoty...
 
@@ -199,5 +225,12 @@ Eksperyment został przeprowadzony w następujący sposób:
 
 \chapter{Podsumowanie}
 
+% Referencje
+% https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9
+% https://www.youtube.com/watch?v=YCNkxaVDiA0
+% https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare - flow of transactions
+
+% TODO:
+% Resampling to LR
 
 \end{document}
