@@ -148,8 +148,28 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 	% Przycinanie drzew 
 
 \subsection{Las losowy}
+	Kolejne modele są przedstawicielami szerokiej klasy metod \textit{ensemble}, których celem jest złożenie predykcji wielu klasyfikatorów bazowych, aby poprawić generalizację pojedynczego estymatora. Wśród nich wyróżniamy dwie główne kategorie. Pierwsza z nich to metody uśredniania, które polegają na zbudowaniu wielu niezależnych klasyfikatorów, a następnie uśrednianie wyników predykcji. Przedstawicielem tej kategorii jest las losowy. Natomiast druga polega na iteracyjnym budowaniu kolejnych modeli, które próbują zredukować obciążenie poprzednika. Bardzo powszechnie znanym reprezentantem jest algorytm XGBoost, którym zajmiemy się w następnym podrozdziale.
+		
+	Metody \textit{ensemble} wykorzystują metody próbkowania w celu utworzenia różnych klasyfikatorów bazowych, aby następnie dokonać ostatecznej predykcji. Metody te są używane, aby zredukować wariancję klasyfikatora bazowego (zazwyczaj drzewa decyzyjnego) poprzez losowe dobieranie próbki i/lub zmiennych, na których model będzie uczony. W wielu przypadkach stworzenie modelu opartego o \textit{bagging} jest znacznie prostsze, ponieważ wymaga jedynie zmiany próbkowania danych bez naruszania modelu bazowego, natomiast metody typu \text{boosting} wymagają zmiany całego algorytmu. Z licznych obserwacji wynika, że pierwsza z metod dużo lepiej radzi sobie mają jako bazowe klasyfikatory złożone modele, w przeciwieństwie do drugiej, która zazwyczaj najlepiej performuje wykorzystując proste modele (np. płytkie drzewa decyzyjne, tzn. o małej głębokości).
+	
+	% TODO: Złączyć oba opisy w jeden.
+	
+	Przykładowe metody losowania próbek do modeli bazowych:
+	\begin{itemize}
+		\item \textit{Pasting} - losowanie obserwacji bez powtórzeń
+		\item \textit{Bagging} - losowanie obserwacji z powtórzeniami
+		\item \textit{Random Subspaces} - losowanie podzbioru zmiennych
+		\item \textit{Random Patches} - losowanie podzbioru zmiennych oraz obserwacji 
+	\end{itemize}
+	
+	
+	W przypadku lasu losowego proces losowania próbek jest podzielony na dwie fazy. Pierwsza z nich polega na próbkowaniu z powtórzeniami obserwacji ze zbioru treningowego dla każdego z osobnych estymatorów bazowych. Następnie podczas fazy tworzenia kolejnych węzłów w drzewach wybierany jest losowy podzbiór zmiennych, które mogą być w tym kroku wykorzystane. 
+	
+	Celem tych dwóch różnych źródeł losowości jest redukcja wariancji lasu. Pojedyncze drzewa mają tendencję do zbytniego dopasowywania się do danych, zatem losowanie poszczególnych zmiennych w każdym kolejnym węźle pomaga to zredukować. Natomiast losowanie różnych próbek do każdego z klasyfikatorów pozwala na stworzenie lekko odmiennych modeli bazowych.
 
 \subsection{XGBoost}
+	Tak jak wspomnieliśmy w poprzednim rozdziale algorytm XGBoost jest przykładem klasyfikatora, który w iteracyjny sposób tworzy kolejne bazowe klasyfikatory.
+	
 
 \section{Cost Dependent Classification}
 	
@@ -252,6 +272,7 @@ Eksperyment został przeprowadzony w następujący sposób:
 % https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9
 % https://www.youtube.com/watch?v=YCNkxaVDiA0
 % https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare - flow of transactions
+% https://scikit-learn.org/stable/modules/ensemble.html
 
 % TODO:
 % Resampling to LR
