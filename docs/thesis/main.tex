@@ -19,7 +19,10 @@
 	
 	\newcommand{\htx}{h_{\theta}(\boldsymbol{x_i})}
 	\newcommand{\es}{\mathcal{S}}
+	\newcommand{\ef}{\mathcal{F}}
 	\newcommand{\iks}{\boldsymbol{x}}
+	\newcommand{\bes}{\boldsymbol{S}}
+	\newcommand{\yht}[1]{y_i^{(#1)}}
 	
 	\newenvironment{talign}
 	{\align}
@@ -81,11 +84,66 @@ $$ \text{Precyzja} = \frac{TP}{TP + FP} $$
 $$ \text{Czułość}= \frac{TP}{TP + FN} $$
 $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} $$
 
-\subsection{Metryki wrażliwe na koszt}
+\subsection{Miary skuteczności modeli wrażliwe na koszt}
 
-Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fp i fn. Ponadto koszt fraudów znacząco różni się w zależności od przypadku.
+	Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fp i fn. Ponadto koszt fraudów znacząco różni się w zależności od przypadku.
+
+	W celu wprowadzenia potrzebnych metryk potrzebujemy wprowadzić tzw. macierz kosztu, która jest zaprezentowana w tabeli \ref{macierz-kosztu}, gdzie poszczególne komórki oznacza odpowiadające wartość kosztu predykcji. 
+	\begin{table}[h]
+		\begin{center}
+			\makegapedcells
+			\begin{tabular}{cc|cc}
+				\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
+				&            &   Oszustwo &   Normalna     \\ 
+				\cline{2-4}
+				\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Oszustwo   & $C_{TP_{i}}$         & $C_{FN_{i}}$              \\
+				& Normalna   & $C_{FP_{i}}$         & $C_{TN_{i}}$              \\ 
+				\cline{2-4}
+			\end{tabular}
+		\end{center}
+		\caption{Macierz kosztu}
+		\label{macierz-kosztu}
+	\end{table}
+	Następnie definiujemy następującą wartość:
+	$$ \text{Koszt}(f(\iks_{i}^{*})) = y_i (c_i C_{TP_i} + (1-c_i)C_{FN_i}) + (1-y_i)(c_i C_{FP_i} + (1-c_i)C_{TN_i}) \text{,}$$
+	gdzie 
+	\begin{itemize}
+		\item $\iks_{i}^{*} = [\iks_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor zawierający wartości cech i-tej obserwacji rozszerzony o koszt klasyfikacji
+		\item $C_{\cdot}$ - koszt klasyfikacji i-tej obserwacji
+		\item $f(\cdot)$ - model predykcyjny
+		\item $y_i$ - prawdziwa wartość i-tej obserwacji
+		\item $c_i$ - predykcja dla i-tej obserwacji
+	\end{itemize}{}
+    Następnie wprowadzamy następujące miary skuteczności modeli:
+	\begin{equation}
+		\text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*}))
+	\end{equation} 
+	\begin{equation}
+		\text{Oszczędności} = \frac{\text{Koszt}_{l}(\bes) - \text{Koszt}(f(\bes))}{\text{Koszt}_{l}(\bes)}
+	\end{equation}
+	gdzie
+	\begin{itemize}
+		\item $ \bes $ - data set
+		\item $ \text{Koszt}_l = min\{\text{Cost}(f_{0}(\bes), \text{Koszt}(f_{1}(\bes)\} $
+		\item $ f_{a}(\bes) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$
+	\end{itemize}{}
+	Wartość $ f_{a}(\bes)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_l $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Zatem ostatecznie Oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
+	
+	% TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
 \section{Standardowe modele}
+
+	% TODO: Kilka słów o MLu w ogólności
+	
+	With judicious choices for yi, we may express a variety of tasks, such as regression, classification, and ranking. The task of training the model amounts to finding the best parameters that best fit the training data xi and labels yi
+	
+	. In order to train the model, we need to define the objective function to measure how well the model fit the training data.
+	
+	A salient characteristic of objective functions is that they consist two parts: training loss and regularization term:
+
+	
+	where L
+	is the training loss function, and is the regularization term. The training loss measures how predictive our model is with respect to the training data. A common choice of L is the mean squared error, which is given by
 
 \subsection{Regresja logistyczna}
 
@@ -98,7 +156,11 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 	gdzie funkcja $g(z)$ jest funkcją łączącą typu \textit{logit} i przyjmuje postać 
 	$$ g(z) = \frac{1}{(1+e^{-z})} $$
 	Natomiast 
-	$$ J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) $$
+	\begin{equation}
+	\label{c-e}
+		J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i}))
+	\end{equation}
+	$$  $$
 	 to standardowa entropia krzyżowa.
 
 	% Analiza kosztów w regresji logistycznej
@@ -121,6 +183,7 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 	Wytrenowany, aby minimalizować błąd klasyfikacji, a ewaluowany na metryce kosztu.
 
 \subsection{Drzewo decyzyjne}
+\label{drzewo}
 
 	Drzewo klasyfikacyjne to przykład jednego z rodzaju drzew decyzyjnych, którego celem jest znalezienie najlepszego rozróżnienia pomiędzy klasami. W ogólności drzewo decyzyjne składa się z zestawu reguł.
 	
@@ -168,8 +231,35 @@ Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja mod
 	Celem tych dwóch różnych źródeł losowości jest redukcja wariancji lasu. Pojedyncze drzewa mają tendencję do zbytniego dopasowywania się do danych, zatem losowanie poszczególnych zmiennych w każdym kolejnym węźle pomaga to zredukować. Natomiast losowanie różnych próbek do każdego z klasyfikatorów pozwala na stworzenie lekko odmiennych modeli bazowych.
 
 \subsection{XGBoost}
-	Tak jak wspomnieliśmy w poprzednim rozdziale algorytm XGBoost jest przykładem klasyfikatora, który w iteracyjny sposób tworzy kolejne bazowe klasyfikatory.
+	Tak jak wspomnieliśmy w poprzednim rozdziale algorytm XGBoost jest przykładem klasyfikatora, który w iteracyjny sposób tworzy kolejne bazowe klasyfikatory. W przypadku tego algorytmu jako klasyfikator bazowy wykorzystujemy implementację drzew decyzyjnych typu CART, które nieznacznie różnią się od standardowych drzew decyzyjnych opisywanych w \ref{drzewo}, ponieważ liść drzewa jest rozszerzony o wartość rzeczywistą, która reprezentuje decyzję modelu. Ponieważ jest to złożenie wielu klasyfikatorów, to możemy zapisać nasz model w następującej postaci:
+	$$ \hat{y_i} = \sum_{k=1}^K f_k(x_i) \text{,} f_k \in \ef \text{,} $$
+	gdzie $K$ oznacza liczbę drzew, $f$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
+	Zatem funkcją, którą będziemy optymalizować przyjmuje następującą postać:
+	\begin{equation}
+	\label{Obj}
+		\text{Obj}(\theta) = \sum_{i=1}^{n} l(y_i, \yht{t}) + \sum_{k=1}^{K} \Omega(f_k)
+	\end{equation}
+	W przypadku klasyfikacji przyjmujemy tak samo jak poprzednio funkcję entropii krzyżowej (\ref{c-e}).
+	Patrząc na postać modelu nie różni się ona niczym od lasu losowego. Zatem różnica między tymi modelami polega na sposobie trenowania drzew, który pokrótce opiszemy.
 	
+	Ponieważ naszym modelem bazowym jest drzewo, to nie jesteśmy w stanie wprost rozwiązać zagadnienia optymalizacyjnego poprzez obliczenie gradientu funkcji i iteracyjne znalezienie rozwiązania. W tym przypadku posłużymy się treningiem addytywnym, który polega na iteracyjnym poprawianiem błędów z poprzednich modeli poprzez odpowiednie przydzielanie wag próbkom w kolejnych krokach algorytmu. 
+	Oznaczmy wartość predykcji w kroku $t$ jako $\yht{t}$.
+	
+	 $$ \yht{0} = 0 $$
+	 $$ \yht{1} = f_1(x_i)  = \yht{0} + f_1(x_i) $$
+	 $$ \yht{2} = f_1(x_i) + f_2(x_i) = \yht{1} + f_2(x_i) $$
+	 $$ ... $$
+	 $$ \yht{t} = \sum_{k=1}^{t} f_k(x_i) = \yht{t-1} + f_t(x_i) $$
+	 
+	 Pozostaje zagadnienie jakie drzewo chcemy wybrać w każdym z kroków. Oczywiście takie, które optymalizuje naszą funkcję Obj. Korzystając z powyższych wzorów oraz \ref{Obj} otrzymujemy następującą postać tej funkcji:
+	 $$ \sum_{i=1}^{n} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{constant .}$$
+	 Korzystając z rozwinięcia szeregu Taylora dla funkcji straty otrzymujemy ogólny wzór:
+	 $$ \text{Obj}^{(t)} = \sum_{i=1}^{n} [l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i)] + \Omega(f_t) + \text{constant ,} $$
+	 gdzie 
+	 $$ g_i = \partial_{\yht{t-1}} l(y_i, \yht{t-1}) $$
+	 $$ h_i = \partial^2_{\yht{t-1}} l(y_i, \yht{t-1}) $$
+	 Zatem po redukcji stałych, które są nieistotne z punktu widzenia optymalizacji otrzymujemy:
+	 $$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) $$
 
 \section{Cost Dependent Classification}
 	
@@ -273,6 +363,7 @@ Eksperyment został przeprowadzony w następujący sposób:
 % https://www.youtube.com/watch?v=YCNkxaVDiA0
 % https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare - flow of transactions
 % https://scikit-learn.org/stable/modules/ensemble.html
+% https://github.com/dmlc/xgboost/blob/master/CITATION
 
 % TODO:
 % Resampling to LR
