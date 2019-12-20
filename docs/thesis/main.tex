@@ -12,6 +12,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{polski}
 
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 \title{Detekcja oszustw z wykorzystaniem metod wrażliwych na koszt}
 \author{Patryk Wielopolski}
 
@@ -23,6 +25,7 @@
 	\newcommand{\iks}{\boldsymbol{x}}
 	\newcommand{\bes}{\boldsymbol{S}}
 	\newcommand{\yht}[1]{y_i^{(#1)}}
+	\newcommand{\ylab}[2]{\text{#1}_{\text{#2}}}
 	
 	\newenvironment{talign}
 	{\align}
@@ -116,6 +119,7 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	\end{itemize}{}
     Następnie wprowadzamy następujące miary skuteczności modeli:
 	\begin{equation}
+		\label{koszt-calkowity}
 		\text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*}))
 	\end{equation} 
 	\begin{equation}
@@ -124,10 +128,10 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	gdzie
 	\begin{itemize}
 		\item $ \bes $ - data set
-		\item $ \text{Koszt}_l = min\{\text{Cost}(f_{0}(\bes), \text{Koszt}(f_{1}(\bes)\} $
+		\item $ \text{Koszt}_0 = min\{\text{Cost}(f_{0}(\bes), \text{Koszt}(f_{1}(\bes)\} $
 		\item $ f_{a}(\bes) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$
 	\end{itemize}{}
-	Wartość $ f_{a}(\bes)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_l $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Zatem ostatecznie Oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
+	Wartość $ f_{a}(\bes)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_0 $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Zatem ostatecznie Oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
 	
 	% TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
@@ -146,7 +150,7 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	is the training loss function, and is the regularization term. The training loss measures how predictive our model is with respect to the training data. A common choice of L is the mean squared error, which is given by
 
 \subsection{Regresja logistyczna}
-
+\label{reg-log}
 	Regresja logistyczna należy do jednego z najbardziej podstawowych modeli statystycznych używanych do problemów klasyfikacyjnych. 
 	\begin{equation}
 		\hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right)
@@ -163,9 +167,9 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	$$  $$
 	 to standardowa entropia krzyżowa.
 
-	% Analiza kosztów w regresji logistycznej
+	% Wykres entropii krzyżowej
 
-    Standard costs:
+    Korzystając z wykresu ... możemy zauważyć, że koszt klasyfikacji przyjmuje następujące wartości:
 	$$
 	J_i(\theta) \approx \left\{
 	\begin{array}{rl}
@@ -174,14 +178,10 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	\end{array}{}
 	\right.
 	$$
-	
-	Thus
-	
+	To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja kosztu przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Zatem stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
 	$$ C_{TP_i} = C_{TN_i} \approx 0 $$
 	$$ C_{FP_i} = C_{FN_i} \approx \infty $$
-
-	Wytrenowany, aby minimalizować błąd klasyfikacji, a ewaluowany na metryce kosztu.
-
+	Porównując otrzymane rezultaty z macierzą kosztów możemy zauważyć, że te wartości znacząco odbiegają od tego co w rzeczywistości chcemy otrzymać. Stąd powstaje motywacja, aby zmodyfikować podaną funkcję celu i stworzyć regresję logistyczną wrażliwą na koszt, która będzie optymalizować właściwe dla Nas wartości.
 \subsection{Drzewo decyzyjne}
 \label{drzewo}
 
@@ -262,44 +262,55 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	 $$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) $$
 
 \section{Cost Dependent Classification}
-	
+	Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym bądź developerskim. 
+	\begin{figure}
+		\includegraphics[width=\linewidth]{images/cost_sensitive_classification.png}
+		\caption{Schemat przedstawiający proces uczenia klasyfikatora wrażliwego na koszt. Źródło: https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}
+		\label{cdc}
+	\end{figure}
 	\subsection{Optymalizacja progu}
-	
-	
-	
+		Metoda optymalizacji progu jest popularną metodą wyznaczania odpowiedniego progu prawdopodobieństwa powyżej którego wszystkie obserwacje oznaczamy jako pozytywnie zaklasyfikowane. Może być ona wykorzystywana nie tylko do problemów wrażliwych na koszt, lecz do dowolnie zdefiniowanego zagadnienia, w której wyznaczenie progu jest potrzebne. Jej sformułowanie wygląda następująco
+		$$ \argmin_{th \in [0,1]} f(\ylab{y}{true}, \ylab{y}{decision}) \text{,} $$
+		gdzie 
+		\begin{itemize}
+			\item $ f(\dot) $ - funkcja scorująca model, np. skuteczność,
+			\item $ \ylab{y}{true} = (c_i)_{i=1}^n $ - wektor prawdziwych oznaczeń ,
+			\item $ \ylab{y}{decision} = (p_i > th)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
+			\item $ p_i $ - przewidywana wartość prawdopodobieństwa dla i-tej obserwacji,
+			\item $ \text{th} $ - wartość progu decyzyjnego.
+		\end{itemize}{}
+		W naszym przypadku funkcja $f$ to funkcja kosztu całkowitego (\ref{koszt-calkowity}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zminimalizuje sumaryczną wartość kosztów.
+		
+		% TODO: Opcjonalne - odwołać się do przypadków wielu minimum. Opisać algorytmiczne wyznaczanie tej wartości.
 	\subsection{Bayesian Minimum Risk}
 	
-	Risk associated with predictions:
-	
-	$$ R(p_f|x) = L(p_f|y_f)P(p_f|x) + L(p_f|y_l)P(y_l|x) $$
-	$$ R(p_l|x) = L(p_l|y_l)P(p_l|x) + L(p_l|y_f)P(y_f|x) $$
-	
-	Classification threshold:
-	
-	$$ R(p_f|x) \leq R(p_l|x)$$
-	
-	Where:
-	
+	Ryzyko poszczególnych klasyfikacji definiujemy w następujący sposób:
+	$$ R(p_1|x_i) = L(p_1|y_1)P(p_1|x_i) + L(p_1|y_0)P(y_0|x_i) \text{,}$$
+	$$ R(p_0|x_i) = L(p_0|y_0)P(p_0|x_i) + L(p_0|y_1)P(y_1|x_i) \text{,}$$
+	gdzie
 	\begin{itemize}
-		\item $P(p_f|x)$, $P(p_l|x)$ - estimated probability of fraud/legimate transaction
-		\item $L(p_{i}|y_{j})$ and $i,j \in \{l,f\}$ - loss function
+		\item $P(p_1|x_i)$, $P(p_0|x_i)$ - oznacza estymowane przez model prawdopodobieństwo i oczywiście $P(p_0|x) = 1 - P(p_1|x)$,
+		\item $L(p_{i}|y_{j})$ oraz $i,j \in \{l,f\}$ - funkcja kosztu,
+		\item $x_i$ - i-ta obserwacja.
 	\end{itemize}{}
-	Exact formula:
-	
-	$$ P(p_f|x) \ge \frac{L(p_f|y_l) - L(p_l|y_l)}{L(p_l|y_f) - L(p_f|y_f) - L(p_l|y_l) + L(p_f|y_l)}$$
-	
-	After reformulation:
-	
-	$$ p \ge \frac{C_{FP} - C_{TN}}{C_{FN} - C_{TP} - C_{TN} + C_{FP}}$$
+	Klasyfikacja danej obserwacji jest opisana następującą nierównością:
+	$$ R(p_1|x_i) \leq R(p_0|x_i)$$
+	I oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
+	Po przeprowadzaniu odpowiednich przekształceń algebraicznych otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
+	$$ P(p_1|x_i) \ge \frac{L(p_1|y_0) - L(p_0|y_0)}{L(p_0|y_1) - L(p_1|y_1) - L(p_0|y_0) + L(p_1|y_0)} \text{.}$$
+	W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartość z macierzy kosztu, to otrzymujemy następujący prób decyzyjny:
+	$$ p \ge \frac{C_{FP_i} - C_{TN_i}}{C_{FN_i} - C_{TP_i} - C_{TN_i} + C_{FP_i}} \text{.}$$
 
-	\section{Cost Sensitive Training}
-	
-		Pierwszą podgrupą metod wrażliwych na koszt jest \textit{Cost Sensitive Trainig}. Są to metody, które 
-	
-	\subsection{Regresja logistyczna wrażliwa na koszt}
-	
-	    Actual costs:
-	
+\section{Cost Sensitive Training}
+	Drugą podgrupą metod wrażliwych na koszt jest \textit{Cost Sensitive Trainig}. Są to metody, które już na etapie treningu modelu biorą pod uwagę koszt związany z klasyfikacją danej obserwacji. Schemat uczenia modelu jest przedstawiony na Rysunku \ref{cst}. Model jako wejście otrzymuje zbiór danych treningowych, następnie dokonuje predykcji i na bazie prawdziwych odpowiedzi oraz kosztów wyznaczana jest skuteczność modelu i kolejno aktualizowane są wagi, a cały proces jest iteracyjnie powtarzany aż do momentu osiągnięcia zadanego kryterium stopu.
+	\begin{figure}
+		\includegraphics[width=\linewidth]{images/cost_sensitive_training.png}
+		\caption{Schemat przedstawiający proces uczenia modelu wrażliwego na koszt. Źródło: https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}
+		\label{cst}
+	\end{figure}	
+
+\subsection{Regresja logistyczna wrażliwa na koszt}
+		Pierwszy modelem, który stosunkowo łatwo przystosować do bycia wrażliwym na koszt jest regresja logistyczna. Kontynuując rozważania z podrozdziału \ref{reg-log} chcemy, aby funkcja straty przyjmowała następujące wartości, które odpowiadają wartościom z macierzy kosztu:
 		$$
 		J^c_i(\theta)=\left\{
 		\begin{array}{rl}
@@ -310,51 +321,53 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 		\end{array}
 		\right.
 		$$
-		
-		Cost sensitive loss function:
+		W rezultacie funkcją, która zachowuje się w powyższy sposób jest:
 		\begin{talign*}
 			J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) \\
 			&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
 		\end{talign*}
-	
-	\subsection{Drzewo decyzyjne wrażliwe na koszt}
-	
-	
-	
-		
-		Cost Sensitive impurity measure:
-		$ I_c(\es) = min \left\{ Cost(f_0(\es)), Cost(f_1(\es)) \right\}$
-		
-		$$ f(\es) =  \left\{
-			\begin{array}{rl}
-				0, &\mbox{jeżeli $\text{Cost}(f_0(\es)) \leq \text{Cost}(f_1(\es))$}, \\
-				1, &\mbox{w przeciwnym wypadku}.
-			\end{array}{}
-		\right.
-		$$
-	
-	
-
+		% TODO: Wykres
+		Następnie standardowo wykorzystując algorytm optymalizujący, który znajdzie odpowiednie współczynniki modelu trenujemy model predykcyjny.
+\subsection{Drzewo decyzyjne wrażliwe na koszt}
+	Analogicznie jak w przypadku regresji logistycznej w celu wprowadzenia kosztu do treningu drzewa decyzyjnego musimy uzależnić proces powstawania modelu od kosztu danej próbki. Naturalnym miejscem dla drzewa decyzyjnego jest proces podziału danego węzła na kolejne węzły bądź liście. Dlatego definiujemy następującą miarę zanieczyszczenia, która następujący wzór:
+	$$ I_c(\es) = min \left\{ Cost(f_0(\es)), Cost(f_1(\es)) \right\} \text{.}$$
+	Dodatkowo w przy dokonywaniu predykcji klasyfikacja na wartość pozytywną bądź negatywną następuje wg następującego kryterium:
+	$$ f(\es) =  \left\{
+		\begin{array}{rl}
+			0, &\mbox{jeżeli $\text{Cost}(f_0(\es)) \leq \text{Cost}(f_1(\es))$}, \\
+			1, &\mbox{w przeciwnym wypadku},
+		\end{array}{}
+	\right.
+	$$
+	gdzie jak zawsze 1 oznacza wartość pozytywną, a 0 negatywną. 
+	Z poprzednich rozważań oczywiście możliwe jest stworzenie modeli typu \textit{ensemble}, w których klasyfikatorem bazowym byłoby drzewo decyzyjne wrażliwe na koszt, natomiast jest to poza obszarem badań aktualnej pracy.
 \chapter{Eksperyment}
+	Celem eksperymentu jest zbadanie jaki wpływ mają na miarę F1 oraz oszczędności mają poszczególne algorytmy.
 
-Celem eksperymentu jest zbadanie jaki wpływ mają na miarę F1 oraz oszczędności mają poszczególne algorytmy.
+\section{Dane}
+	Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to nienazwane, zanonimizowane zmienne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. 
+	
+	Mimo tego, że dane zostały poddane anonimizacji można mieć pewne intuicje na temat tego jakie zmienne zostały użyte z zbiorze danych. 
+	% TODO: Referencje
+	Dane, które standardowo są zbierane podczas procesu dokonywania transakcji, to ID klienta, data dokonania transakcji, kwota, lokalizacja, typ transakcji (przykładowo płatność internetowa, płatność stacjonarna, wypłata z bankomatu), beneficjent transakcji (przykładowo linie lotnicze, hotel, wypożyczalnia samochodów itp.), historyczna informacja dot. czy dana transakcja była oszustwem, wiek klienta, kraj zamieszkania, kod pocztowy, typ karty (przykładowo VISA, MasterCard itp.).
+	Na podstawie powyższych zmiennych tworzy się nowe zmienne, które są agregatami czasowymi. W ogólności są to zmienne, które są iloczynem kartezjańskim zbiorów:
+	\begin{itemize}
+		\item Klient, karta kredytowa;
+		\item Typ transakcji, beneficjent transakcji, kategoria beneficjenta, kraj;
+		\item W ciągu ostatnich godzin/dni/tygodni/miesięcy;
+		\item Ilość, średnia lub suma transakcji.
+	\end{itemize}
+	Przykładowymi zmiennymi, które powstają w tym procesie są: Ilość transakcji dla tego samego klienta w ciągu ostatnich 6/12/24 godzin, Średnia wartość transakcji dla danego klienta z ostatniego tygodnia. 
+	
+	
+	Rozkład kwoty...
+	
+\section{Opis eksperymentu}
 
-Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to nienazwane, zanonimizowane zmienne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. 
+	Eksperyment został przeprowadzony w następujący sposób:
+	50-krotnie dzielimy zbiór danych w proporcjach 50:17:33 na zbiór treningowy, walidacyjny oraz testowy. Następnie uczymy wszystkie modele na zbiorze treningowym. Dla modelu XGBoost wykorzystujemy zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO korzystamy z tego zbioru jako zbiór treningowy. Następnie dla wszystkich modeli dokonujemy predykcyji na zbiorze testowym i mierzymy skuteczność typowań.
 
-Mimo tego, że dane są zanonimizowane można mieć pewne intuicje na temat tego jakie zmienne zostały użyte z zbiorze danych. 
-Raw data:
-- ID klienta, data transakcji, kwota, lokalizacja, typ transakcji (internet, płatność w sklepie, wypłata z bankomatu), rodzaj transakcji (linie lotnicze, hotel, wypożyczalnia samochodów), fraud, wiek klienta, kraj zamieszkania, kod pocztowy, typ karty
-Na podstawie ref zmienne, które wykorzystuje się do tego typu problemów to:
-- agregaty czasowe, np. ilość transakcji dla tego samego klienta w ciągu ostatnich 6 godzin, suma transakcji z ostatnich 7 dni itp.
-W ogólności są to agregaty klient/karta kredytowa x typ transakcji/sklep/kategorai sklepu/kraj x ostatnie godziny/dni/tygodnie/miesiące x ilość/średnia/suma
-
-
-Rozkład kwoty...
-
-Eksperyment został przeprowadzony w następujący sposób:
-50-krotnie dzielimy zbiór danych w proporcjach 50:17:33 na zbiór treningowy, walidacyjny oraz testowy. Następnie uczymy wszystkie modele na zbiorze treningowym. Dla modelu XGBoost wykorzystujemy zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO korzystamy z tego zbioru jako zbiór treningowy. Następnie dla wszystkich modeli dokonujemy predykcyji na zbiorze testowym i mierzymy skuteczność typowań.
-
-\chapter{Rezultaty}
+\section{Wyniki}
 
 \chapter{Podsumowanie}
 
