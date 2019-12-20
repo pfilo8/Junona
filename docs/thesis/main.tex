@@ -38,18 +38,17 @@
 \maketitle
 
 \chapter{Wstęp}
-	- Rosnąca ilość transakcji kartami kredytowymi
-	- Rosnący poziom fraudów na świecie
+	Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia Nam posługiwanie się kartami kredytowymi w życiu codzienny, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych elektronicznie. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw związanych z kradzieżami bądź oszustwami. Przykładami takich działań może być wykorzystywanie kradzionych kart kredytowych, TODO ... 
+	% TODO: Wykres potwierdzający rosnąca ilość transakcji kartami kredytowymi.
+	Banki oraz instytucje finansowe w celu przeciwdziałania takim przypadkom tworzą całe systemy do detekcji tego rodzaju transakcji. Schemat na Rysunku \ref{} przedstawia proces, który odbywa się podczas dokonywania płatności. 
 	
-	- Flow transakcji oraz umiejscowienie systemu do detekcji fraudów
-	- Aktualna sytuacja if-then + predicitve models
-	
-	If-then:
-	- więcej niż 4 wypłaty z bankomatu w ciągu godziny
-	- więcej niż 2 transakcje w ciągu 5 minut
-	- transakcja w sklepie karta a następna zaraz w internecie
-	
-	Jeżeli więcej niż 1 reguła jest spełniona to odmowa transakcji. Pojawiają się problemy z niewykrywaniem nowych reguł oraz możliwe jest tworzenie tylko prostych reguł. Z drugiej strony są one proste do implementacji oraz interpretacji.
+	Jak możemy zauważyć system do detekcji oszustw stanowi jedynie pewien element całego schematu. Do niedawna najbardziej popularnym sposobem do wykrywania oszustw były systemy oparte na regułach biznesowych. Przykładowe reguły, które mogą być używane w takich modelach mogą przyjmować następującą postać:
+	\begin{itemize}
+		\item Więcej niż 4 wypłaty z bankomatu w ciągu godziny;
+		\item Więcej niż 2 transakcje w ciągu 5 minut;
+		\item Transakcja w sklepie karta a następna zaraz w internecie.
+	\end{itemize}
+	W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły w jaki sposób można dokonywać oszustw, natomiast systemy złożone ze sztywnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł.
 	
 
 \chapter{Wprowadzenie teoretyczne}
@@ -260,6 +259,8 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	 $$ h_i = \partial^2_{\yht{t-1}} l(y_i, \yht{t-1}) $$
 	 Zatem po redukcji stałych, które są nieistotne z punktu widzenia optymalizacji otrzymujemy:
 	 $$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) $$
+	 
+	 % TODO: Early stopping
 
 \section{Cost Dependent Classification}
 	Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym bądź developerskim. 
@@ -342,15 +343,12 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	gdzie jak zawsze 1 oznacza wartość pozytywną, a 0 negatywną. 
 	Z poprzednich rozważań oczywiście możliwe jest stworzenie modeli typu \textit{ensemble}, w których klasyfikatorem bazowym byłoby drzewo decyzyjne wrażliwe na koszt, natomiast jest to poza obszarem badań aktualnej pracy.
 \chapter{Eksperyment}
-	Celem eksperymentu jest zbadanie jaki wpływ mają na miarę F1 oraz oszczędności mają poszczególne algorytmy.
+	W celu porównania skuteczności metod wrażliwych na koszt względem siebie wykonamy eksperyment, którego celem będzie sprawdzenie, który z modeli lub ich kombinacja przyniesie największe oszczędności na zbiorze danych dot. oszustw z wykorzystaniem kart kredytowych. Jako dodatkowy wskaźnik wykorzystamy miarę skuteczności modelu F1 Score, która będzie w stanie odpowiedzieć jak zmieniła się ogólna skuteczność modelu.
 
 \section{Dane}
-	Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to nienazwane, zanonimizowane zmienne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. 
+	Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to zanonimizowane zmienne numeryczne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), a dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. Ponadto wśród danych nie ma brakujących wartości. Podczas modelowania pominiemy zmienną czasową, ponieważ sama w sobie nie zawiera ona istotnej informacji, natomiast stworzenie znaczących zmiennych nie jest istotą przeprowadzanego eksperymentu. 
 	
-	Mimo tego, że dane zostały poddane anonimizacji można mieć pewne intuicje na temat tego jakie zmienne zostały użyte z zbiorze danych. 
-	% TODO: Referencje
-	Dane, które standardowo są zbierane podczas procesu dokonywania transakcji, to ID klienta, data dokonania transakcji, kwota, lokalizacja, typ transakcji (przykładowo płatność internetowa, płatność stacjonarna, wypłata z bankomatu), beneficjent transakcji (przykładowo linie lotnicze, hotel, wypożyczalnia samochodów itp.), historyczna informacja dot. czy dana transakcja była oszustwem, wiek klienta, kraj zamieszkania, kod pocztowy, typ karty (przykładowo VISA, MasterCard itp.).
-	Na podstawie powyższych zmiennych tworzy się nowe zmienne, które są agregatami czasowymi. W ogólności są to zmienne, które są iloczynem kartezjańskim zbiorów:
+	Mimo tego, że dane zostały poddane anonimizacji, to na podstawie \ref{} możemy domyślać się z jakimi zmiennymi mieliśmy do czynienia przed transformacjami. Podczas procesu dokonywania transakcji standardowo zbierane są: ID klienta, data dokonania transakcji, kwota, lokalizacja, typ transakcji (przykładowo płatność internetowa, płatność stacjonarna, wypłata z bankomatu), beneficjent transakcji (przykładowo linie lotnicze, hotel, wypożyczalnia samochodów itp.), historyczna informacja dot. czy dana transakcja była oszustwem, wiek klienta, kraj zamieszkania, kod pocztowy, typ karty (przykładowo VISA, MasterCard itp.). Na podstawie wymienionych informacji tworzy się agregaty czasowe bazujące na historii, które składają się z następujących kombinacji zmiennych:
 	\begin{itemize}
 		\item Klient, karta kredytowa;
 		\item Typ transakcji, beneficjent transakcji, kategoria beneficjenta, kraj;
@@ -359,15 +357,36 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	\end{itemize}
 	Przykładowymi zmiennymi, które powstają w tym procesie są: Ilość transakcji dla tego samego klienta w ciągu ostatnich 6/12/24 godzin, Średnia wartość transakcji dla danego klienta z ostatniego tygodnia. 
 	
+	Informacja, która jest najbardziej istotna z punktu widzenia naszego modelowania, to rozkład oraz charakterystyka zmiennej dot. kwoty transakcji. Na Rysunku \ref{} znajduje się wykres rozkładu ... 
 	
-	Rozkład kwoty...
+	Warto zauważyć, że najpopularniejszymi wartościami transakcji są: 
+	
+	Na podstawie przeprowadzonej analizy definiujemy w Tabeli \ref{macierz-kosztu-eksperyment} macierz kosztu dla tego eksperymentu, gdzie $C_a$ to koszt administracyjny podjęcia sprawy przez analityka, który sprawdza czy dana obserwacja jest faktycznie oszustwem niezależnie od tego jaki był jego ostateczny werdykt, $\text{Amt}_i$ to wartość transakcji jaką utracimy w przypadku nie wskazanie danej obserwacji jako oszustwa, natomiast zerowa wartość kosztu dla normalnej transakcji, która była prawidłowo wskazana, wynika z braku konieczności podjęcia inwestygacji oraz strat z tego wynikających.
+	
+	\begin{table}[h]
+		\begin{center}
+			\makegapedcells
+			\begin{tabular}{cc|cc}
+				\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
+				&            &   Oszustwo &   Normalna     \\ 
+				\cline{2-4}
+				\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Oszustwo   & $C_a$         & $\text{Amt}_i$              \\
+				& Normalna   & $C_a$         & $0$              \\ 
+				\cline{2-4}
+			\end{tabular}
+		\end{center}
+		\caption{Macierz kosztu dla eksperymentu.}
+		\label{macierz-kosztu-eksperyment}
+	\end{table}
 	
 \section{Opis eksperymentu}
-
 	Eksperyment został przeprowadzony w następujący sposób:
-	50-krotnie dzielimy zbiór danych w proporcjach 50:17:33 na zbiór treningowy, walidacyjny oraz testowy. Następnie uczymy wszystkie modele na zbiorze treningowym. Dla modelu XGBoost wykorzystujemy zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO korzystamy z tego zbioru jako zbiór treningowy. Następnie dla wszystkich modeli dokonujemy predykcyji na zbiorze testowym i mierzymy skuteczność typowań.
+	50-krotnie dzielimy zbiór danych w proporcjach 50:17:33 na zbiór treningowy, walidacyjny oraz testowy. Następnie uczymy wszystkie modele na zbiorze treningowym. Dla modelu XGBoost wykorzystujemy zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO korzystamy z tego zbioru jako zbiór treningowy. Następnie dla wszystkich modeli dokonujemy predykcyji na zbiorze testowym i mierzymy skuteczność typowań. Warto wspomnieć, że 50-krotne losowanie nowych podziałów zbioru ma na celu zmiejszenie ryzyka, że wynik zależy od wylosowanej próbki. Ponadto wykorzystano tą technikę w opozycji do standardowej warstwowej walidacji krzyżowej (\textit{ang. Stratified Cross Validation}) z uwagi na chęć uniknięcia zbyt małej próbki testowej w przypadku walidacji krzyżowej z dużą ilością podziałów. Następnie dla każdego modelu została obliczona wartość średnia oraz odchylenie standardowe dla wcześniej określonych miar.
+	
+	Do implementacji skryptów został wykorzystany język programowania Python wraz z bibliotekami costcla, sklearn, pandas, numpy, matplotlib oraz język programowania bash.
 
 \section{Wyniki}
+
 
 \chapter{Podsumowanie}
 
