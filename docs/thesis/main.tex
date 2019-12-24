@@ -37,6 +37,8 @@
 
 \maketitle
 
+\tableofcontents
+
 \chapter{Wstęp}
 	% TODO: Wykres potwierdzający rosnąca ilość transakcji kartami kredytowymi.
 	Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia Nam posługiwanie się kartami kredytowymi w codziennych transakcjach, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych elektronicznie. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw wynikających z tego rodzaju płatnościami, tj. przekazania numeru karty nieznajomym, utraty lub kradzieży karty, kradzieży przesyłki lub skopiowania danych karty, które zwykle kończą się pojawieniem się na koncie nieautoryzowanych płatności.
@@ -44,7 +46,7 @@
 	\begin{figure}[h]
 		\includegraphics[width=\linewidth]{images/credit-card-flow.jpg}
 		\label{credit-card-flow}
-		\caption{Schemat przepływu informacji związanych z płatnością kartą kredytową.}
+		\caption{Schemat przepływu informacji związanych z płatnością kartą kredytową. Źródło: Prezentacja A.Bahnsena podczas Konferencji Analytics 2013; https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare}
 	\end{figure}
 
 	Banki oraz instytucje finansowe w celu przeciwdziałania takim działaniom umieszczają specjalistyczne systemy detekcji oszustw w procesie dokonywania płatności, który jest przedstawiony schematycznie na Rysunku \ref{credit-card-flow}. W momencie przyłożenia karty kredytowej do terminala następuję połączenie z operatorem karty, który następnie łączy się z bankiem klienta. Kolejno w odpowiednich bazach danych sprawdzane są dostępne środki, a także poprawność transakcji. W tym momencie działa nasz system, który w razie wykrycia niezgodności odrzuca transakcję, a sprawa jest kierowana do analityka, który bliżej przygląda się sprawie.
@@ -55,8 +57,11 @@
 		\item Więcej niż 2 transakcje w ciągu 5 minut;
 		\item Transakcja w sklepie karta a następna zaraz w internecie.
 	\end{itemize}
-	W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły w jaki sposób można dokonywać oszustw, natomiast systemy złożone ze sztywnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł. Tą niedogodność są w stanie rozwiązać model uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które ostatecznie są wykorzystywane w produkcyjnych środowiskach instytucji finansowych. 
-	% TODO: Opisać motywację
+	W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły w jaki sposób można dokonywać oszustw, natomiast systemy złożone ze sztywnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł. Tą niedogodność są w stanie rozwiązać model uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które ostatecznie są wykorzystywane w produkcyjnych środowiskach instytucji finansowych. Niestety standardowe podejście do modelowania predykcyjnego zakłada równy koszt popełnienia błędu, co nie jest prawdą w tym jak i w wielu innych praktycznych zastosowaniach. Stąd powstała motywacja do rozwoju metod, które biorą pod uwagę tą różnicę.
+	
+	Wybór tematu pracy był naturalną konsekwencją codziennej pracy nad modelami predykcyjnymi wykorzystywanymi do detekcji oszustw w szkodach komunikacyjnych. Zauważony w trakcie prac problem nierównego kosztu pomyłek doprowadził mnie do poszukiwania metod, które będą adekwatne do tego rodzaju wyzwań. W ten sposób trafiłem na prace dr Alejandro Correa Bahnsena, które poruszały to zagadnienie dla modelowania ryzyka kredytowego, prognozy rezygnacji z usług przez klientów, marketingu bezpośredniego oraz detekcji oszustw w transakcjach kartami kredytowymi. Z uwagi na bliską analogię ostatniego przykładu z moim pierwotnym problemem zdecydowałem się podjąć bliższemu przyjrzeniu temu tematowi.
+	
+	Celem pracy jest opisanie i porównanie klasycznych oraz wrażliwych na koszty metod predykcyjnych z dziedziny statystyki oraz uczenia maszynowego w problemie detekcji oszustw na kartach płatniczych, a także przeprowadzenie eksperymentu porównującego skuteczność poszczególnych metod. Wykorzystane zostaną modele takie jak regresja logistyczna, drzewo decyzyjne, las losowy oraz algorytm XGBoost wraz z odpowiednimi modyfikacjami oraz metody optymalizacji progu oraz minimalizacji ryzyka bayesowskiego.
 
 \chapter{Wprowadzenie teoretyczne}
 
@@ -432,14 +437,14 @@ Wszystkie wyżej wspomniane miary skuteczności przyjmują wartości z zakresu $
 
 \chapter{Podsumowanie}
 
-% TODO: Bilbiografia
+\nocite{*}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
 
 % Referencje
-% https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9
 % https://www.youtube.com/watch?v=YCNkxaVDiA0
-% https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare - flow of transactions
-% https://scikit-learn.org/stable/modules/ensemble.html
-% https://github.com/dmlc/xgboost/blob/master/CITATION
 
 % TODO:
 % Resampling to LR
