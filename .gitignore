@@ -17,3 +17,6 @@ docs/articles
 *.aux
 *.log
 *.synctex.gz
+*.blg
+*.bbl
+*.toc
