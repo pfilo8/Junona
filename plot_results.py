@@ -32,7 +32,7 @@ def prepare_data(dataframe):
 
 def generate_plot(data, input_dir_name, type=None, ):
     filename = f'{input_dir_name}-{type}.png'
-    output_path = os.path.join('outputs', 'plots', filename)
+    output_path = os.path.join('outputs', '200_plots', filename)
 
     color_mapping = {'Standard': 'k', 'BMR': 'r', 'TO': 'b'}
     hue_order = ['Standard', 'TO', 'BMR']

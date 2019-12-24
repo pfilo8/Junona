@@ -38,10 +38,17 @@
 \maketitle
 
 \chapter{Wstęp}
-	Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia Nam posługiwanie się kartami kredytowymi w życiu codzienny, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych elektronicznie. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw związanych z kradzieżami bądź oszustwami. Przykładami takich działań może być wykorzystywanie kradzionych kart kredytowych, TODO ... 
 	% TODO: Wykres potwierdzający rosnąca ilość transakcji kartami kredytowymi.
-	Banki oraz instytucje finansowe w celu przeciwdziałania takim przypadkom tworzą całe systemy do detekcji tego rodzaju transakcji. Schemat na Rysunku \ref{} przedstawia proces, który odbywa się podczas dokonywania płatności. 
-	
+	Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia Nam posługiwanie się kartami kredytowymi w codziennych transakcjach, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych elektronicznie. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw wynikających z tego rodzaju płatnościami, tj. przekazania numeru karty nieznajomym, utraty lub kradzieży karty, kradzieży przesyłki lub skopiowania danych karty, które zwykle kończą się pojawieniem się na koncie nieautoryzowanych płatności.
+
+	\begin{figure}[h]
+		\includegraphics[width=\linewidth]{images/credit-card-flow.jpg}
+		\label{credit-card-flow}
+		\caption{Schemat przepływu informacji związanych z płatnością kartą kredytową.}
+	\end{figure}
+
+	Banki oraz instytucje finansowe w celu przeciwdziałania takim działaniom umieszczają specjalistyczne systemy detekcji oszustw w procesie dokonywania płatności, który jest przedstawiony schematycznie na Rysunku \ref{credit-card-flow}. W momencie przyłożenia karty kredytowej do terminala następuję połączenie z operatorem karty, który następnie łączy się z bankiem klienta. Kolejno w odpowiednich bazach danych sprawdzane są dostępne środki, a także poprawność transakcji. W tym momencie działa nasz system, który w razie wykrycia niezgodności odrzuca transakcję, a sprawa jest kierowana do analityka, który bliżej przygląda się sprawie.
+
 	Jak możemy zauważyć system do detekcji oszustw stanowi jedynie pewien element całego schematu. Do niedawna najbardziej popularnym sposobem do wykrywania oszustw były systemy oparte na regułach biznesowych. Przykładowe reguły, które mogą być używane w takich modelach mogą przyjmować następującą postać:
 	\begin{itemize}
 		\item Więcej niż 4 wypłaty z bankomatu w ciągu godziny;
@@ -49,7 +56,7 @@
 		\item Transakcja w sklepie karta a następna zaraz w internecie.
 	\end{itemize}
 	W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły w jaki sposób można dokonywać oszustw, natomiast systemy złożone ze sztywnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł. Tą niedogodność są w stanie rozwiązać model uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które ostatecznie są wykorzystywane w produkcyjnych środowiskach instytucji finansowych. 
-	
+	% TODO: Opisać motywację
 
 \chapter{Wprowadzenie teoretyczne}
 
@@ -59,18 +66,26 @@ Modele predykcyjne zostały podzielone na dwie kategorie: standardowe oraz wraż
 
 \section{Miary skuteczności modeli}
 
+% TODO: Napisać kilka słów ...
+
 \subsection{Macierz pomyłek}
 
-W tej sekcji zdefiniujemy macierz pomyłek.
+Jedną z najpopularniejszych metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyfikacji binarnej jest macierz pomyłek. Oznaczone dane zestawiamy z klasami nadanymi przez model, a następnie sprawdzamy czy poprawnie zaklasyfikowaliśmy poszczególne obserwacje. W ten sposób powstają cztery możliwe sytuacje, które są przedstawione w Tabeli \ref{macierz-pomylek}: 
+\begin{itemize}
+	\item Prawdziwie pozytywna klasyfikacja (\textit{ang. True Positive (TP)}) - obserwacja była pozytywna i zaklasyfikowaliśmy ją jako pozytywną
+	\item Fałszywie negatywna klasyfikacja (\textit{ang. False Negative (FN)}) - obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną. W nomenklaturze statystycznej nazywana również błędem drugiego rodzaju.
+	\item Fałszywie pozytywna klasyfikacja (\textit{ang. False Positive (FP)}) - obserwacja była negatywna i zaklasyfikowaliśmy ją jako pozytywną. W nomenklaturze statystycznej nazywana również błędem pierwszego rodzaju.
+	\item Fałszywie negatywna klasyfikacja (\textit{ang. False Positive (FN)}) - obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną
+\end{itemize}
 \begin{table}[h]
 	\begin{center}
 		\makegapedcells
 		\begin{tabular}{cc|cc}
 			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
-			&            &   Oszustwo &   Normalna     \\ 
+			&            &   Pozytywna &   Negatywna     \\ 
 			\cline{2-4}
-			\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Oszustwo   & TP         & FN              \\
-			& Normalna   & FP         & TN              \\ 
+			\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Pozytywna   & TP         & FN              \\
+			& Negatywna   & FP         & TN              \\ 
 			\cline{2-4}
 		\end{tabular}
 	\end{center}
@@ -78,19 +93,24 @@ W tej sekcji zdefiniujemy macierz pomyłek.
 	\label{macierz-pomylek}
 \end{table}
 
+Dodatkowo na podstawie macierzy pomyłek możemy zdefiniować następujące miary skuteczności modeli:
 
-Na podstawie podanej macierzy pomyłek w tabeli \ref{macierz-pomylek} definiujemy następujące miary skuteczności modeli:
-
+Skuteczność, która określa jaki procent wszystkich obserwacji zaklasyfikowaliśmy poprawnie.
 $$ \text{Skuteczność} = \frac{TP + TN}{TP + FP + FN + TN} $$
+Precyzja, która mierzy ile procent zaklasyfikowanych próbek jako pozytywne faktycznie były pozytywne.
 $$ \text{Precyzja} = \frac{TP}{TP + FP} $$
+Czułość, która mówi Nam o procencie znalezionych wszystkich pozytywnych przypadków.
 $$ \text{Czułość}= \frac{TP}{TP + FN} $$
+F1 Score, który jest średnią harmoniczną precyzji oraz czułości.
 $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} $$
+Wszystkie wyżej wspomniane miary skuteczności przyjmują wartości z zakresu $[0,1]$ oraz wyższa wartość oznacza lepszy model.
+
 
 \subsection{Miary skuteczności modeli wrażliwe na koszt}
 
-	Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fp i fn. Ponadto koszt fraudów znacząco różni się w zależności od przypadku.
+	Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla FP i FN. Ponadto koszt fraudów znacząco różni się w zależności od przypadku.
 
-	W celu wprowadzenia potrzebnych metryk potrzebujemy wprowadzić tzw. macierz kosztu, która jest zaprezentowana w tabeli \ref{macierz-kosztu}, gdzie poszczególne komórki oznacza odpowiadające wartość kosztu predykcji. 
+	W celu wprowadzenia potrzebnych miar skuteczności potrzebujemy wprowadzić tzw. macierz kosztu, która jest zaprezentowana w Tabeli \ref{macierz-kosztu}, gdzie poszczególne komórki oznacza odpowiadające wartość kosztu predykcji. 
 	\begin{table}[h]
 		\begin{center}
 			\makegapedcells
@@ -137,38 +157,34 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 \section{Standardowe modele}
 
 	% TODO: Kilka słów o MLu w ogólności
-	
-	With judicious choices for yi, we may express a variety of tasks, such as regression, classification, and ranking. The task of training the model amounts to finding the best parameters that best fit the training data xi and labels yi
-	
-	. In order to train the model, we need to define the objective function to measure how well the model fit the training data.
-	
-	A salient characteristic of objective functions is that they consist two parts: training loss and regularization term:
-
-	
-	where L
-	is the training loss function, and is the regularization term. The training loss measures how predictive our model is with respect to the training data. A common choice of L is the mean squared error, which is given by
 
 \subsection{Regresja logistyczna}
 \label{reg-log}
-	Regresja logistyczna należy do jednego z najbardziej podstawowych modeli statystycznych używanych do problemów klasyfikacyjnych. 
+	Regresja logistyczna należy do jednego z najbardziej podstawowych modeli statystycznych używanych do problemów klasyfikacyjnych. Jest to model, w którym zakładamy, że logarytm szans jest kombinacją liniową predyktorów, co możemy zapisać jako:
+	$$ \log{\frac{p}{1 - p}} = \sum_{j=1}^k \theta^{(j)}x_i^{(j)} $$
+	Po nałożeniu odpowiednich przekształceń ostatecznie otrzymujemy, że estymowane prawdopodobieństwo możemy zapisać w następującej postaci
 	\begin{equation}
 		\hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right)
 	\end{equation} 
-	Standardowa funkcja straty przyjmuje następującą postać:
-	$$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) $$
-	gdzie funkcja $g(z)$ jest funkcją łączącą typu \textit{logit} i przyjmuje postać 
-	$$ g(z) = \frac{1}{(1+e^{-z})} $$
-	Natomiast 
+	gdzie funkcja $g(z)$ to sigmoidalna funkcja łączącą, która jest opisana wzorem: 
+	$$ g(z) = \frac{1}{(1+e^{-z})} \text{.}$$
+	
+	W celu znalezienia odpowiednich parametrów definiujemy standardowa funkcja straty, która przyjmuje następującą postać:
+	$$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) \text{,}$$
+	gdzie $J_i(\theta)$ często w literaturze nazywana jest entropią krzyżową i przyjmuje postać:
 	\begin{equation}
 	\label{c-e}
 		J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i}))
 	\end{equation}
-	$$  $$
-	 to standardowa entropia krzyżowa.
-
-	% Wykres entropii krzyżowej
-
-    Korzystając z wykresu ... możemy zauważyć, że koszt klasyfikacji przyjmuje następujące wartości:
+	Następnie wykorzystując algorytm optymalizacyjny, który będzie w stanie znaleźć minimum funkcji straty, znajdujemy odpowiednie parametry modelu.
+	
+	\begin{figure}[h]
+		\includegraphics[width=\linewidth]{images/cross_entropy.png}
+		\label{cross-entropy-plot}
+		\caption{Wykres zależności funkcji entropii krzyżowej od prawdopodobieństwa predykcji danej obserwacji. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej.}
+	\end{figure}
+	
+    Korzystając z Rysunku \ref{cross-entropy-plot} możemy zauważyć, że koszt klasyfikacji przyjmuje następujące wartości:
 	$$
 	J_i(\theta) \approx \left\{
 	\begin{array}{rl}
@@ -186,10 +202,10 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 
 	Drzewo klasyfikacyjne to przykład jednego z rodzaju drzew decyzyjnych, którego celem jest znalezienie najlepszego rozróżnienia pomiędzy klasami. W ogólności drzewo decyzyjne składa się z zestawu reguł.
 	
-	Drzewo składa się z węzłów, które są reprezentowane przez parę $(\iks^j, l^j)$, która oznacza podział zbioru obserwacji $\es$ na dwa zbiory: $\es^{l}$ oraz $\es^{r}$ względem wektora obserwacji $\iks$ oraz progu decyzyjnego $\l^j$ w następujący sposób:
+	Drzewo składa się z węzłów, które są reprezentowane przez parę $(\iks^j, l^j)$, która oznacza podział zbioru obserwacji $\es$ na dwa zbiory: $\es^{l}$ oraz $\es^{r}$ względem wektora obserwacji $\iks$ oraz progu decyzyjnego $l^j$ w następujący sposób:
 	$$ \es^l = \{ \iks^* : \iks^* \in \es \land x^j_i \leq l^j \} \text{,} $$
 	$$ \es^r = \{ \iks^* : \iks^* \in \es \land x^j_i > l^j \} \text{,} $$
-	gdzie $\iks^j$ reprezentuje $j$-ty atrybut wektora $\iks$. Ponadto $\l^j$ jest wartością taką, że $\min{\iks^j} \leq l^j < \max{\iks^j}$. Ponadto warto zauważyć, że $\es^l \cup \es^r = \es$, co oznacza, że nasz podział rozdziela wektor obserwacji na dokładnie dwa rozłączne zbiory.
+	gdzie $\iks^j$ reprezentuje $j$-ty atrybut wektora $\iks$. Ponadto $l^j$ jest wartością taką, że $\min{\iks^j} \leq l^j < \max{\iks^j}$. Ponadto warto zauważyć, że $\es^l \cup \es^r = \es$, co oznacza, że nasz podział rozdziela wektor obserwacji na dokładnie dwa rozłączne zbiory.
 	Po znalezieniu optymalnego podziału zliczamy ilość pozytywnych próbek:
 	$$ \es_1  = \{ \iks^* : \iks^* \in \es \land y_i = 1 \} \text{,} $$
 	a następnie zliczamy procent pozytywnych próbek jako:
@@ -249,7 +265,6 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	 $$ \yht{2} = f_1(x_i) + f_2(x_i) = \yht{1} + f_2(x_i) $$
 	 $$ ... $$
 	 $$ \yht{t} = \sum_{k=1}^{t} f_k(x_i) = \yht{t-1} + f_t(x_i) $$
-	 
 	 Pozostaje zagadnienie jakie drzewo chcemy wybrać w każdym z kroków. Oczywiście takie, które optymalizuje naszą funkcję Obj. Korzystając z powyższych wzorów oraz \ref{Obj} otrzymujemy następującą postać tej funkcji:
 	 $$ \sum_{i=1}^{n} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{constant .}$$
 	 Korzystając z rozwinięcia szeregu Taylora dla funkcji straty otrzymujemy ogólny wzór:
@@ -327,7 +342,14 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 			J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) \\
 			&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
 		\end{talign*}
-		% TODO: Wykres
+		
+		\begin{figure}
+			\includegraphics[width=\linewidth]{images/cost_sensitive_ce.png}
+			\label{cost-sensitive-loss-function}
+			\caption{Wykres zależności wrażliwej na koszt funkcji straty od prawdopodobieństwa predykcji danej obserwacji. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej. Wykres dla przykładowych wartości: $C_{\text{TP}} = 1 \text{, } C_{\text{FN}} = 10 \text{, } C_{\text{FP}} = 1 \text{, } C_{\text{TN}} = 0$.}
+		\end{figure}
+	
+		% TODO: Opisać wykres.
 		Następnie standardowo wykorzystując algorytm optymalizujący, który znajdzie odpowiednie współczynniki modelu trenujemy model predykcyjny.
 \subsection{Drzewo decyzyjne wrażliwe na koszt}
 	Analogicznie jak w przypadku regresji logistycznej w celu wprowadzenia kosztu do treningu drzewa decyzyjnego musimy uzależnić proces powstawania modelu od kosztu danej próbki. Naturalnym miejscem dla drzewa decyzyjnego jest proces podziału danego węzła na kolejne węzły bądź liście. Dlatego definiujemy następującą miarę zanieczyszczenia, która następujący wzór:
@@ -386,9 +408,31 @@ $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\tex
 	Do implementacji skryptów został wykorzystany język programowania Python wraz z bibliotekami costcla, sklearn, pandas, numpy, matplotlib oraz język programowania bash.
 
 \section{Wyniki}
-
+	Lorem ipsum ...
+	
+	\begin{figure}[h]
+		\includegraphics[width=\linewidth]{images/100_config1-Savings.png}
+		\label{results-savings}
+		\caption{Wyniki eksperymentu dla miary skuteczności Oszczędności.}	
+	\end{figure}
+	% TODO: Caption
+	
+	\begin{figure}[h]
+		\includegraphics[width=\linewidth]{images/100_config1-F1.png}
+		\label{results-f1}
+		\caption{Wyniki eksperymentu dla miary skuteczności F1-Score.}
+	\end{figure}
+	% TODO: Caption	
+	
+	Korzystając z Rysunku \ref{results-savings} możemy zauważyć, że: ...
+	
+	Korzystając z Rysunku \ref{results-f1} możemy zauważyć, że: ...	
+	
+	% TODO: Testy statystyczne
 
 \chapter{Podsumowanie}
+
+% TODO: Bilbiografia
 
 % Referencje
 % https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9
