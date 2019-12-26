@@ -10,9 +10,6 @@ outputs/results*/
 # Python cache
 src/__pycache__/
 
-# Presentation data
-docs/articles
-
 # LaTeX files
 *.aux
 *.log
