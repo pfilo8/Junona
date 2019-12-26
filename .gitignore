@@ -1,7 +1,5 @@
 # Data
 data/*.csv
-outputs/*.csv
-outputs/results*/
 
 # Editors' files
 .ipynb_checkpoints/

@@ -37,6 +37,7 @@ def get_script_args():
     ap.add_argument("-d", "--data", required=True, help="Path to data.")
     ap.add_argument("-c", "--config", required=True, help="Path to config.")
     ap.add_argument("-n", "--n_iters", required=False, default=10, help="Number of MC iterations.")
+    ap.add_argument("-r", "--ratio", required=False, help="Ratio of resampling")
     args = vars(ap.parse_args())
     return args
 

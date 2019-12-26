@@ -30,7 +30,7 @@ def prepare_data(dataframe):
     return df
 
 
-def generate_plot(data, input_dir_name, type=None, ):
+def generate_plot(data, input_dir_name, type=None):
     filename = f'{input_dir_name}-{type}.png'
     output_path = os.path.join('outputs', '200_plots', filename)
 
@@ -50,7 +50,8 @@ def generate_plot(data, input_dir_name, type=None, ):
 
 if __name__ == '__main__':
     input_dir = sys.argv[1]
-    input_dir_name = os.path.split(input_dir)[-1]
+    input_dir_name = input_dir.split('/')[-2]
+    print(input_dir_name)
 
     df = read_dataframes(os.path.join(input_dir, '*.csv'))
     df = prepare_data(df)

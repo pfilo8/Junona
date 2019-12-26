@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 np.random.seed(RANDOM_STATE)
 
 
-def train_iteration(i, X, y, cost_matrix):
+def train_iteration(i, X, y, cost_matrix, ratio=None):
     print(f"Iteration: {i}.")
     models = generate_models()
 
@@ -34,24 +34,23 @@ def train_iteration(i, X, y, cost_matrix):
         X_test, y_test, cost_matrix_test, train_size=0.33, stratify=y_test, random_state=i
     )
 
-    rus = RandomUnderSampler(return_indices=True)
-    rus.fit_resample(X_train, y_train)
-    selected_indicies = rus.sample_indices_
-    X_train = X_train.iloc[selected_indicies, :]
-    y_train = y_train.iloc[selected_indicies]
-    cost_matrix_train = cost_matrix_train[selected_indicies, :]
-    print(X_train.shape, y_train.shape, cost_matrix_train.shape)
+    if ratio:
+        print(ratio)
+        rus = RandomUnderSampler(sampling_strategy=ratio, return_indices=True)
+        rus.fit_resample(X_train, y_train)
+        selected_indices = rus.sample_indices_
+        X_train = X_train.iloc[selected_indices, :]
+        y_train = y_train.iloc[selected_indices]
+        cost_matrix_train = cost_matrix_train[selected_indices, :]
 
-    # TODO: Unded/Over-sampling + SMOTE
-    # TODO: Ensembles with 100+ trees
-    print(cost_matrix_test.sum())
+    print(X_train.shape, X_val.shape, X_test.shape)
 
-    standard_models = train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, models)
-    threshold_optimized_models = train_to_models(X_val, y_val, cost_matrix_val, standard_models)
-    bmr_models = train_bmr_models(X_val, y_val, standard_models)
+    standard_models = train_standard_models(X_train.values, y_train.values, cost_matrix_train, X_val.values, y_val.values, models)
+    threshold_optimized_models = train_to_models(X_val.values, y_val.values, cost_matrix_val, standard_models)
+    bmr_models = train_bmr_models(X_val.values, y_val.values, standard_models)
 
     trained_models = dict_union(standard_models, threshold_optimized_models, bmr_models)
-    results = generate_summary(trained_models, X_test, y_test, cost_matrix_test)
+    results = generate_summary(trained_models, X_test.values, y_test.values, cost_matrix_test)
 
     filename = str(i) + '.csv'
     filepath = os.path.join(OUTPUT_DIR, CURRENT_OUTPUT_DIR, filename)
@@ -60,8 +59,8 @@ def train_iteration(i, X, y, cost_matrix):
 
 
 def unpack_train_iterations(arguments):
-    i, X, y, cost_matrix = arguments
-    train_iteration(i, X, y, cost_matrix)
+    i, X, y, cost_matrix, ratio = arguments
+    train_iteration(i, X, y, cost_matrix, ratio)
 
 
 if __name__ == '__main__':
@@ -69,6 +68,9 @@ if __name__ == '__main__':
 
     config = load_json(args['config'])
     n_iters = int(args['n_iters'])
+    ratio = args['ratio']
+    ratio = float(ratio) if ratio else ratio
+    print(ratio)
     df = pd.read_csv(args['data'])
     X, y = create_X_y(
         data=df,
@@ -86,4 +88,4 @@ if __name__ == '__main__':
     os.mkdir(os.path.join(OUTPUT_DIR, CURRENT_OUTPUT_DIR))
 
     pool = mp.Pool(mp.cpu_count())
-    results = pool.map(unpack_train_iterations, [(i, X, y, cost_matrix) for i in range(n_iters)])
+    results = pool.map(unpack_train_iterations, [(i, X, y, cost_matrix, ratio) for i in range(n_iters)])
