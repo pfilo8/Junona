@@ -1543,7 +1543,7 @@ Specjalność: \@specjalnosc\\
 \vspace{0.1cm plus .2fill}
 \begin{flushright}
 \small
-słowa kluczowe:\\
+Słowa kluczowe:\\
 \vspace{0.5ex}
 \begin{minipage}{7cm}
 \StrLen{\@slowakluczowe}[\slowakluczowedlugosc]
@@ -1557,7 +1557,7 @@ słowa kluczowe:\\
 \end{flushright}
 \vspace{0.07cm plus 0.2fill}
 \begin{flushleft}
-\small krótkie streszczenie:\\[.8ex]
+\small Krótkie streszczenie:\\[.8ex]
 \StrLen{\@streszczenie}[\streszczeniedlugosc]
 \ifthenelse{\streszczeniedlugosc > \dlugoscmaxb}{
 	\parbox{\textwidth}{
@@ -1689,7 +1689,7 @@ Specialty: \@specjalnoscang
 \vspace{0.1cm plus .2fill}
 \begin{flushright}
 \small
-keywords:\\
+Keywords:\\
 \vspace{1ex}
 \begin{minipage}{7cm}
 \StrLen{\@slowakluczoweang}[\slowakluczoweangdlugosc]
@@ -1703,7 +1703,7 @@ keywords:\\
 \end{flushright}
 \vspace{0.07cm plus 0.2fill}
 \begin{flushleft}
-\small short summary:\\[.8ex]
+\small Short summary:\\[.8ex]
 \StrLen{\@streszczenieang}[\streszczenieangdlugosc]
 \ifthenelse{\streszczenieangdlugosc > \dlugoscmaxb}{
 	\parbox{\textwidth}{

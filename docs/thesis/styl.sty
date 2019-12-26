@@ -1,0 +1,9 @@
+\def\ps@headings{
+      \let\@oddfoot\@empty
+      \let\@evenfoot\@empty
+      \def\@evenhead{\thepage\hfil\slshape\leftmark\hfil}
+      \def\@oddhead{\hfil{\slshape\rightmark}\hfil\thepage}%
+      \let\@mkboth\markboth
+	  \def\chaptermark##1{\markboth {\Roman{chapter}. ##1}{}}
+      \def\sectionmark##1{\markright {\thesection. ##1}}
+  }
