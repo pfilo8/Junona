@@ -12,14 +12,7 @@
 %% Data utworzenia: 8.05.2018
 % Numer wersji: 1
 \documentclass[inzynierska]{pwr_wmat_praca_dyplomowa}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%              DANE DO PRACY
-%
-% W przypadku pracy dyplomowej w języku angielskim nie jest konieczne 
-% wypełnianie pól: \tytul{}, \kierunek{}, \specjalnosc{}, 
-%                  \streszczenie{}, \slowakluczowe{}.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+
 \autor{Patryk Wielopolski}
 \tytul{Wykrywanie oszustw na kartach płatniczych z wykorzystaniem metod wrażliwych na koszt} 
 \tytulang{Credit Card Fraud Detection Using Cost Sensitive Methods}
@@ -99,33 +92,34 @@
 
 \chapter*{Wstęp}
 % TODO: Wykres potwierdzający rosnąca ilość transakcji kartami kredytowymi.
-Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia Nam posługiwanie się kartami kredytowymi w codziennych transakcjach, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych drogą elektroniczną. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw wynikających z tego rodzaju płatnościami, tj. przekazania numeru karty nieznajomym, utraty lub kradzieży karty, kradzieży przesyłki lub skopiowania danych karty, które zwykle kończą się pojawieniem się na koncie nieautoryzowanych płatności.
+
+Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia nam posługiwanie się kartami kredytowymi w codziennych transakcjach, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych drogą elektroniczną. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw wynikających z tego rodzaju płatnościami, czyli przekazania numeru karty nieznajomym, utraty lub kradzieży karty, kradzieży przesyłki lub skopiowania danych karty, które zwykle kończą się pojawieniem się na koncie nieautoryzowanych płatności.
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/credit-card-flow.jpg}
-	\label{credit-card-flow}
-	\caption{Schemat przepływu informacji związanych z płatnością kartą kredytową. Źródło: Prezentacja A.Bahnsena podczas Konferencji Analytics 2013; https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare}
+	\caption{Schemat przepływu informacji związanych z płatnością kartą kredytową. Slajd pochodzi z prezentacji A.Bahnsena podczas Konferencji Analytics 2013. Źródło: https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare}
+	\label{fig:credit-card-flow}
 \end{figure}
 
-Banki oraz instytucje finansowe w celu przeciwdziałania takim działaniom umieszczają specjalistyczne systemy detekcji oszustw w procesie dokonywania płatności, który jest przedstawiony schematycznie na Rysunku \ref{credit-card-flow}. W momencie przyłożenia karty kredytowej do terminala następuję połączenie z operatorem karty, który następnie łączy się z bankiem klienta. Kolejno w odpowiednich bazach danych sprawdzane są dostępne środki, a także poprawność transakcji. W tym momencie działa nasz system, który w razie wykrycia niezgodności odrzuca transakcję, a sprawa jest kierowana do analityka, który bliżej przygląda się sprawie.
+Banki oraz instytucje finansowe w celu przeciwdziałania takim działaniom umieszczają specjalistyczne systemy detekcji oszustw w procesie dokonywania płatności, który jest przedstawiony schematycznie na Rysunku \ref{fig:credit-card-flow}. W momencie przyłożenia karty kredytowej do terminala następuję połączenie z operatorem karty, który następnie łączy się z bankiem klienta. Kolejno w odpowiednich bazach danych sprawdzane są dostępne środki, a także poprawność transakcji. W tym momencie działa nasz system, który w razie wykrycia niezgodności odrzuca transakcję, a sprawa jest kierowana do analityka, który bliżej przygląda się sprawie.
 
 Jak możemy zauważyć system do detekcji oszustw stanowi jedynie pewien element całego schematu. Do niedawna najbardziej popularnym sposobem do wykrywania oszustw były systemy oparte na regułach biznesowych. Przykładowe reguły, które mogą być używane w takich modelach mogą przyjmować następującą postać:
 \begin{itemize}
-	\item Więcej niż 4 wypłaty z bankomatu w ciągu godziny;
-	\item Więcej niż 2 transakcje w ciągu 5 minut;
-	\item Transakcja w sklepie karta a następna zaraz w internecie.
+	\item więcej niż 4 wypłaty z bankomatu w ciągu godziny,
+	\item więcej niż 2 transakcje w ciągu 5 minut,
+	\item transakcja w sklepie karta a następna zaraz w internecie.
 \end{itemize}
-W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły w jaki sposób można dokonywać oszustw, natomiast systemy złożone ze sztywnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł. Tą niedogodność są w stanie rozwiązać model uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które ostatecznie są wykorzystywane w produkcyjnych środowiskach instytucji finansowych. Niestety standardowe podejście do modelowania predykcyjnego zakłada równy koszt popełnienia błędu, co nie jest prawdą w tym jak i w wielu innych praktycznych zastosowaniach. Stąd powstała motywacja do rozwoju metod, które biorą pod uwagę tą różnicę.
+W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły w jaki sposób można dokonywać oszustw, natomiast systemy złożone z niemodyfikowalnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł. Tę niedogodność są w stanie rozwiązać modele uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które obecnie są wykorzystywane w produkcyjnych środowiskach instytucji finansowych. Niestety standardowe podejście do modelowania predykcyjnego zakłada równy koszt popełnienia błędu, co nie jest prawdą w tym jak i w wielu innych praktycznych zastosowaniach. Stąd powstała motywacja do rozwoju metod, które biorą pod uwagę tą różnicę.
 
 Wybór tematu pracy był naturalną konsekwencją codziennej pracy nad modelami predykcyjnymi wykorzystywanymi do detekcji oszustw w szkodach komunikacyjnych. Zauważony w trakcie prac problem nierównego kosztu pomyłek doprowadził mnie do poszukiwania metod, które będą adekwatne do tego rodzaju wyzwań. W ten sposób trafiłem na prace dr Alejandro Correa Bahnsena, które poruszały to zagadnienie dla modelowania ryzyka kredytowego, prognozy rezygnacji z usług przez klientów, marketingu bezpośredniego oraz detekcji oszustw w transakcjach kartami kredytowymi. Z uwagi na bliską analogię ostatniego przykładu z moim pierwotnym problemem zdecydowałem się podjąć bliższemu przyjrzeniu temu tematowi.
 
 Celem pracy jest opisanie i porównanie klasycznych oraz wrażliwych na koszty metod predykcyjnych z dziedziny statystyki oraz uczenia maszynowego w problemie detekcji oszustw na kartach płatniczych, a także przeprowadzenie eksperymentu porównującego skuteczność poszczególnych metod. Wykorzystane zostaną modele takie jak regresja logistyczna, drzewo decyzyjne, las losowy oraz algorytm XGBoost wraz z odpowiednimi modyfikacjami oraz metody optymalizacji progu oraz minimalizacji ryzyka bayesowskiego.
 
-Praca jest zorganizowana w następujący sposób: rozdział drugi jest wstępem teoretycznym, który zawiera opis miar skuteczności modeli oraz aspekt teoretyczny wykorzystanych metod. Rozdział trzeci prezentuje opis eksperymentu wraz z wynikami oraz wnioskami. Ostatnia część podsumowuje całość pracy.
+Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstępem teoretycznym, który zawiera aspekt teoretyczny wykorzystanych metod oraz opis miar skuteczności modeli. Rozdział drugi prezentuje opis eksperymentu wraz z wynikami oraz wnioskami. Ostatnia część podsumowuje całość pracy.
 
 \chapter{Wprowadzenie teoretyczne}
 
-Wprowadzenie teoretyczne zawiera wszelkie potrzebne informacje dotyczące użytych w dalszej pracy metod z dziedziny statystyki oraz uczenia maszynowego. W~szczególności zaczniemy opisania samych modeli, które dzielą się na dwie kategorie: standardowe oraz wrażliwe na koszt. Pierwsze z~nich są powszechnie znane i wykorzystywane w bardzo wielu obszarach zastosowań. Drugie z nich są specyficzne dla pewnej klasy problemów, gdzie koszt popełnienia poszczególnych błędów jest różny i dzielą się one na dwie podkategorie - \textit{Cost Sensitive Training} oraz \textit{Cost Sensitive Classification}. Dalej zostaną wprowadzone miary skuteczności modeli predykcyjnych, które będą nam potrzebne do stwierdzenia, który z otrzymanych modeli jest najlepszy.
+Wprowadzenie teoretyczne zawiera wszelkie potrzebne w dalszych rozważaniach informacje dotyczące użytych w dalszej pracy metodach z dziedziny statystyki oraz uczenia maszynowego. W~szczególności zaczniemy opisania samych modeli, które dzielą się na dwie kategorie: standardowe oraz wrażliwe na koszt. Pierwsze z~nich są powszechnie znane i wykorzystywane w bardzo wielu obszarach zastosowań. Drugie z nich są specyficzne dla pewnej klasy problemów, gdzie koszt popełnienia poszczególnych błędów jest różny i dzielą się one na dwie podkategorie -- Trening wrażliwy na koszt \textit{ang. Cost Sensitive Training} oraz Klasyfikacja wrażliwa na koszt \textit{ang. Cost Sensitive Classification}. Dalej zostaną wprowadzone miary skuteczności modeli predykcyjnych, które będą nam potrzebne do stwierdzenia, który z otrzymanych modeli jest najlepszy.
 
 % TODO: Kilka słów o MLu w ogólności
 
@@ -136,44 +130,44 @@ Wprowadzenie teoretyczne zawiera wszelkie potrzebne informacje dotyczące użyty
 \subsection{Regresja logistyczna}
 \label{reg-log}
 Regresja logistyczna należy do jednego z najbardziej podstawowych modeli statystycznych używanych do problemów klasyfikacyjnych. Jest to model, w którym zakładamy, że logarytm szans jest kombinacją liniową predyktorów, co możemy zapisać jako:
-$$ \log{\frac{p}{1 - p}} = \sum_{j=1}^k \theta^{(j)}x_i^{(j)} $$
+$$ \log{\frac{\hat{p}}{1 - \hat{p}}} = \sum_{j=1}^k \theta^{(j)}x_i^{(j)} $$
 Po nałożeniu odpowiednich przekształceń ostatecznie otrzymujemy, że estymowane prawdopodobieństwo możemy zapisać w następującej postaci
 \begin{equation}
 	\hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right)
 \end{equation} 
-gdzie funkcja $g(z)$ to sigmoidalna funkcja łączącą, która jest opisana wzorem: 
-$$ g(z) = \frac{1}{(1+e^{-z})} \text{.}$$
+gdzie funkcja $g(z)$ to sigmoidalna funkcja łączącą, która jest opisana wzorem
+$$ g(z) = \frac{1}{1+e^{-z}} \text{.}$$
 
-W celu znalezienia odpowiednich parametrów definiujemy standardowa funkcja straty, która przyjmuje następującą postać:
+W celu znalezienia odpowiednich parametrów definiujemy standardową funkcja straty, która przyjmuje następującą postać:
 $$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) \text{,}$$
-gdzie $J_i(\theta)$ często w literaturze nazywana jest entropią krzyżową i przyjmuje postać:
+gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
-	J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i}))
+	J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) \text{.}
 \end{equation}
 Następnie wykorzystując algorytm optymalizacyjny, który będzie w stanie znaleźć minimum funkcji straty, znajdujemy odpowiednie parametry modelu.
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cross_entropy.png}
-	\label{cross-entropy-plot}
 	\caption{Wykres zależności funkcji entropii krzyżowej od prawdopodobieństwa predykcji danej obserwacji. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej.}
+	\label{fig:cross-entropy-plot}
 \end{figure}
 
-Korzystając z Rysunku \ref{cross-entropy-plot} możemy zauważyć, że koszt klasyfikacji przyjmuje następujące wartości:
+Korzystając z Rysunku \ref{fig:cross-entropy-plot} możemy zauważyć, że koszt klasyfikacji przyjmuje następujące wartości:
 $$
 J_i(\theta) \approx \left\{
 \begin{array}{rl}
-0, &\mbox{if $y_i \approx \htx$}, \\
-\infty, &\mbox{if $y_i \approx (1 - \htx)$}.
+0, &\mbox{jeżeli $y_i \approx \htx$}, \\
+\infty, &\mbox{jeżeli $y_i \approx (1 - \htx)$}.
 \end{array}{}
 \right.
 $$
 To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja kosztu przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Zatem stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
-$$ C_{TP_i} = C_{TN_i} \approx 0 $$
-$$ C_{FP_i} = C_{FN_i} \approx \infty $$
+$$ C_{TP_i} = C_{TN_i} \approx 0 \text{,}$$
+$$ C_{FP_i} = C_{FN_i} \approx \infty \text{.}$$.
 Porównując otrzymane rezultaty z macierzą kosztów możemy zauważyć, że te wartości znacząco odbiegają od tego co w rzeczywistości chcemy otrzymać. Stąd powstaje motywacja, aby zmodyfikować podaną funkcję celu i stworzyć regresję logistyczną wrażliwą na koszt, która będzie optymalizować właściwe dla Nas wartości.
 
-\subsection{Drzewo decyzyjne}
+\subsection{Drzewo klasyfikacyjne}
 \label{drzewo}
 
 Drzewo klasyfikacyjne to przykład jednego z rodzaju drzew decyzyjnych, którego celem jest znalezienie najlepszego rozróżnienia pomiędzy klasami. W ogólności drzewo decyzyjne składa się z zestawu reguł.
@@ -201,6 +195,7 @@ W taki sposób jest pokonywany pojedynczy podział zbioru dla konkretnego węzł
 \subsection{Las losowy}
 Kolejne modele są przedstawicielami szerokiej klasy metod \textit{ensemble}, które wykorzystują metody próbkowania w celu utworzenia różnych klasyfikatorów bazowych, aby następnie dokonać ostatecznej predykcji. Metody te są używane, aby zredukować wariancję klasyfikatora bazowego (zazwyczaj drzewa decyzyjnego) poprzez losowe dobieranie próbki i/lub zmiennych, na których model będzie uczony. W wielu przypadkach stworzenie modelu opartego o \textit{bagging} jest znacznie prostsze, ponieważ wymaga jedynie zmiany próbkowania danych bez naruszania modelu bazowego, natomiast metody typu \text{boosting} wymagają zmiany całego algorytmu. Z licznych obserwacji wynika, że pierwsza z metod dużo lepiej radzi sobie mają jako bazowe klasyfikatory złożone modele, w przeciwieństwie do drugiej, która zazwyczaj osiąga najlepsze wyniki wykorzystując proste modele (np. płytkie drzewa decyzyjne, tzn. o małej głębokości).
 
+% TODO: Opisać metody poniżej
 Przykładowe metody losowania próbek do modeli bazowych:
 \begin{itemize}
 	\item \textit{Pasting} - losowanie obserwacji bez powtórzeń
@@ -214,10 +209,12 @@ W przypadku lasu losowego proces losowania próbek jest podzielony na dwie fazy.
 Celem tych dwóch różnych źródeł losowości jest redukcja wariancji lasu. Pojedyncze drzewa mają tendencję do zbytniego dopasowywania się do danych, zatem losowanie poszczególnych zmiennych w każdym kolejnym węźle pomaga to zredukować. Natomiast losowanie różnych próbek do każdego z klasyfikatorów pozwala na stworzenie lekko odmiennych modeli bazowych.
 
 \subsection{XGBoost}
-Tak jak wspomnieliśmy w poprzednim rozdziale algorytm XGBoost jest przykładem klasyfikatora, który w iteracyjny sposób tworzy kolejne bazowe klasyfikatory. W przypadku tego algorytmu jako klasyfikator bazowy wykorzystujemy implementację drzew decyzyjnych typu CART, które nieznacznie różnią się od standardowych drzew decyzyjnych opisywanych w \ref{drzewo}, ponieważ liść drzewa jest rozszerzony o wartość rzeczywistą, która reprezentuje decyzję modelu. Ponieważ jest to złożenie wielu klasyfikatorów, to możemy zapisać nasz model w następującej postaci:
-$$ \hat{y_i} = \sum_{k=1}^K f_k(x_i) \text{,} f_k \in \ef \text{,} $$
+% TODO: Do poprawy pierwsze zdanie
+Algorytm XGBoost jest przykładem modelu, który w iteracyjny sposób tworzy kolejne bazowe klasyfikatory. W przypadku tego algorytmu jako klasyfikator bazowy wykorzystujemy implementację drzew decyzyjnych typu CART, które nieznacznie różnią się od standardowych drzew decyzyjnych opisywanych w \ref{drzewo}, ponieważ liść drzewa jest rozszerzony o wartość rzeczywistą, która reprezentuje decyzję modelu. Ponieważ jest to złożenie wielu klasyfikatorów, to możemy zapisać nasz model w~następującej postaci:
+$$ \hat{y_i} = \sum_{k=1}^K f_k(x_i) \text{,} \quad f_k \in \ef \text{,} $$
 gdzie $K$ oznacza liczbę drzew, $f$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
-Zatem funkcją, którą będziemy optymalizować przyjmuje następującą postać:
+Zatem funkcją, którą będziemy optymalizować przyjmuje następującą postać
+% TODO: Opisać cały wzorek
 \begin{equation}
 	\label{Obj}
 	\text{Obj}(\theta) = \sum_{i=1}^{n} l(y_i, \yht{t}) + \sum_{k=1}^{K} \Omega(f_k)
@@ -236,7 +233,7 @@ $$ \yht{t} = \sum_{k=1}^{t} f_k(x_i) = \yht{t-1} + f_t(x_i) $$
 Pozostaje zagadnienie jakie drzewo chcemy wybrać w każdym z kroków. Oczywiście takie, które optymalizuje naszą funkcję Obj. Korzystając z powyższych wzorów oraz \ref{Obj} otrzymujemy następującą postać tej funkcji:
 $$ \sum_{i=1}^{n} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{constant .}$$
 Korzystając z rozwinięcia szeregu Taylora dla funkcji straty otrzymujemy ogólny wzór:
-$$ \text{Obj}^{(t)} = \sum_{i=1}^{n} [l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i)] + \Omega(f_t) + \text{constant ,} $$
+$$ \text{Obj}^{(t)} = \sum_{i=1}^{n} \left[ l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) + \text{const. ,} $$
 gdzie 
 $$ g_i = \partial_{\yht{t-1}} l(y_i, \yht{t-1}) $$
 $$ h_i = \partial^2_{\yht{t-1}} l(y_i, \yht{t-1}) $$
@@ -257,11 +254,11 @@ Metoda optymalizacji progu jest popularną metodą wyznaczania odpowiedniego pro
 $$ \argmin_{th \in [0,1]} f(\ylab{y}{true}, \ylab{y}{decision}) \text{,} $$
 gdzie 
 \begin{itemize}
-	\item $ f(\dot) $ - miara skuteczność modelu, np. skuteczność,
+	\item $ f(\cdot) $ - miara skuteczność modelu, np. skuteczność,
 	\item $ \ylab{y}{true} = (c_i)_{i=1}^n $ - wektor prawdziwych oznaczeń ,
-	\item $ \ylab{y}{decision} = (p_i > th)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
+	\item $ \ylab{y}{decision} = (p_i > t)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
 	\item $ p_i $ - przewidywana wartość prawdopodobieństwa dla i-tej obserwacji,
-	\item $ \text{th} $ - wartość progu decyzyjnego.
+	\item $ \text{t} $ - wartość progu decyzyjnego.
 \end{itemize}{}
 W naszym przypadku funkcja $f$ to funkcja kosztu całkowitego (\ref{koszt-calkowity}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zminimalizuje sumaryczną wartość kosztów.
 
@@ -273,9 +270,9 @@ $$ R(p_1|x_i) = L(p_1|y_1)P(p_1|x_i) + L(p_1|y_0)P(y_0|x_i) \text{,}$$
 $$ R(p_0|x_i) = L(p_0|y_0)P(p_0|x_i) + L(p_0|y_1)P(y_1|x_i) \text{,}$$
 gdzie
 \begin{itemize}
-	\item $P(p_1|x_i)$, $P(p_0|x_i)$ - oznacza estymowane przez model prawdopodobieństwo i oczywiście $P(p_0|x) = 1 - P(p_1|x)$,
+	\item $P(p_1|x_i)$, $P(p_0|x_i)$ - oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(p_0|x) = 1 - P(p_1|x)$,
 	\item $L(p_{i}|y_{j})$ oraz $i,j \in \{l,f\}$ - funkcja kosztu,
-	\item $x_i$ - i-ta obserwacja.
+	\item $x_i$ - $i$-ta obserwacja.
 \end{itemize}{}
 Klasyfikacja danej obserwacji jest opisana następującą nierównością:
 $$ R(p_1|x_i) \leq R(p_0|x_i)$$
@@ -289,7 +286,7 @@ $$ p \ge \frac{C_{FP_i} - C_{TN_i}}{C_{FN_i} - C_{TP_i} - C_{TN_i} + C_{FP_i}} \
 Drugą podgrupą metod wrażliwych na koszt jest \textit{Cost Sensitive Trainig}. Są to metody, które już na etapie treningu modelu biorą pod uwagę koszt związany z klasyfikacją danej obserwacji. Schemat uczenia modelu jest przedstawiony na Rysunku \ref{cst}. Model jako wejście otrzymuje zbiór danych treningowych, następnie dokonuje predykcji i na bazie prawdziwych odpowiedzi oraz kosztów wyznaczana jest skuteczność modelu i kolejno aktualizowane są wagi, a cały proces jest iteracyjnie powtarzany aż do momentu osiągnięcia zadanego kryterium stopu.
 \begin{figure}
 	\includegraphics[width=\linewidth]{images/cost_sensitive_training.png}
-	\caption{Schemat przedstawiający proces uczenia modelu wrażliwego na koszt. Źródło: https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}
+	\caption{Schemat przedstawiający proces uczenia modelu wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
 	\label{cst}
 \end{figure}	
 
@@ -298,16 +295,16 @@ Pierwszy modelem, który stosunkowo łatwo przystosować do bycia wrażliwym na 
 $$
 J^c_i(\theta)=\left\{
 \begin{array}{rl}
-C_{TP_i}, &\mbox{if $y_i = 1$ and $\htx \approx 1$}, \\
-C_{TN_i}, &\mbox{if $y_i = 0$ and $\htx \approx 0$}, \\
-C_{FP_i}, &\mbox{if $y_i = 0$ and $\htx \approx 1$}, \\
-C_{FN_i}, &\mbox{if $y_i = 1$ and $\htx \approx 0$}.
+C_{TP_i}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 1$}, \\
+C_{TN_i}, &\mbox{jeżeli $y_i = 0$ i $\htx \approx 0$}, \\
+C_{FP_i}, &\mbox{jeżeli $y_i = 0$ i $\htx \approx 1$}, \\
+C_{FN_i}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 0$}.
 \end{array}
 \right.
 $$
 W rezultacie funkcją, która zachowuje się w powyższy sposób jest:
 \begin{talign*}
-	J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) \\
+	J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) + \\
 	&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
 \end{talign*}
 
@@ -339,22 +336,25 @@ Opis miar...
 
 \subsection{Macierz pomyłek}
 
-Jedną z najpopularniejszych metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyfikacji binarnej jest macierz pomyłek. Oznaczone dane zestawiamy z klasami nadanymi przez model, a następnie sprawdzamy czy poprawnie zaklasyfikowaliśmy poszczególne obserwacje. W ten sposób powstają cztery możliwe sytuacje, które są przedstawione w Tabeli \ref{macierz-pomylek}: 
+Jedną z metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyfikacji jest macierz pomyłek. Prawidłowe klasyfikacje zestawiamy z klasami nadanymi przez model, a następnie sprawdzamy czy poprawnie zaklasyfikowaliśmy poszczególne obserwacje. W przypadku klasyfikacji binarnej popełniamy dwa rodzaje błędów, a wszystkie możliwe wyniki prezentują się w następujący sposób:
 \begin{itemize}
-	\item Prawdziwie pozytywna klasyfikacja (\textit{ang. True Positive (TP)}) - obserwacja była pozytywna i zaklasyfikowaliśmy ją jako pozytywną
-	\item Fałszywie negatywna klasyfikacja (\textit{ang. False Negative (FN)}) - obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną. W nomenklaturze statystycznej nazywana również błędem drugiego rodzaju.
-	\item Fałszywie pozytywna klasyfikacja (\textit{ang. False Positive (FP)}) - obserwacja była negatywna i zaklasyfikowaliśmy ją jako pozytywną. W nomenklaturze statystycznej nazywana również błędem pierwszego rodzaju.
-	\item Fałszywie negatywna klasyfikacja (\textit{ang. False Positive (FN)}) - obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną
+	\item Prawdziwie pozytywny wynik klasyfikacji (TP, z angielskiego \textit{True Positive}) -- obserwacja była pozytywna i zaklasyfikowaliśmy ją jako pozytywną;
+	\item Fałszywie pozytywny wynik klasyfikacji (FP, z angielskiego \textit{False Positive}) -- obserwacja była negatywna i zaklasyfikowaliśmy ją jako pozytywną. W nomenklaturze statystycznej nazywamy ją również błędem pierwszego rodzaju;
+	\item Fałszywie negatywny wynik klasyfikacji (FN, z angielskiego \textit{False Negative}) -- obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną. W nomenklaturze statystycznej nazywamy ją również błędem drugiego rodzaju;
+	\item Fałszywie negatywny wynik klasyfikacji (FN, z angielskiego \textit{False Positive}) -- obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną.
 \end{itemize}
+
+Liczbę obserwacji należących do każdej z klas możemy zapisać w tabeli, tak jak tabela \ref{macierz-pomylek}.
+% TODO: Napisać to sensowniej
 \begin{table}[h]
 	\begin{center}
 		\makegapedcells
 		\begin{tabular}{cc|cc}
-			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
+			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Prawdziwy stan} \\
 			&            &   Pozytywna &   Negatywna     \\ 
 			\cline{2-4}
-			\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Pozytywna   & TP         & FN              \\
-			& Negatywna   & FP         & TN              \\ 
+			\multirow{2}{*}{\rotatebox[origin=c]{90}{Predykcja}} & Pozytywna   & TP         & FP              \\
+			& Negatywna   & FN         & TN              \\ 
 			\cline{2-4}
 		\end{tabular}
 	\end{center}
@@ -364,8 +364,8 @@ Jedną z najpopularniejszych metod wykorzystywanych do oceny skuteczności model
 
 Dodatkowo na podstawie macierzy pomyłek możemy zdefiniować następujące miary skuteczności modeli:
 
-Skuteczność, która określa jaki procent wszystkich obserwacji zaklasyfikowaliśmy poprawnie.
-$$ \text{Skuteczność} = \frac{TP + TN}{TP + FP + FN + TN} $$
+Dokładność, która określa jaki procent wszystkich obserwacji zaklasyfikowaliśmy poprawnie.
+$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} $$
 Precyzja, która mierzy ile procent zaklasyfikowanych próbek jako pozytywne faktycznie były pozytywne.
 $$ \text{Precyzja} = \frac{TP}{TP + FP} $$
 Czułość, która mówi Nam o procencie znalezionych wszystkich pozytywnych przypadków.
@@ -376,8 +376,8 @@ Wszystkie wyżej wspomniane miary skuteczności przyjmują wartości z zakresu $
 
 
 \subsection{Miary skuteczności modeli wrażliwe na koszt}
-
-Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla FP i FN. Ponadto koszt fraudów znacząco różni się w zależności od przypadku.
+% TODO: Bardzo do TODO XD
+Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla FP i FN. Ponadto koszt oszustwa znacząco różni się w zależności od przypadku.
 
 W celu wprowadzenia potrzebnych miar skuteczności potrzebujemy wprowadzić tzw. macierz kosztu, która jest zaprezentowana w Tabeli \ref{macierz-kosztu}, gdzie poszczególne komórki oznacza odpowiadające wartość kosztu predykcji. 
 \begin{table}[h]
@@ -399,27 +399,27 @@ Następnie definiujemy następującą wartość:
 $$ \text{Koszt}(f(\iks_{i}^{*})) = y_i (c_i C_{TP_i} + (1-c_i)C_{FN_i}) + (1-y_i)(c_i C_{FP_i} + (1-c_i)C_{TN_i}) \text{,}$$
 gdzie 
 \begin{itemize}
-	\item $\iks_{i}^{*} = [\iks_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor zawierający wartości cech i-tej obserwacji rozszerzony o koszt klasyfikacji
-	\item $C_{\cdot}$ - koszt klasyfikacji i-tej obserwacji
-	\item $f(\cdot)$ - model predykcyjny
-	\item $y_i$ - prawdziwa wartość i-tej obserwacji
-	\item $c_i$ - predykcja dla i-tej obserwacji
+	\item $\iks_{i}^{*} = [\iks_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor zawierający wartości cech i-tej obserwacji rozszerzony o koszt klasyfikacji,
+	\item $C_{\cdot}$ - koszt klasyfikacji $i$-tej obserwacji,
+	\item $f(\cdot)$ - model predykcyjny,
+	\item $y_i$ - prawdziwa wartość $i$-tej obserwacji,
+	\item $c_i$ - predykcja dla $i$-tej obserwacji.
 \end{itemize}{}
 Następnie wprowadzamy następujące miary skuteczności modeli:
 \begin{equation}
 	\label{koszt-calkowity}
-	\text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*}))
+	\text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*})) \text{,}
 \end{equation} 
 \begin{equation}
-	\text{Oszczędności} = \frac{\text{Koszt}_{l}(\bes) - \text{Koszt}(f(\bes))}{\text{Koszt}_{l}(\bes)}
+	\text{Oszczędności} = \frac{\text{Koszt}_{l}(\bes) - \text{Koszt}(f(\bes))}{\text{Koszt}_{l}(\bes)} \text{,}
 \end{equation}
-gdzie
+gdzie:
 \begin{itemize}
-	\item $ \bes $ - data set
-	\item $ \text{Koszt}_0 = min\{\text{Cost}(f_{0}(\bes), \text{Koszt}(f_{1}(\bes)\} $
-	\item $ f_{a}(\bes) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$
+	\item $ \bes $ - zbiór danych,
+	\item $ \text{Koszt}_l = \min\{\text{Koszt}(f_{0}(\bes)), \text{Koszt}(f_{1}(\bes))\} $,
+	\item $ f_{a}(\bes) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$.
 \end{itemize}{}
-Wartość $ f_{a}(\bes)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_0 $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Zatem ostatecznie Oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
+Wartość $ f_{a}(\bes)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_0 $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Ostatecznie oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
 
 % TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
@@ -471,21 +471,21 @@ Lorem ipsum ...
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/100_config1-Savings.png}
-	\label{results-savings}
 	\caption{Wyniki eksperymentu dla miary skuteczności Oszczędności.}	
+	\label{fig:results-savings}
 \end{figure}
 % TODO: Caption
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/100_config1-F1.png}
-	\label{results-f1}
 	\caption{Wyniki eksperymentu dla miary skuteczności F1-Score.}
+	\label{fig:results-f1}
 \end{figure}
 % TODO: Caption	
 
-Korzystając z Rysunku \ref{results-savings} możemy zauważyć, że: ...
+Korzystając z Rysunku \ref{fig:results-savings} możemy zauważyć, że: ...
 
-Korzystając z Rysunku \ref{results-f1} możemy zauważyć, że: ...	
+Korzystając z Rysunku \ref{fig:results-f1} możemy zauważyć, że: ...	
 
 % TODO: Testy statystyczne
 
