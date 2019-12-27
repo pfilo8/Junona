@@ -101,10 +101,10 @@
 
 \frontmatter
 \maketitle
-\mainmatter
 \tableofcontents
 %\listoffigures
 %\listoftables
+\mainmatter
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Dedykacja
@@ -113,31 +113,28 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-{\backmatter \chapter{Wstęp}}
-% TODO: Żywa pagina
-Wraz z postępującym rozwojem technologii w ostatnich latach, który umożliwia nam posługiwanie się kartami kredytowymi w codziennych transakcjach, podczas zakupów w internecie, a także ostatnimi czasy również i za pomocą urządzenie elektronicznych takich jak telefony komórkowe lub inteligentne zegarki, znacząco wzrosła ilość transakcji dokonywanych drogą elektroniczną. Niewątpliwie zwiększyło to wygodę dokonywania zakupów, natomiast z drugiej strony spowodowało to istotny wzrost możliwości dokonywania przestępstw wynikających z tego rodzaju płatnościami, czyli przekazania numeru karty nieznajomym, utraty lub kradzieży karty, kradzieży przesyłki lub skopiowania danych karty, które zwykle kończą się pojawieniem się na koncie nieautoryzowanych płatności.
+\chapter*{Wstęp}
+\addcontentsline{toc}{chapter}{Wstęp} \markboth{Wstęp}{}
+
+Historia kart płatniczych zaczyna się już w~latach 80. XIX wieku, kiedy Edward Bellamy w~swojej powieści \textit{Looking Backward} wspomina o~możliwości skorzystania z~karty przedpłaconej (karta umożliwiająca dokonanie płatności z~wcześniej wpłaconych środków).\footnote{Źródło: \url{https://pl.wikipedia.org/wiki/Karta_p\%C5\%82atnicza} (dostęp: 27.12.2019)} Niestety pomysł takiej formy płatności nie został pozytywnie przyjęty w~tamtych czasach i~dopiero w~1914 roku amerykańska firma Western Union umożliwiła korzystanie z~kart obciążeniowych (bank udziela klientowi odpowiedniego limitu płatności, za które należy zapłacić później). Koncepcja karty bardzo szybko rozpowszechniła się i~mimo wybuchu II~Wojny Światowej, która wstrzymała jej rozwój, to już w~1950 roku firma Diners Club umożliwiła swoim klientom dokonywania płatności w~sklepach, restauracjach lub stacjach benzynowych bez użycia gotówki.\footnote{Źródło: \url{https://www.kartyonline.pl/historia-kart-platniczych.php} (dostęp: 27.12.2019)} Kilka lat później wówczas największy bank w~Stanach Zjednoczonych -- Bank of America, wydał pierwszą prawdziwą kartę kredytową, która umożliwiała spłatę zadłużenia w~całości lub tylko pewnej wyliczonej kwoty minimalnej. Kolejnym przełomem było wprowadzenie w roku 1972 paska magnetycznego, który umożliwiał korzystanie z PINu i~dzięki temu zwiększał bezpieczeństwo klientów.\footnote{Źródło: \url{https://en.wikipedia.org/wiki/Payment_card } (dostęp: 27.12.2019)} W~roku 1973 i~1974 wprowadzono odpowiednio system BASE~I oraz BASE~II, które były pierwszymi systemami elektronicznymi. Następnie w~latach 90. pojawiają się technologie takie jak karty chipowe EMV, Visa 3D Secure oraz Master Card SPA, które mają zapewnić zwiększenie bezpieczeństwa oraz zmniejszenie skali oszustw.
+
+Dalszy rozwój technologiczny umożliwił nam nie tylko dokonywanie płatności kartą, lecz także wykorzystywanie do tego celu telefonu komórkowego lub zegarka. Ponadto transakcji nie dokonujemy już tylko w sklepach stacjonarnych, lecz także coraz częściej korzystamy ze sklepów internetowych. Wszystkie te czynniki powodują, że dokonywanie zakupów jest jeszcze prostsze, a~ilość dokonywanych transakcji z roku na rok rośnie. \footnote{Źródło: \url{https://worldpaymentsreport.com/non-cash-payments-volume/} (dostęp: 27.12.2019)} Niestety ten wzrost spowodował również rozwój sposobów dokonywania przestępstw związanych z~kartami płatniczymi, przykładowo przekazanie numeru karty nieznajomym, utrata lub kradzież karty, skopiowania danych karty lub kradzież przesyłki z kartą, które najczęściej kończą się nieautoryzowanymi płatności na koncie.
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/credit-card-flow.jpg}
-	\caption{Schemat przepływu informacji związanych z~płatnością kartą kredytową. Slajd pochodzi z prezentacji A.Bahnsena podczas Konferencji Analytics 2013. Źródło: \url{https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare}}
+	\caption{Schemat płatności kartą kredytową. Rysunek pochodzi z prezentacji A.Bahnsena podczas Konferencji Analytics 2013. Źródło: \url{https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare}}
 	\label{fig:credit-card-flow}
 \end{figure}
 
-Banki oraz instytucje finansowe w celu przeciwdziałania takim działaniom umieszczają specjalistyczne systemy detekcji oszustw w procesie dokonywania płatności, który jest przedstawiony schematycznie na Rysunku \ref{fig:credit-card-flow}. W momencie przyłożenia karty kredytowej do terminala następuję połączenie z operatorem karty, który następnie łączy się z bankiem klienta. Kolejno w odpowiednich bazach danych sprawdzane są dostępne środki, a także poprawność transakcji. W tym momencie działa nasz system, który w razie wykrycia niezgodności odrzuca transakcję, a sprawa jest kierowana do analityka, który bliżej przygląda się sprawie.
+Banki oraz instytucje finansowe w celu przeciwdziałania tym przestępstwom korzystają z~systemów detekcji oszustw. Jest to jeden z elementów całego procesu dokonywania płatności, który jest przedstawiony na rysunku \ref{fig:credit-card-flow} na stronie \pageref{fig:credit-card-flow}. W~momencie przyłożenia karty kredytowej do terminala nawiązywane jest połączenie z operatorem karty (np. Visa, MasterCard), który dalej komunikuje się z bankiem klienta. Następnie w~odpowiednich bazach danych sprawdzane są dostępne środki, a~system detekcji oszustw sprawdza, czy transakcja nie jest podejrzana. W~przypadku wykrycia niezgodności system ją odrzuca i~kieruje sprawę do odpowiedniego analityka. W~przeciwnym razie płatność jest akceptowana i~na~terminalu wyświetla się odpowiedni komunikat.
 
-Jak możemy zauważyć system do detekcji oszustw stanowi jedynie pewien element całego schematu. Do niedawna najbardziej popularnym sposobem do wykrywania oszustw były systemy oparte na regułach biznesowych. Przykładowe reguły, które mogą być używane w takich modelach mogą przyjmować następującą postać:
-\begin{myitemize}
-	& więcej niż 4 wypłaty z bankomatu w ciągu godziny,
-	& więcej niż 2 transakcje w ciągu 5 minut,
-	& transakcja w sklepie karta a następna zaraz w internecie.
-\end{myitemize}
-\noindent W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł to jest ona blokowana i użytkownik jest informowany o odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety oszuści wraz z upływem czasu wpadają na nowe pomysły, w jaki sposób można dokonywać oszustw, natomiast systemy złożone z niemodyfikowalnych reguł nie są w stanie wykrywać nowych zachowań i generować coraz to nowszych reguł. Tę niedogodność są w stanie rozwiązać modele uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które obecnie są wykorzystywane w produkcyjnych środowiskach instytucji finansowych. Niestety standardowe podejście do modelowania predykcyjnego zakłada równy koszt popełnienia błędu, co nie jest prawdą w tym, jak i w wielu innych praktycznych zastosowaniach. Stąd powstała motywacja do rozwoju metod, które biorą pod uwagę tą różnicę.
+Do niedawna najbardziej popularnym sposobem do wykrywania oszustw był system oparte na regułach eksperckich.\footnote{Wystąpienie A.Bahnsena podczas Konferencji Analytics 2013. Źródło: \url{https://www.youtube.com/watch?v=YCNkxaVDiA0}} Powstały one na bazie doświadczenia analityków, którzy podczas swojej długoletniej pracy wielokrotnie sprawdzali transakcje pod kątem oszustw i~byli w stanie dostrzec pewne zależności. Przykładami takich reguł mogą być: więcej niż cztery wypłaty z~bankomatu w~ciągu godziny, więcej niż dwie transakcje w~ciągu 5 minut, dwie transakcje w~ciągu 5 minut różnymi formami płatności (karta, internet). W przypadku, gdy rozpatrywana transakcja spełnia chociaż jedną z reguł, to jest ona blokowana i~użytkownik jest informowany o~odrzuceniu transakcji. To podejście jest stosunkowo łatwe do implementacji oraz jest bardzo proste do interpretacji, lecz niestety ma swoje wady. Oszuści wraz z upływem czasu zmieniają swoje sposoby dokonywania oszustw, natomiast systemy złożone z~niemodyfikowalnych reguł nie są w~stanie wykrywać nowych zachowań i dostosowywać się do zmian. Tę niedogodność są w~stanie rozwiązać modele uczenia maszynowego, które tworzą pewnego rodzaju reguły, które nie są bezpośrednio wprowadzane przez użytkownika, lecz automatycznie wykrywane przez algorytmy na podstawie dostarczonych danych historycznych. Wraz z~dynamicznym rozwojem tej dziedziny nauki zaczęły powstawać coraz bardziej wyrafinowane modele, które coraz lepiej radzą sobie z~wykrywaniem takich zależności. Obecnie są one już wykorzystywane w produkcyjnych środowiskach instytucji finansowych i~wspomagają walkę z~przestępcami. Niestety standardowe podejście do modelowania predykcyjnego zakłada równy koszt popełnienia błędu, co nie jest prawdą w tym, jak i~w~wielu innych praktycznych zastosowaniach. Stąd powstała motywacja do rozwoju metod, które biorą pod uwagę tę różnicę.
 
-Wybór tematu pracy był naturalną konsekwencją codziennej pracy nad modelami predykcyjnymi wykorzystywanymi do detekcji oszustw w szkodach komunikacyjnych. Zauważony w trakcie prac problem nierównego kosztu pomyłek doprowadził mnie do poszukiwania metod, które będą adekwatne do tego rodzaju wyzwań. W ten sposób trafiłem na prace dr Alejandro Correa Bahnsena, które poruszały to zagadnienie dla modelowania ryzyka kredytowego, prognozy rezygnacji z usług przez klientów, marketingu bezpośredniego oraz detekcji oszustw w transakcjach kartami kredytowymi. Z uwagi na bliską analogię ostatniego przykładu z moim pierwotnym problemem zdecydowałem się podjąć bliższemu przyjrzeniu temu tematowi.
+Wybór tematu pracy był związany z codzienną pracą nad modelami predykcyjnymi wykorzystywanymi do detekcji oszustw w szkodach komunikacyjnych. Zauważony przeze mnie w trakcie prac problem nierównego kosztu pomyłek doprowadził mnie do poszukiwania metod, które będą adekwatne do tego rodzaju wyzwań. W ten sposób trafiłem na prace dr Alejandro Correa Bahnsena, które poruszały to zagadnienie dla modelowania ryzyka kredytowego, prognozy rezygnacji z usług przez klientów, marketingu bezpośredniego oraz detekcji oszustw w transakcjach kartami kredytowymi. Z uwagi na bliską analogię ostatniego przykładu z moim problemem zdecydowałem się na bliższe zapoznanie z tym tematem.
 
-Celem pracy jest opisanie i porównanie klasycznych oraz wrażliwych na koszty metod predykcyjnych z dziedziny statystyki oraz uczenia maszynowego w problemie detekcji oszustw na kartach płatniczych, a także przeprowadzenie eksperymentu porównującego skuteczność poszczególnych metod. Wykorzystane zostaną modele takie jak regresja logistyczna, drzewo decyzyjne, las losowy oraz algorytm XGBoost wraz z odpowiednimi modyfikacjami oraz metody optymalizacji progu oraz minimalizacji ryzyka bayesowskiego.
+Celem pracy jest opisanie i porównanie standardowych oraz wrażliwych na koszty modeli predykcyjnych w problemie detekcji oszustw na kartach płatniczych. W tym celu zostanie przeprowadzony eksperyment porównujący skuteczność poszczególnych metod. Wykorzystane zostaną modele takie jak regresja logistyczna, drzewo decyzyjne, las losowy oraz algorytm XGBoost wraz z odpowiednimi modyfikacjami oraz metody optymalizacji progu i minimalizacji ryzyka bayesowskiego.
 
-Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstępem teoretycznym, który zawiera aspekt teoretyczny wykorzystanych metod oraz opis miar skuteczności modeli. Rozdział drugi prezentuje opis eksperymentu wraz z wynikami oraz wnioskami. Ostatnia część podsumowuje całość pracy.
+Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstępem teoretycznym, który zawiera opis miar skuteczności oraz aspekt teoretyczny modeli predykcyjnych. Rozdział drugi prezentuje opis eksperymentu na danych rzeczywistych wraz z wynikami oraz wnioskami. Ostatnia część podsumowuje całość pracy.
 
 \chapter{Wprowadzenie teoretyczne}
 
@@ -513,6 +510,7 @@ Korzystając z Rysunku \ref{fig:results-f1} możemy zauważyć, że: ...
 
 
 % Bibliografia
+\backmatter
 \nocite{*}
 
 \bibliografia{references} 
@@ -520,7 +518,7 @@ Korzystając z Rysunku \ref{fig:results-f1} możemy zauważyć, że: ...
 \end{document}
 
 % Referencje
-% https://www.youtube.com/watch?v=YCNkxaVDiA0
+% 
 
 % TODO:
 % Resampling to LR
