@@ -92,6 +92,7 @@
 \newcommand{\iks}{\boldsymbol{x}}
 \newcommand{\yht}[1]{y_i^{(#1)}}
 \newcommand{\ylab}[2]{\text{#1}_{\text{#2}}}
+\newcommand{\underscoretext}[3]{$\text{#1}_{\text{#2}_{\text{#3}}}$}
 
 \newenvironment{talign}
 {\align}
@@ -145,93 +146,128 @@ Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstęp
 
 \chapter{Wprowadzenie teoretyczne}
 
-Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz uczenia maszynowego, które wykorzystuje się w~zagadnieniach klasyfikacyjnych. W~szczególności zaczniemy od opisania macierzy pomyłek, macierzy kosztu oraz związanymi z nimi miarami skuteczności modeli predykcyjnych, które służą do badania jakości predykcji. Następnie przejdziemy do modeli standardowych, które nie biorą pod uwagi różnych kosztów popełniania błędu klasyfikacyjnego. W~ramach tej grupy opiszemy regresję logistyczną, drzewo decyzyjne, las losowy oraz algorytm XGBoost. Na końcu opiszemy modele wrażliwe na koszt, które dzielimy na dwie podkategorie -- Trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz Klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification}).\footnote{Źródło:  \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}} Pierwsze z nich zawierają metody, które w trakcie uczenia modelu zwracają uwagę na koszt błędnej klasyfikacji. Są to rozszerzone wersje standardowych modeli, które w trakcie uczenia się mają zmienioną postać optymalizowanej funkcji. W tej pracy będziemy omawiać regresję logistyczną wrażliwą na koszt oraz drzewo decyzyjne wrażliwe na koszt. Druga podkategoria składa się z metod, które wykorzystują estymowane prawdopodobieństwo ze~standardowych modeli i~na jego podstawie tworzą dodatkowy model, który bierze pod uwagę koszt niepoprawnej klasyfikacji danego przypadku. Z tej grupy omówimy optymalizację progu oraz minimalizację ryzyka bayesowskiego.
+Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz uczenia maszynowego, które wykorzystuje się w~zagadnieniach klasyfikacyjnych. W~szczególności zaczniemy od opisania macierzy pomyłek, macierzy kosztu oraz związane z nimi miary skuteczności modeli predykcyjnych, które służą do badania jakości predykcji. Następnie przejdziemy do modeli standardowych, które nie biorą pod uwagi różnych kosztów popełniania błędu klasyfikacyjnego. W~ramach tej grupy opiszemy regresję logistyczną, drzewo decyzyjne, las losowy oraz algorytm XGBoost. Na końcu poruszymy temat modeli wrażliwych na koszt, które dzielimy na dwie podkategorie: Trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz Klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification}).\footnote{Źródło:  \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}} Pierwsza z nich zawiera metody, które w trakcie uczenia modelu zwracają uwagę na koszt błędnej klasyfikacji. Są to rozszerzone wersje standardowych modeli, które w~trakcie uczenia się mają zmienioną postać optymalizowanej funkcji. W~tej pracy będziemy omawiać regresję logistyczną wrażliwą na koszt oraz drzewo decyzyjne wrażliwe na koszt. Druga podkategoria składa się z metod, które wykorzystują estymowane prawdopodobieństwo ze~standardowych modeli i~na jego podstawie tworzą dodatkowy model, który bierze pod uwagę koszt niepoprawnej klasyfikacji danego przypadku. Z~tej grupy omówimy optymalizację progu oraz minimalizację ryzyka bayesowskiego.
 
 W pracy będziemy wykorzystywać następujące oznaczenia:
+% TODO: Rozpisać x_i
+% TODO: Rozpisać \es
 \begin{itemize}
-	\item $\es$ - zbiór wszystkich obserwacji,
-	\item $\iks_{i}$ - $i$-ty wektor obserwacji,
-	\item $y_i \in \{0,1\}$ - prawdziwa klasyfikacja dla $i$-tej obserwacji. Wartość $0$ oznacza klasyfikację negatywną, natomiast wartość $1$ oznacza klasyfikację pozytywną.
-	\item $p_i \in [0,1]$ - przewidywana wartość prawdopodobieństwa dla $i$-tej obserwacji,
-	\item $c_i \in \{0,1\} $ - predykcja klasyfikacji dla $i$-tej obserwacji. Oznaczenia analogicznie jak dla $y_i$.
+	\item $\es = \{\iks_1, \iks_2, \dots, \iks_N \}$ -- zbiór wszystkich $N$ obserwacji,
+	\item $\iks_{i} = \left(x_i^{(1)}, x_i^{(2)}, \dots, x_i^{(j)} \right)$ -- $i$-ty wektor obserwacji składający się z $j$ atrybutów,
+	\item $x_i^{(k)}$ -- $k$-ty atrybut $i$-tego wektora obserwacji,
+	\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji. Wartość $0$ oznacza klasyfikację negatywną, natomiast wartość $1$ oznacza klasyfikację pozytywną.
+	\item $p_i \in [0,1]$ -- estymowana wartość prawdopodobieństwa dla $i$-tej obserwacji,
+	\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji. Oznaczenia analogicznie jak dla $y_i$.
 \end{itemize}
 
 \section{Miary skuteczności modeli}
 
 \subsection{Macierz pomyłek}
 
-Jedną z metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyfikacji jest macierz pomyłek. Prawidłowe klasyfikacje zestawiamy z klasami nadanymi przez model, a następnie sprawdzamy czy poprawnie zaklasyfikowaliśmy poszczególne obserwacje. W przypadku klasyfikacji binarnej popełniamy dwa rodzaje błędów, a wszystkie możliwe wyniki prezentują się w następujący sposób:
-\begin{easylist}[itemize]
-	\ListProperties(Hang=true, Progressive=3ex, Style*=-)
+Jedną z metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyfikacyjnych jest macierz pomyłek. Prawidłowe klasyfikacje zestawiamy z klasami nadanymi przez model, a~następnie sprawdzamy, czy poprawnie zaklasyfikowaliśmy poszczególne obserwacje. W~przypadku klasyfikacji binarnej popełniamy dwa rodzaje błędów, a~wszystkie możliwe wyniki prezentują się w~następujący sposób:
+\begin{myitemize}
 	& Prawdziwie pozytywny wynik klasyfikacji (TP, z angielskiego \textit{True Positive}) -- obserwacja była pozytywna i zaklasyfikowaliśmy ją jako pozytywną;
 	& Fałszywie pozytywny wynik klasyfikacji (FP, z angielskiego \textit{False Positive}) -- obserwacja była negatywna i zaklasyfikowaliśmy ją jako pozytywną. W nomenklaturze statystycznej nazywamy ją również błędem pierwszego rodzaju;
 	& Fałszywie negatywny wynik klasyfikacji (FN, z angielskiego \textit{False Negative}) -- obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną. W nomenklaturze statystycznej nazywamy ją również błędem drugiego rodzaju;
-	& Fałszywie negatywny wynik klasyfikacji (FN, z angielskiego \textit{False Positive}) -- obserwacja była pozytywna i zaklasyfikowaliśmy ją jako negatywną.
-\end{easylist}
-\noindent Liczbę obserwacji należących do każdej z klas możemy zapisać w tabeli, tak jak tabela \ref{macierz-pomylek}.
-% TODO: Napisać to sensowniej
+	& Prawdziwie negatywny wynik klasyfikacji (TN, z angielskiego \textit{True Negative}) -- obserwacja była negatywna i zaklasyfikowaliśmy ją jako negatywną.
+\end{myitemize}
+\noindent Liczbę obserwacji należących do poszczególnych kategorii możemy reprezentować tak jak w~tabeli \ref{tab:macierz-pomylek}.
 \begin{table}[h]
 	\begin{center}
-		\makegapedcells
-		\begin{tabular}{cc|cc}
-			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Prawdziwy stan} \\
-			&            &   Pozytywna &   Negatywna     \\ 
-			\cline{2-4}
-			\multirow{2}{*}{\rotatebox[origin=c]{90}{Predykcja}} & Pozytywna   & TP         & FP              \\
-			& Negatywna   & FN         & TN              \\ 
-			\cline{2-4}
+		\begin{tabular}{c|c|c}
+			 \multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
+			                  & $y_i = 1$            & $y_i = 0$ \\
+			 \hline
+			  Predykcja pozytywna & \multirow{2}{4em}{\centering TP} & \multirow{2}{4em}{\centering FP} \\
+			    $c_i = 1$         &                    &                    \\
+			 \hline
+			 Predykcja negatywna & \multirow{2}{4em}{\centering FN} & \multirow{2}{4em}{\centering TN} \\
+			   $c_i = 0$         &                    &                    \\
 		\end{tabular}
 	\end{center}
 	\caption{Macierz pomyłek}
-	\label{macierz-pomylek}
+	\label{tab:macierz-pomylek}
 \end{table}
 
-Dodatkowo na podstawie macierzy pomyłek możemy zdefiniować następujące miary skuteczności modeli:
+\subsection{Miary skuteczności niewrażliwe na koszt}
+Na podstawie macierzy pomyłek (tabela \ref{tab:macierz-pomylek}), którą omawialiśmy w poprzedniej podsekcji, możemy zdefiniować następujące miary skuteczności modeli, które nie biorą pod uwagę kosztu popełnienia błędu.
 
-Dokładność, która określa jaki procent wszystkich obserwacji zaklasyfikowaliśmy poprawnie.
-$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} $$
-Precyzja, która mierzy ile procent zaklasyfikowanych próbek jako pozytywne faktycznie były pozytywne.
-$$ \text{Precyzja} = \frac{TP}{TP + FP} $$
-Czułość, która mówi Nam o procencie znalezionych wszystkich pozytywnych przypadków.
-$$ \text{Czułość}= \frac{TP}{TP + FN} $$
-F1 Score, który jest średnią harmoniczną precyzji oraz czułości.
+\subsubsection{Dokładność}
+Dokładność (\textit{ang. Accuracy}) mierzy stosunek poprawnie zaklasyfikowanych przypadków do ilości wszystkich obserwacji. Bierze ona pod uwagę zarówno obserwacje pozytywne, jak i negatywne. Z~tego powodu bardzo dobrze radzi sobie w sytuacji, gdy interesują nas obserwacje z obu klas, natomiast dużo gorzej, gdy istotna jest tylko jedna klasa. W~szczególności nie nadaje się ona do problemów z dużą dysproporcją klas, która pojawia się w przypadku detekcji oszustw. Dokładność zdefiniowana jest następującym wzorem
+$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} \text{.}$$
+
+\subsubsection{Precyzja}
+Precyzja (\textit{ang. Precision}) to stosunek poprawnie zaklasyfikowanych pozytywnych przypadków do wszystkich obserwacji zaklasyfikowanych jako pozytywne. Mierzy ona, jaki procent próbek prawidłowo zaklasyfikowaliśmy jako pozytywne. Warto zauważyć, że nie bierze ona pod uwagę obserwacji negatywnych. Jest ona bardzo często wykorzystywana podczas rozwiązywania większości problemów z~zakresu uczenia maszynowego, ponieważ najczęściej interesuje nas, aby nasze typowania były możliwie najbardziej skuteczne. Z~tego też powodu precyzja jest często nazywana skutecznością klasyfikacji prawdziwie pozytywnych (\textit{ang. True Positive Accuracy}). Zapisana wzorem przyjmuje postać
+$$ \text{Precyzja} = \frac{TP}{TP + FP} \text{.}$$
+
+\subsubsection{Czułość}
+Czułość to stosunek prawdziwie pozytywnie zaklasyfikowanych przypadków do wszystkich pozytywnych obserwacji. Innymi słowy, jest to miara, która mówi nam o procencie znalezionych przez model przypadków pozytywnych. Podobnie jak precyzja skupia się jedynie na poprawnie zaklasyfikowanych obserwacjach pozytywnych. Jest ona szczególnie ważna w zastosowaniach medycznych, gdzie naszym głównym celem jest znalezienie wszystkich chorych osób. Używana jest także do wyznaczania krzywej charakterystyki pracy odbiornika (ROC, z angielskiego \textit{Receiver operating characteristic}) opisanej w~sekcji \ref{ROC} na stronie \pageref{ROC}. Czułość jest wyrażona wzorem
+$$ \text{Czułość}= \frac{TP}{TP + FN} \text{.}$$
+
+\subsubsection{Swoistość}
+Swoistość to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnych obserwacji. Inaczej nazywana też odwrotną czułością, z~uwagi na analogiczną postać do czułości, ponieważ mierzy ona również odsetek znalezionych wszystkich obserwacji, lecz dla negatywnej klasy. Wyraża się następującym wzorem
+$$ \text{Swoistość}= \frac{TN}{TN + FP} \text{.}$$
+
+\subsubsection{Ujemna wartość predykcyjna}
+Ujemna wartość predykcyjna to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnie zaklasyfikowanych obserwacji. Nazywana jest również odwrotną precyzją, ponieważ analogicznie do precyzji skupia się na mierzeniu skuteczności klasyfikowania obserwacji negatywnych. Miara ta jest także używana do wyrysowania krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}). Dana jest wzorem
+$$ \text{Ujemna wartość predykcyjna}= \frac{TN}{TN + FN} \text{.}$$
+
+\subsubsection{Zbalansowana skuteczność} 
+Zbalansowana skuteczność to średnia arytmetyczna czułości oraz swoistości. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczość próbek w klasach, to wartość zbalansowanej skuteczności spada. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej. Zadana jest wzorem
+$$ \text{Zbalansowana skuteczność}= \frac{\text{Czułość} + \text{Swoistość}}{2} \text{.}$$
+
+\subsubsection{F1 Score}
+F1 Score to średnia harmoniczna precyzji oraz czułości. 
 $$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} $$
+
 Wszystkie wyżej wspomniane miary skuteczności przyjmują wartości z zakresu $[0,1]$ oraz wyższa wartość oznacza lepszy model.
 
+\subsection{Krzywa charakterystyki pracy odbiornika}
+\label{ROC}
+
+Krzywa ROC
+
+\subsection{Macierz kosztu}
+W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt potrzebujemy zdefiniować macierz kosztu, która w odpowiednich komórkach tabeli ... Warto zaznaczyć, że koszt klasyfikacji może różnić się między poszczególnymi obserwacjami.
+\begin{table}[h]
+	\begin{center}
+		\begin{tabular}{c|c|c}
+			\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
+			& $y_i = 1$            & $y_i = 0$ \\
+			\hline
+			Predykcja pozytywna & \multirow{2}{4em}{\centering \underscoretext{C}{TP}{i}} & \multirow{2}{4em}{\centering \underscoretext{C}{FP}{i}} \\
+			$c_i = 1$         &                    &                    \\
+			\hline
+			Predykcja negatywna & \multirow{2}{4em}{\centering \underscoretext{C}{FN}{i}} & \multirow{2}{4em}{\centering \underscoretext{C}{TN}{i}} \\
+			$c_i = 0$         &                    &                    \\
+		\end{tabular}
+	\end{center}
+	\caption{Macierz kosztu}
+	\label{tab:macierz-kosztu}
+\end{table}
+% TODO: Popisać o kosztach ...
+% TODO: Rozbić na cztery przypadki
 
 \subsection{Miary skuteczności modeli wrażliwe na koszt}
 % TODO: Bardzo do TODO XD
 Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla FP i FN. Ponadto koszt oszustwa znacząco różni się w zależności od przypadku.
 
-W celu wprowadzenia potrzebnych miar skuteczności potrzebujemy wprowadzić tzw. macierz kosztu, która jest zaprezentowana w Tabeli \ref{macierz-kosztu}, gdzie poszczególne komórki oznacza odpowiadające wartość kosztu predykcji. 
-\begin{table}[h]
-	\begin{center}
-		\makegapedcells
-		\begin{tabular}{cc|cc}
-			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
-			&            &   Oszustwo &   Normalna     \\ 
-			\cline{2-4}
-			\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Oszustwo   & $C_{TP_{i}}$         & $C_{FN_{i}}$              \\
-			& Normalna   & $C_{FP_{i}}$         & $C_{TN_{i}}$              \\ 
-			\cline{2-4}
-		\end{tabular}
-	\end{center}
-	\caption{Macierz kosztu}
-	\label{macierz-kosztu}
-\end{table}
-Następnie definiujemy następującą wartość:
+\subsubsection{Koszt}
 $$ \text{Koszt}(f(\iks_{i}^{*})) = y_i (c_i C_{TP_i} + (1-c_i)C_{FN_i}) + (1-y_i)(c_i C_{FP_i} + (1-c_i)C_{TN_i}) \text{,}$$
-gdzie 
+gdzie:
 \begin{itemize}
 	\item $\iks_{i}^{*} = [\iks_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor zawierający wartości cech i-tej obserwacji rozszerzony o koszt klasyfikacji,
-	\item $C_{\cdot}$ - koszt klasyfikacji $i$-tej obserwacji,
 	\item $f(\cdot)$ - model predykcyjny,
 \end{itemize}{}
 Następnie wprowadzamy następujące miary skuteczności modeli:
+
+\subsubsection{Koszt całkowity}
 \begin{equation}
 \label{koszt-calkowity}
 \text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*})) \text{,}
 \end{equation} 
+
+\subsubsection{Oszczędności}
 \begin{equation}
 \text{Oszczędności} = \frac{\text{Koszt}_{n}(\es) - \text{Koszt}(f(\es))}{\text{Koszt}_{n}(\es)} \text{,}
 \end{equation}
@@ -240,7 +276,7 @@ gdzie:
 	\item $ \text{Koszt}_n = \min\{\text{Koszt}(f_{0}(\es)), \text{Koszt}(f_{1}(\es))\} $,
 	\item $ f_{a}(\es) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$.
 \end{itemize}{}
-Wartość $ f_{a}(\es)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_0 $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Ostatecznie oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
+Wartość $ f_{a}(\es)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_n $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Ostatecznie oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
 
 % TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
@@ -262,7 +298,7 @@ $$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) \text{,}$$
 gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
-	J_i(\theta) = -y_i log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i) log(1 - h_{\theta}(\boldsymbol{x_i})) \text{.}
+	J_i(\theta) = -y_i\log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i})) \text{.}
 \end{equation}
 Następnie wykorzystując algorytm optymalizacyjny, który będzie w stanie znaleźć minimum funkcji straty, znajdujemy odpowiednie parametry modelu.
 
@@ -310,6 +346,11 @@ $$ \text{Gain}(\iks^j, l^j) = I(\pi_1) - \frac{|\es^l|}{|\es|} I(\pi_1^l) - \fra
 gdzie $I(\pi_1)$ może być dowolną z zaproponowanych miar zanieczyszczenia.
 Ostatecznie wybiera się ten podział, który maksymalizuje przyrost czystości, a następnie dzieli się zbiór $\es$ na podzbiory $\es^l$ i $\es^r$.
 W taki sposób jest pokonywany pojedynczy podział zbioru dla konkretnego węzła. Całe drzewo tworzy się poprzez kolejne podziały węzłów aż do momentu dotarcia przez algorytm do kryterium stopu.
+
+\subsubsection{C4.5}
+C4.5
+\subsubsection{CART}
+CART
 
 \subsection{Las losowy}
 Kolejne modele są przedstawicielami szerokiej klasy metod \textit{ensemble}, które wykorzystują metody próbkowania w celu utworzenia różnych klasyfikatorów bazowych, aby następnie dokonać ostatecznej predykcji. Metody te są używane, aby zredukować wariancję klasyfikatora bazowego (zazwyczaj drzewa decyzyjnego) poprzez losowe dobieranie próbki i/lub zmiennych, na których model będzie uczony. W wielu przypadkach stworzenie modelu opartego o \textit{bagging} jest znacznie prostsze, ponieważ wymaga jedynie zmiany próbkowania danych bez naruszania modelu bazowego, natomiast metody typu \text{boosting} wymagają zmiany całego algorytmu. Z licznych obserwacji wynika, że pierwsza z metod dużo lepiej radzi sobie mają jako bazowe klasyfikatory złożone modele, w przeciwieństwie do drugiej, która zazwyczaj osiąga najlepsze wyniki wykorzystując proste modele (np. płytkie drzewa decyzyjne, tzn. o małej głębokości).
@@ -453,9 +494,26 @@ Z poprzednich rozważań oczywiście możliwe jest stworzenie modeli typu \texti
 W celu porównania skuteczności metod wrażliwych na koszt względem siebie wykonamy eksperyment, którego celem będzie sprawdzenie, który z modeli lub ich kombinacja przyniesie największe oszczędności na zbiorze danych dot. oszustw z wykorzystaniem kart kredytowych. Jako dodatkowy wskaźnik wykorzystamy miarę skuteczności modelu F1 Score, która będzie w stanie odpowiedzieć jak zmieniła się ogólna skuteczność modelu.
 
 \section{Dane}
-Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection \footnote{Źródło: \url{https://www.kaggle.com/mlg-ulb/creditcardfraud}} zawierający 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to zanonimizowane zmienne numeryczne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), a dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. Ponadto wśród danych nie ma brakujących wartości. Podczas modelowania pominiemy zmienną czasową, ponieważ sama w sobie nie zawiera ona istotnej informacji, natomiast stworzenie znaczących zmiennych nie jest istotą przeprowadzanego eksperymentu. 
+Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection.\footnote{Źródło: \url{https://www.kaggle.com/mlg-ulb/creditcardfraud}} Zawiera on 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to zanonimizowane zmienne numeryczne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), a dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. Ponadto wśród danych nie ma brakujących wartości. Podczas modelowania pominiemy zmienną czasową, ponieważ sama w sobie nie zawiera ona istotnej informacji, natomiast stworzenie znaczących zmiennych nie jest istotą przeprowadzanego eksperymentu. 
 
-Mimo tego, że dane zostały poddane anonimizacji, to na podstawie \ref{} możemy domyślać się z jakimi zmiennymi mieliśmy do czynienia przed transformacjami. Podczas procesu dokonywania transakcji standardowo zbierane są: ID klienta, data dokonania transakcji, kwota, lokalizacja, typ transakcji (przykładowo płatność internetowa, płatność stacjonarna, wypłata z bankomatu), beneficjent transakcji (przykładowo linie lotnicze, hotel, wypożyczalnia samochodów itp.), historyczna informacja dot. czy dana transakcja była oszustwem, wiek klienta, kraj zamieszkania, kod pocztowy, typ karty (przykładowo VISA, MasterCard itp.). Na podstawie wymienionych informacji tworzy się agregaty czasowe bazujące na historii, które składają się z następujących kombinacji zmiennych:
+Mimo tego, że dane zostały poddane anonimizacji, to na podstawie \cite{CSCCFD} możemy domyślać się z jakimi zmiennymi mieliśmy do czynienia przed transformacjami. Podczas procesu dokonywania transakcji standardowo zbierane są: 
+\begin{itemize}
+	\item data dokonania transakcji, 
+	\item numer konta,
+	\item numer karty,
+	\item typ transakcji (płatność internetowa, płatność stacjonarna, wypłata z bankomatu),
+	\item kwota, 
+	\item ID beneficjenta transakcji
+	\item grupa beneficjenta transakcji (przykładowo linie lotnicze, hotel, wypożyczalnia samochodów itp.), 
+	\item kraj dokonania transakcji
+	\item kraj zamieszkania właściciela karty,
+	\item typ karty (przykładowo VISA, MasterCard itp.),
+	\item wiek klienta, 
+ 	\item płeć klienta,
+	\item bank klienta,
+	\item historyczna informacja czy dana transakcja była oszustwem.
+\end{itemize}
+Na podstawie wymienionych informacji tworzy się agregaty czasowe bazujące na historii, które składają się z następujących kombinacji zmiennych:
 \begin{itemize}
 	\item Klient, karta kredytowa;
 	\item Typ transakcji, beneficjent transakcji, kategoria beneficjenta, kraj;
@@ -468,22 +526,23 @@ Informacja, która jest najbardziej istotna z punktu widzenia naszego modelowani
 
 Warto zauważyć, że najpopularniejszymi wartościami transakcji są: 
 
-Na podstawie przeprowadzonej analizy definiujemy w Tabeli \ref{macierz-kosztu-eksperyment} macierz kosztu dla tego eksperymentu, gdzie $C_a$ to koszt administracyjny podjęcia sprawy przez analityka, który sprawdza, czy dana obserwacja jest faktycznie oszustwem niezależnie od tego, jaki był jego ostateczny werdykt, $\text{Amt}_i$ to wartość transakcji, jaką utracimy w przypadku niewskazanie danej obserwacji jako oszustwa, natomiast zerowa wartość kosztu dla normalnej transakcji, która była prawidłowo wskazana, wynika z braku konieczności podjęcia inwestygacji oraz strat z tego wynikających.
+Na podstawie przeprowadzonej analizy definiujemy w Tabeli \ref{tab:macierz-kosztu-eksperyment} macierz kosztu dla tego eksperymentu, gdzie $C_a$ to koszt administracyjny podjęcia sprawy przez analityka, który sprawdza, czy dana obserwacja jest faktycznie oszustwem niezależnie od tego, jaki był jego ostateczny werdykt, $\text{Amt}_i$ to wartość transakcji, jaką utracimy w przypadku niewskazanie danej obserwacji jako oszustwa, natomiast zerowa wartość kosztu dla normalnej transakcji, która była prawidłowo wskazana, wynika z braku konieczności podjęcia inwestygacji oraz strat z tego wynikających.
 
 \begin{table}[h]
 	\begin{center}
-		\makegapedcells
-		\begin{tabular}{cc|cc}
-			\multicolumn{2}{c}{}     &   \multicolumn{2}{c}{Predykcja} \\
-			&            &   Oszustwo &   Normalna     \\ 
-			\cline{2-4}
-			\multirow{2}{*}{\rotatebox[origin=c]{90}{Prawda}} & Oszustwo   & $C_a$         & $\text{Amt}_i$              \\
-			& Normalna   & $C_a$         & $0$              \\ 
-			\cline{2-4}
+		\begin{tabular}{c|c|c}
+			\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
+			& $y_i = 1$            & $y_i = 0$ \\
+			\hline
+			Predykcja pozytywna & \multirow{2}{4em}{\centering $\text{C}_{\text{a}}$} & \multirow{2}{4em}{\centering $\text{Amt}_{\text{i}}$} \\
+			$c_i = 1$         &                    &                    \\
+			\hline
+			Predykcja negatywna & \multirow{2}{4em}{\centering $\text{C}_{\text{a}}$} & \multirow{2}{4em}{\centering 0} \\
+			$c_i = 0$         &                    &                    \\
 		\end{tabular}
 	\end{center}
-	\caption{Macierz kosztu dla eksperymentu.}
-	\label{macierz-kosztu-eksperyment}
+	\caption{Macierz kosztu eksperymentu.}
+	\label{tab:macierz-kosztu-eksperyment}
 \end{table}
 
 \section{Opis eksperymentu}
