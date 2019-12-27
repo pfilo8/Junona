@@ -75,6 +75,14 @@
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 
+\expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks% save the current one
+	\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j%
+	\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t%
+	\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D%
+	\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N%
+	\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X%
+	\do\Y\do\Z\do\*\do\-\do\~\do\'\do\"\do\-}%
+
 
 \begin{document}
 	
@@ -82,7 +90,6 @@
 \newcommand{\es}{\mathcal{S}}
 \newcommand{\ef}{\mathcal{F}}
 \newcommand{\iks}{\boldsymbol{x}}
-\newcommand{\bes}{\boldsymbol{S}}
 \newcommand{\yht}[1]{y_i^{(#1)}}
 \newcommand{\ylab}[2]{\text{#1}_{\text{#2}}}
 
@@ -134,13 +141,20 @@ Wybór tematu pracy był związany z codzienną pracą nad modelami predykcyjnym
 
 Celem pracy jest opisanie i porównanie standardowych oraz wrażliwych na koszty modeli predykcyjnych w problemie detekcji oszustw na kartach płatniczych. W tym celu zostanie przeprowadzony eksperyment porównujący skuteczność poszczególnych metod. Wykorzystane zostaną modele takie jak regresja logistyczna, drzewo decyzyjne, las losowy oraz algorytm XGBoost wraz z odpowiednimi modyfikacjami oraz metody optymalizacji progu i minimalizacji ryzyka bayesowskiego.
 
-Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstępem teoretycznym, który zawiera opis miar skuteczności oraz aspekt teoretyczny modeli predykcyjnych. Rozdział drugi prezentuje opis eksperymentu na danych rzeczywistych wraz z wynikami oraz wnioskami. Ostatnia część podsumowuje całość pracy.
+Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstępem teoretycznym, który wprowadza odpowiednie pojęcia i modele z dziedziny statystyki oraz uczenia maszynowego. Rozdział drugi prezentuje opis eksperymentu na danych rzeczywistych wraz z wynikami oraz wnioskami. Ostatnia część podsumowuje całość pracy.
 
 \chapter{Wprowadzenie teoretyczne}
 
-Wprowadzenie teoretyczne zawiera wszelkie potrzebne w dalszych rozważaniach informacje dotyczące użytych w dalszej pracy metodach z dziedziny statystyki oraz uczenia maszynowego. W~szczególności zaczniemy opisania samych modeli, które dzielą się na dwie kategorie: standardowe oraz wrażliwe na koszt. Pierwsze z~nich są powszechnie znane i wykorzystywane w bardzo wielu obszarach zastosowań. Drugie z nich są specyficzne dla pewnej klasy problemów, gdzie koszt popełnienia poszczególnych błędów jest różny i dzielą się one na dwie podkategorie -- Trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz Klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification}). Dalej zostaną wprowadzone miary skuteczności modeli predykcyjnych, które będą nam potrzebne do stwierdzenia, który z otrzymanych modeli jest najlepszy.
+Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz uczenia maszynowego, które wykorzystuje się w~zagadnieniach klasyfikacyjnych. W~szczególności zaczniemy od opisania macierzy pomyłek, macierzy kosztu oraz związanymi z nimi miarami skuteczności modeli predykcyjnych, które służą do badania jakości predykcji. Następnie przejdziemy do modeli standardowych, które nie biorą pod uwagi różnych kosztów popełniania błędu klasyfikacyjnego. W~ramach tej grupy opiszemy regresję logistyczną, drzewo decyzyjne, las losowy oraz algorytm XGBoost. Na końcu opiszemy modele wrażliwe na koszt, które dzielimy na dwie podkategorie -- Trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz Klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification}).\footnote{Źródło:  \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}} Pierwsze z nich zawierają metody, które w trakcie uczenia modelu zwracają uwagę na koszt błędnej klasyfikacji. Są to rozszerzone wersje standardowych modeli, które w trakcie uczenia się mają zmienioną postać optymalizowanej funkcji. W tej pracy będziemy omawiać regresję logistyczną wrażliwą na koszt oraz drzewo decyzyjne wrażliwe na koszt. Druga podkategoria składa się z metod, które wykorzystują estymowane prawdopodobieństwo ze~standardowych modeli i~na jego podstawie tworzą dodatkowy model, który bierze pod uwagę koszt niepoprawnej klasyfikacji danego przypadku. Z tej grupy omówimy optymalizację progu oraz minimalizację ryzyka bayesowskiego.
 
-% TODO: Kilka słów o MLu w ogólności
+W pracy będziemy wykorzystywać następujące oznaczenia:
+\begin{itemize}
+	\item $\es$ - zbiór wszystkich obserwacji,
+	\item $\iks_{i}$ - $i$-ty wektor obserwacji,
+	\item $y_i \in \{0,1\}$ - prawdziwa klasyfikacja dla $i$-tej obserwacji. Wartość $0$ oznacza klasyfikację negatywną, natomiast wartość $1$ oznacza klasyfikację pozytywną.
+	\item $p_i \in [0,1]$ - przewidywana wartość prawdopodobieństwa dla $i$-tej obserwacji,
+	\item $c_i \in \{0,1\} $ - predykcja klasyfikacji dla $i$-tej obserwacji. Oznaczenia analogicznie jak dla $y_i$.
+\end{itemize}
 
 \section{Miary skuteczności modeli}
 
@@ -212,8 +226,6 @@ gdzie
 	\item $\iks_{i}^{*} = [\iks_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor zawierający wartości cech i-tej obserwacji rozszerzony o koszt klasyfikacji,
 	\item $C_{\cdot}$ - koszt klasyfikacji $i$-tej obserwacji,
 	\item $f(\cdot)$ - model predykcyjny,
-	\item $y_i$ - prawdziwa wartość $i$-tej obserwacji,
-	\item $c_i$ - predykcja dla $i$-tej obserwacji.
 \end{itemize}{}
 Następnie wprowadzamy następujące miary skuteczności modeli:
 \begin{equation}
@@ -221,15 +233,14 @@ Następnie wprowadzamy następujące miary skuteczności modeli:
 \text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*})) \text{,}
 \end{equation} 
 \begin{equation}
-\text{Oszczędności} = \frac{\text{Koszt}_{n}(\bes) - \text{Koszt}(f(\bes))}{\text{Koszt}_{n}(\bes)} \text{,}
+\text{Oszczędności} = \frac{\text{Koszt}_{n}(\es) - \text{Koszt}(f(\es))}{\text{Koszt}_{n}(\es)} \text{,}
 \end{equation}
 gdzie:
 \begin{itemize}
-	\item $ \bes $ - zbiór danych,
-	\item $ \text{Koszt}_n = \min\{\text{Koszt}(f_{0}(\bes)), \text{Koszt}(f_{1}(\bes))\} $,
-	\item $ f_{a}(\bes) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$.
+	\item $ \text{Koszt}_n = \min\{\text{Koszt}(f_{0}(\es)), \text{Koszt}(f_{1}(\es))\} $,
+	\item $ f_{a}(\es) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$.
 \end{itemize}{}
-Wartość $ f_{a}(\bes)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_0 $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Ostatecznie oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
+Wartość $ f_{a}(\es)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_0 $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Ostatecznie oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
 
 % TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
@@ -359,34 +370,32 @@ Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju
 \end{figure}
 \subsection{Optymalizacja progu}
 Metoda optymalizacji progu jest popularną metodą wyznaczania odpowiedniego progu prawdopodobieństwa, powyżej którego wszystkie obserwacje oznaczamy jako pozytywnie zaklasyfikowane. Może być ona wykorzystywana nie tylko do problemów wrażliwych na koszt, lecz do dowolnie zdefiniowanego zagadnienia, w którym wyznaczenie progu jest potrzebne. Jej sformułowanie wygląda następująco
-$$ \argmin_{th \in [0,1]} f(\ylab{y}{true}, \ylab{y}{decision}) \text{,} $$
+$$ \argmin_{t \in [0,1]} f(\ylab{y}{true}, \ylab{y}{decision}) \text{,} $$
 gdzie 
 \begin{itemize}
-	\item $ f(\cdot) $ - miara skuteczność modelu, np. skuteczność,
-	\item $ \ylab{y}{true} = (c_i)_{i=1}^n $ - wektor prawdziwych oznaczeń ,
+	\item $ f(\cdot) $ - miara skuteczność modelu, np. dokładność,
+	\item $ \ylab{y}{true} = (y_i)_{i=1}^n $ - wektor prawdziwych oznaczeń,
 	\item $ \ylab{y}{decision} = (p_i > t)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
-	\item $ p_i $ - przewidywana wartość prawdopodobieństwa dla i-tej obserwacji,
 	\item $ \text{t} $ - wartość progu decyzyjnego.
 \end{itemize}{}
 W naszym przypadku funkcja $f$ to funkcja kosztu całkowitego (\ref{koszt-calkowity}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zminimalizuje sumaryczną wartość kosztów.
 
 % TODO: Opcjonalne - odwołać się do przypadków wielu minimum. Opisać algorytmiczne wyznaczanie tej wartości.
 \subsection{Minimalizacja ryzyka bayesowskiego}
-
+% TODO: Zmienić oznaczenia we wzorkach
 Metoda minimalizacji ryzyka bayesowskiego (\textit{ang. Bayesian Minimum Risk}) polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób:
-$$ R(p_1|x_i) = L(p_1|y_1)P(p_1|x_i) + L(p_1|y_0)P(y_0|x_i) \text{,}$$
-$$ R(p_0|x_i) = L(p_0|y_0)P(p_0|x_i) + L(p_0|y_1)P(y_1|x_i) \text{,}$$
+$$ R(p_1|\iks_{i}) = L(p_1|y_1)P(y_1|\iks_{i}) + L(p_1|y_0)P(y_0|\iks_{i}) \text{,}$$
+$$ R(p_0|\iks_{i}) = L(p_0|y_0)P(y_0|\iks_{i}) + L(p_0|y_1)P(y_1|\iks_{i}) \text{,}$$
 gdzie
 \begin{itemize}
-	\item $P(p_1|x_i)$, $P(p_0|x_i)$ - oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(p_0|x) = 1 - P(p_1|x)$,
-	\item $L(p_{i}|y_{j})$ oraz $i,j \in \{l,f\}$ - funkcja kosztu,
-	\item $x_i$ - $i$-ta obserwacja.
+	\item $P(p_1|\iks_{i})$, $P(p_0|\iks_{i})$ - oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(p_0|\iks_{i}) = 1 - P(p_1|\iks_{i})$,
+	\item $L(p_{i}|y_{j})$ oraz $i,j \in \{l,f\}$ - funkcja kosztu.
 \end{itemize}{}
 Klasyfikacja danej obserwacji jest opisana następującą nierównością:
-$$ R(p_1|x_i) \leq R(p_0|x_i)$$
+$$ R(p_1|\iks_{i}) \leq R(p_0|\iks_{i})$$
 I oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
 Po przeprowadzaniu odpowiednich przekształceń algebraicznych otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
-$$ P(p_1|x_i) \ge \frac{L(p_1|y_0) - L(p_0|y_0)}{L(p_0|y_1) - L(p_1|y_1) - L(p_0|y_0) + L(p_1|y_0)} \text{.}$$
+$$ P(p_1|\iks_{i}) \ge \frac{L(p_1|y_0) - L(p_0|y_0)}{L(p_0|y_1) - L(p_1|y_1) - L(p_0|y_0) + L(p_1|y_0)} \text{.}$$
 W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartość z macierzy kosztu, to otrzymujemy następujący prób decyzyjny:
 $$ p \ge \frac{C_{FP_i} - C_{TN_i}}{C_{FN_i} - C_{TP_i} - C_{TN_i} + C_{FP_i}} \text{.}$$
 
