@@ -91,7 +91,7 @@
 \newcommand{\ef}{\mathcal{F}}
 \newcommand{\iks}{\boldsymbol{x}}
 \newcommand{\yht}[1]{y_i^{(#1)}}
-\newcommand{\ylab}[2]{\text{#1}_{\text{#2}}}
+\newcommand{\ytrue}{\boldsymbol{y}_{\text{true}}}
 \newcommand{\underscoretext}[3]{$\text{#1}_{\text{#2}_{\text{#3}}}$}
 
 \newenvironment{talign}
@@ -155,6 +155,7 @@ W pracy będziemy wykorzystywać następujące oznaczenia:
 	\item $\es = \{\iks_1, \iks_2, \dots, \iks_N \}$ -- zbiór wszystkich $N$ obserwacji,
 	\item $\iks_{i} = \left(x_i^{(1)}, x_i^{(2)}, \dots, x_i^{(j)} \right)$ -- $i$-ty wektor obserwacji składający się z $j$ atrybutów,
 	\item $x_i^{(k)}$ -- $k$-ty atrybut $i$-tego wektora obserwacji,
+	\item $\ytrue = (y_1, y_2, \dots, y_N)$ - wektor prawdziwych stanów klasyfikacji,
 	\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji. Wartość $0$ oznacza klasyfikację negatywną, natomiast wartość $1$ oznacza klasyfikację pozytywną.
 	\item $p_i \in [0,1]$ -- estymowana wartość prawdopodobieństwa dla $i$-tej obserwacji,
 	\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji. Oznaczenia analogicznie jak dla $y_i$.
@@ -216,11 +217,14 @@ $$ \text{Ujemna wartość predykcyjna}= \frac{TN}{TN + FN} \text{.}$$
 Zbalansowana skuteczność to średnia arytmetyczna czułości oraz swoistości. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczość próbek w klasach, to wartość zbalansowanej skuteczności spada. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej. Zadana jest wzorem
 $$ \text{Zbalansowana skuteczność}= \frac{\text{Czułość} + \text{Swoistość}}{2} \text{.}$$
 
-\subsubsection{F1 Score}
-F1 Score to średnia harmoniczna precyzji oraz czułości. 
-$$ \text{F1 Score} = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} $$
+\subsubsection{F Score}
+$\text{F}_1$ Score to miara łącząca w sobie precyzję oraz czułość za pomocą średniej harmonicznej. Z~uwagi na wykorzystanie tych dwóch wartości nie bierze ona pod uwagę prawidłowo zaklasyfikowanych obserwacji negatywnych. Wykorzystanie średniej harmonicznej powoduje, że kładziemy równy nacisk na obie użyte miary. Standardowy wzór wygląda następująco
+$$ \text{F}_1 \text{ Score} = \left(\frac{2}{\text{Precyzja}^{-1} + \text{Czułość}^{-1}}\right) = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} \text{.}$$
 
-Wszystkie wyżej wspomniane miary skuteczności przyjmują wartości z zakresu $[0,1]$ oraz wyższa wartość oznacza lepszy model.
+W przypadku, gdy interesuje nas bardziej precyzja lub czułość, to definiujemy bardziej ogólną formułę na $\text{F}_{\beta}$ Score:
+$$ F_{\beta} = (1 + \beta^2) \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{(\beta^2 \cdot \text{Czułość}) + \text{Precyzja}} \text{,}$$
+gdzie parametr $\beta>0$ odpowiada na pytanie, ile razy bardziej czułość jest ważniejsza niż precyzja. Najczęściej wykorzystuje się parametr $\beta = 2$ lub $\beta = \frac{1}{2}$, który odpowiednio zwiększa nacisk na czułość lub zmniejsza wpływ fałszywie negatywnie zaklasyfikowanych obserwacji, skupiając się bardziej na precyzji.
+
 
 \subsection{Krzywa charakterystyki pracy odbiornika}
 \label{ROC}
@@ -228,7 +232,26 @@ Wszystkie wyżej wspomniane miary skuteczności przyjmują wartości z zakresu $
 Krzywa ROC
 
 \subsection{Macierz kosztu}
-W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt potrzebujemy zdefiniować macierz kosztu, która w odpowiednich komórkach tabeli ... Warto zaznaczyć, że koszt klasyfikacji może różnić się między poszczególnymi obserwacjami.
+\label{sec:macierz-kosztu}
+W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt najpierw definiujemy macierz kosztu $C$. Ma ona postać analogiczną do macierzy pomyłek, lecz zamiast ilość obserwacji w odpowiednich komórkach wpisujemy koszt pomyłki dla $i$-tej obserwacji. Warto zaznaczyć, że koszt niekoniecznie musi być kwota pieniężną, lecz także możemy rozważać ilość poświęconego czasu, bądź inną dowolną mierzalną jednostkę. W szczególności dla przypadku klasyfikacji binarnej wyróżniamy cztery możliwe wartości:
+\begin{myitemize}
+	& \underscoretext{C}{TP}{i} -- koszt prawdziwie pozytywnego zaklasyfikowania $i$-tej obserwacji,
+	& \underscoretext{C}{FP}{i} -- koszt fałszywie pozytywnego zaklasyfikowania $i$-tej obserwacji,
+	& \underscoretext{C}{FN}{i} -- koszt fałszywie negatywnego zaklasyfikowania $i$-tej obserwacji,
+	& \underscoretext{C}{TN}{i} -- koszt prawdziwie negatywnego zaklasyfikowania $i$-tej obserwacji.
+\end{myitemize}
+
+W zależności od praktycznego zastosowania wartości w macierzy kosztu przyjmują różne wartości. Poniżej przedstawiamy kilka intuicji na podstawie macierzy kosztu zdefiniowanych dla różnych eksperymentów w~\cite{alej2015ensemble}.
+\begin{itemize}
+	\item W przypadku, gdy predykcja klasy pozytywnej wiąże się z podjęciem jakiejś akcji, np. sprawdzenie transakcji kartą kredytową, wysłanie oferty reklamowej, to koszt pozytywnej predykcji jest dodatni, to znaczy \underscoretext{C}{TP}{i}, \underscoretext{C}{FP}{i} $>0$. Ponadto najczęściej te koszty są równe i przyjmują stałą wartość dla wszystkich przypadków, to znaczy \underscoretext{C}{TP}{i}~$=$~\underscoretext{C}{FP}{i}~$= \text{const.}$, ponieważ podejmowana zawsze jest ta sama akcja dla wszystkich obserwacji. Dodatkowo koszt pozytywnego zaklasyfikowania dla każdej obserwacji negatywnej jest zerowy, to znaczy \underscoretext{C}{TN}{i} $=0$, ponieważ słusznie nie została podjęta żadna akcja. Zatem ostatecznie jedyną wartością, która różni się między przypadkami, jest koszt fałszywie negatywnej klasyfikacji i on również jest większy od zera.
+	\item W przypadku, gdy predykcja dokonywana jest przez zautomatyzowany system, to koszt prawidłowej klasyfikacji jest równy zero, to znaczy \underscoretext{C}{TP}{i}~$=$~\underscoretext{C}{TN}{i}~$=0$, ponieważ maszynie nie musimy płacić pensji, która obsługuje daną sprawę. Natomiast koszty pomyłek są różne i zazwyczaj różnią się między obserwacjami. Biorąc jako przykład ryzyko kredytowe, możemy zauważyć, że koszty mogą być zarówno dodatnie, jak i ujemne. W tym konkretnym przypadku, gdy stwierdzimy, że dana osoba spłaci kredyt, natomiast w rzeczywistości nie zrobi tego, to będziemy stratni pewną sumę pieniędzy, co da nam dodatni koszt. Z drugiej strony, gdy uznamy, że dana osoba nie spłaci kredytu, a w rzeczywistości wywiązałaby się z zobowiązań, to utracimy pewien zarobek, zatem koszt będzie negatywny.
+\end{itemize}
+
+Koncepcyjnie koszt popełnienia błędu dla każdej obserwacji powinien być większy niż koszt poprawnej klasyfikacji, to znaczy
+$$ \text{C}_{\text{FP}_{\text{i}}} >\text{C}_{\text{TP}_{\text{i}}} \text{ i } \text{C}_{\text{FN}_{\text{i}}} > \text{C}_{\text{TN}_{\text{i}}} \quad \forall_{i \in \{1, 2, \dots, N\}} \text{.}$$
+Natomiast jak możemy zauważyć na podstawie wyżej opisanych intuicji, w praktycznych zastosowaniach jest to bardzo często nierealistyczne założenie.
+
+Przykład takiej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}.
 \begin{table}[h]
 	\begin{center}
 		\begin{tabular}{c|c|c}
@@ -245,39 +268,38 @@ W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt potrzebu
 	\caption{Macierz kosztu}
 	\label{tab:macierz-kosztu}
 \end{table}
-% TODO: Popisać o kosztach ...
-% TODO: Rozbić na cztery przypadki
 
 \subsection{Miary skuteczności modeli wrażliwe na koszt}
-% TODO: Bardzo do TODO XD
-Motywacją do powstania miar wrażliwych na koszt jest rzeczywista ewaluacja modeli. Podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla FP i FN. Ponadto koszt oszustwa znacząco różni się w zależności od przypadku.
+Motywacją do powstania miar skuteczności wrażliwych na koszt jest potrzeba ewaluacji modeli, która miarodajnie odda złożoność rozwiązywanego problemu. Przykładowo w przypadku detekcji oszustw będzie w stanie odpowiedzieć na pytanie dotyczące zaoszczędzonej kwoty dzięki modelowi predykcyjnemu. Kolejny powodem jest fakt, że podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fałszywie pozytywnych oraz fałszywie negatywnych klasyfikacji, traktując oba błędy jednakowo. Ponadto warto zauważyć, że omawiane problemy wymagają uwzględnienia nie tylko różnych kosztów per rodzaj pomyłki, ale także per konkretna obserwacja. Bazując na wprowadzonej w sekcji \ref{sec:macierz-kosztu} macierzy kosztu $C$, zdefiniujemy kilka miar.
 
 \subsubsection{Koszt}
-$$ \text{Koszt}(f(\iks_{i}^{*})) = y_i (c_i C_{TP_i} + (1-c_i)C_{FN_i}) + (1-y_i)(c_i C_{FP_i} + (1-c_i)C_{TN_i}) \text{,}$$
-gdzie:
-\begin{itemize}
-	\item $\iks_{i}^{*} = [\iks_i, C_{TP_{i}}, C_{FP_{i}}, C_{FN_{i}}, C_{TN_{i}}]$ - wektor zawierający wartości cech i-tej obserwacji rozszerzony o koszt klasyfikacji,
-	\item $f(\cdot)$ - model predykcyjny,
-\end{itemize}{}
-Następnie wprowadzamy następujące miary skuteczności modeli:
+Rozpoczniemy od matematycznego wprowadzenia kosztu, który wyznacza jaką wartość powinniśmy wziąć z macierzy kosztu $C_i$ dla $i$-tej obserwacji mając daną predykcję oraz prawdziwą wartość klasyfikacji.
+$$ \text{Koszt}(y_i, c_i, C_i) = y_i \left(c_i C_{TP_i} + (1-c_i)C_{FN_i}\right) + (1-y_i)\left(c_i C_{FP_i} + (1-c_i)C_{TN_i}\right) \text{,}$$
+gdzie $C_{TP_{i}}\text{,} C_{FP_{i}}\text{,} C_{FN_{i}}\text{,} C_{TN_{i}}$ to odpowiednie wartości z macierzy kosztu $C_i$.
 
 \subsubsection{Koszt całkowity}
+Koszt całkowity (TC, z angielskiego \textit{ang. Total Cost}) to suma kosztów poniesionych dla danego zestawy predykcji $\boldsymbol{c}$, który zostały wygenerowany przez pewien model predykcyjny. Definiowany jest wzorem
 \begin{equation}
 \label{koszt-calkowity}
-\text{Koszt całkowity}(f(\boldsymbol{S})) = \sum_{i=1}^{N}\text{Cost}(f(\boldsymbol{x}_{i}^{*})) \text{,}
+\text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \sum_{i=1}^{N}\text{Koszt}(y_i, c_i, C_i) \text{,}
 \end{equation} 
+gdzie:
+\begin{itemize}
+	\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ - wektor przewidywanych klas,
+	\item $\boldsymbol{C} = (C_1, C_2, \dots, C_N) $ - wektor macierzy kosztu.
+\end{itemize}
 
 \subsubsection{Oszczędności}
+Oszczędności (\textit{ang. Savings})to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od bazowego klasyfikatora. Przy czym bazowym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
 \begin{equation}
-\text{Oszczędności} = \frac{\text{Koszt}_{n}(\es) - \text{Koszt}(f(\es))}{\text{Koszt}_{n}(\es)} \text{,}
+\text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, C) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, C)} \text{,}
 \end{equation}
 gdzie:
 \begin{itemize}
-	\item $ \text{Koszt}_n = \min\{\text{Koszt}(f_{0}(\es)), \text{Koszt}(f_{1}(\es))\} $,
-	\item $ f_{a}(\es) = \boldsymbol{a} $ gdzie $a \in \{0,1\}$.
+	\item $ \text{Koszt bazowy}(\ytrue, C) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\}$ - koszt poniesiony w przypadku używania bazowego klasyfikatora,
+	\item $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ - wektor długości $N$ predykcji równych $0$,
+	\item $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ - wektor długości $N$ predykcji równych $1$.
 \end{itemize}{}
-Wartość $ f_{a}(\es)$ możemy rozumieć jako przypadek naiwnego modelu, który wszystkim obserwacjom przyznaje wartość $a$. Natomiast $ \text{Koszt}_n $ oznacza wybranie naiwnego klasyfikatora, który generuje mniejsze koszty. Ostatecznie oszczędności możemy rozumieć jako procentową wartość o ile testowany model jest lepszy od naiwnego klasyfikatora.
-
 % TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
 \section{Standardowe modele}
@@ -411,12 +433,11 @@ Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju
 \end{figure}
 \subsection{Optymalizacja progu}
 Metoda optymalizacji progu jest popularną metodą wyznaczania odpowiedniego progu prawdopodobieństwa, powyżej którego wszystkie obserwacje oznaczamy jako pozytywnie zaklasyfikowane. Może być ona wykorzystywana nie tylko do problemów wrażliwych na koszt, lecz do dowolnie zdefiniowanego zagadnienia, w którym wyznaczenie progu jest potrzebne. Jej sformułowanie wygląda następująco
-$$ \argmin_{t \in [0,1]} f(\ylab{y}{true}, \ylab{y}{decision}) \text{,} $$
+$$ \argmin_{t \in [0,1]} f(\ytrue, y_{\text{decision}}) \text{,} $$
 gdzie 
 \begin{itemize}
 	\item $ f(\cdot) $ - miara skuteczność modelu, np. dokładność,
-	\item $ \ylab{y}{true} = (y_i)_{i=1}^n $ - wektor prawdziwych oznaczeń,
-	\item $ \ylab{y}{decision} = (p_i > t)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
+	\item $ y_{\text{decision}} = (p_i > t)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
 	\item $ \text{t} $ - wartość progu decyzyjnego.
 \end{itemize}{}
 W naszym przypadku funkcja $f$ to funkcja kosztu całkowitego (\ref{koszt-calkowity}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zminimalizuje sumaryczną wartość kosztów.
@@ -493,6 +514,8 @@ Z poprzednich rozważań oczywiście możliwe jest stworzenie modeli typu \texti
 \chapter{Eksperyment}
 W celu porównania skuteczności metod wrażliwych na koszt względem siebie wykonamy eksperyment, którego celem będzie sprawdzenie, który z modeli lub ich kombinacja przyniesie największe oszczędności na zbiorze danych dot. oszustw z wykorzystaniem kart kredytowych. Jako dodatkowy wskaźnik wykorzystamy miarę skuteczności modelu F1 Score, która będzie w stanie odpowiedzieć jak zmieniła się ogólna skuteczność modelu.
 
+% TODO: Inspiracja z artykułu ...
+
 \section{Dane}
 Do eksperymentu zostanie wykorzystany zbiór danych Credit Card Fraud Detection.\footnote{Źródło: \url{https://www.kaggle.com/mlg-ulb/creditcardfraud}} Zawiera on 284,807 transakcji w tym zaledwie 492 oszustw. Tabela składa się z 30 kolumn, w tym 28 z nich są to zanonimizowane zmienne numeryczne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}), a dodatkowo posiadamy informacje dot. czasu transakcji oraz kwoty. Ponadto wśród danych nie ma brakujących wartości. Podczas modelowania pominiemy zmienną czasową, ponieważ sama w sobie nie zawiera ona istotnej informacji, natomiast stworzenie znaczących zmiennych nie jest istotą przeprowadzanego eksperymentu. 
 
@@ -534,10 +557,10 @@ Na podstawie przeprowadzonej analizy definiujemy w Tabeli \ref{tab:macierz-koszt
 			\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
 			& $y_i = 1$            & $y_i = 0$ \\
 			\hline
-			Predykcja pozytywna & \multirow{2}{4em}{\centering $\text{C}_{\text{a}}$} & \multirow{2}{4em}{\centering $\text{Amt}_{\text{i}}$} \\
+			Predykcja pozytywna & \multirow{2}{8em}{\centering \underscoretext{C}{TP}{i} $ = \text{C}_{\text{a}}$} & \multirow{2}{8em}{\centering \underscoretext{C}{FP}{i} $ = \text{C}_{\text{a}}$} \\
 			$c_i = 1$         &                    &                    \\
 			\hline
-			Predykcja negatywna & \multirow{2}{4em}{\centering $\text{C}_{\text{a}}$} & \multirow{2}{4em}{\centering 0} \\
+			Predykcja negatywna & \multirow{2}{8em}{\centering \underscoretext{C}{FN}{i} $ = \text{Amt}_{\text{i}}$} & \multirow{2}{8em}{\centering \underscoretext{C}{TN}{i} $ = 0$} \\
 			$c_i = 0$         &                    &                    \\
 		\end{tabular}
 	\end{center}
