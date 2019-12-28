@@ -280,8 +280,8 @@ gdzie $C_{TP_{i}}\text{,} C_{FP_{i}}\text{,} C_{FN_{i}}\text{,} C_{TN_{i}}$ to o
 \subsubsection{Koszt całkowity}
 Koszt całkowity (TC, z angielskiego \textit{ang. Total Cost}) to suma kosztów poniesionych dla danego zestawy predykcji $\boldsymbol{c}$, który zostały wygenerowany przez pewien model predykcyjny. Definiowany jest wzorem
 \begin{equation}
-\label{koszt-calkowity}
-\text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \sum_{i=1}^{N}\text{Koszt}(y_i, c_i, C_i) \text{,}
+	\label{koszt-calkowity}
+	\text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \sum_{i=1}^{N}\text{Koszt}(y_i, c_i, C_i) \text{,}
 \end{equation} 
 gdzie:
 \begin{itemize}
@@ -290,15 +290,15 @@ gdzie:
 \end{itemize}
 
 \subsubsection{Oszczędności}
-Oszczędności (\textit{ang. Savings})to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od bazowego klasyfikatora. Przy czym bazowym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
+Oszczędności (\textit{ang. Savings}) to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od bazowego klasyfikatora. Przy czym bazowym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
 \begin{equation}
-\text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, C) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, C)} \text{,}
+	\text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, C) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, C)} \text{,}
 \end{equation}
 gdzie:
 \begin{itemize}
 	\item $ \text{Koszt bazowy}(\ytrue, C) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\}$ - koszt poniesiony w przypadku używania bazowego klasyfikatora,
-	\item $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ - wektor długości $N$ predykcji równych $0$,
-	\item $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ - wektor długości $N$ predykcji równych $1$.
+	\item $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ - wektor $N$-elementowy predykcji równych $0$,
+	\item $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ - wektor $N$-elementowy predykcji równych $1$.
 \end{itemize}{}
 % TODO: Analiza wartości minimalnych oraz maksymalnych Kosztu całkowitego oraz Oszczędności. 
 
@@ -306,23 +306,24 @@ gdzie:
 
 \subsection{Regresja logistyczna}
 \label{reg-log}
-Regresja logistyczna należy do jednego z najbardziej podstawowych modeli statystycznych używanych do problemów klasyfikacyjnych. Jest to model, w którym zakładamy, że logarytm szans jest kombinacją liniową predyktorów, co możemy zapisać jako:
-$$ \log{\frac{\hat{p}}{1 - \hat{p}}} = \sum_{j=1}^k \theta^{(j)}x_i^{(j)} $$
-Po nałożeniu odpowiednich przekształceń ostatecznie otrzymujemy, że estymowane prawdopodobieństwo możemy zapisać w następującej postaci
+Regresja logistyczna jest bardzo ważnym modelem statystycznym, którego celem jest modelowanie prawdopodobieństwa, że zmienna losowa $Y$ przyjmie wartość $0$ lub $1$, na~podstawie danych empirycznych. W celu wyprowadzenia rozważmy funkcję uogólnionego modelu liniowego parametryzowaną wektorem współczynników $\theta = (\theta_1, \theta_2, \dots, \theta_n)$ daną w~następujący sposób
 \begin{equation}
-	\hat{p} = P(y=1|\boldsymbol{x_i}) = h_{\theta}(\boldsymbol{x_i}) = g\left(\sum_{j=1}^k \theta^{(j)}x_i^{(j)} \right)
+	\htx = \frac{1}{1+e^{-\iks_{i}\theta^T}} = P(Y = 1|X = \iks_{i};\theta) \text{.}
 \end{equation} 
-gdzie funkcja $g(z)$ to sigmoidalna funkcja łączącą, która jest opisana wzorem
-$$ g(z) = \frac{1}{1+e^{-z}} \text{.}$$
-
-W celu znalezienia odpowiednich parametrów definiujemy standardową funkcja straty, która przyjmuje następującą postać:
-$$ J(\theta) = \frac{1}{N} \sum_{i=1}^N J_i(\theta) \text{,}$$
+Jednocześnie zauważmy, że
+$$ P(Y = 0|X = \iks_{i};\theta) = 1 - P(Y = 1|X = \iks_{i};\theta) = 1 - \htx $$
+oraz korzystając z faktu, że $y_i \in \{0,1\}$, możemy zapisać 
+$$ P(Y = y_i|\iks_{i};\theta) = \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
+Następnie zakładając, że wszystkie obserwacje są niezależne i~pochodzą z~rozkładu Bernoulliego, wyznaczamy funkcję największej wiarygodności, aby wyestymować parametry~$\theta$.
+$$ L(\theta | \es) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)}$$
+W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es)$ i~otrzymujemy
+$$ J(\theta):= \log L(\theta | \es)  = \frac{1}{N} \sum_{i=1}^N J_i(\theta)\text{,}$$
 gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
 	J_i(\theta) = -y_i\log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i})) \text{.}
 \end{equation}
-Następnie wykorzystując algorytm optymalizacyjny, który będzie w stanie znaleźć minimum funkcji straty, znajdujemy odpowiednie parametry modelu.
+Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję wiarygodności, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. metodę Newtona.
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cross_entropy.png}
@@ -330,7 +331,9 @@ Następnie wykorzystując algorytm optymalizacyjny, który będzie w stanie znal
 	\label{fig:cross-entropy-plot}
 \end{figure}
 
-Korzystając z Rysunku \ref{fig:cross-entropy-plot} możemy zauważyć, że koszt klasyfikacji przyjmuje następujące wartości:
+Zauważmy, że maksymalizowana funkcja wiarygodności jest sumą wartości entropii krzyżowej dla poszczególnych obserwacji. W celu lepszego zrozumienia całości przyjrzymy się bliżej własnościom funkcji $J_i(\theta)$.
+
+Wykres \ref{fig:cross-entropy-plot} ze strony \pageref{fig:cross-entropy-plot} przedstawia przyjmowane wartości funkcji w zależności od estymowanego prawdopodobieństwa $\htx$. Kolorem niebieskim jest wyznaczony przebieg funkcji dla klasy negatywnej, a pomarańczowym dla pozytywnej. Możemy zauważyć, że funkcja jest symetryczna względem wartości prawdopodobieństwa $0.5$ dla obu klas. Oznacza to, że ten klasyfikator przykłada taką samą wagę dla obu rodzajów błędów. Ponadto koszt klasyfikacji dla pojedynczej obserwacji przyjmuje następujące wartości:
 $$
 J_i(\theta) \approx \left\{
 \begin{array}{rl}
@@ -339,10 +342,10 @@ J_i(\theta) \approx \left\{
 \end{array}{}
 \right.
 $$
-To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja kosztu przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Zatem stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
+To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
 $$ C_{TP_i} = C_{TN_i} \approx 0 \text{,}$$
-$$ C_{FP_i} = C_{FN_i} \approx \infty \text{.}$$.
-Porównując otrzymane rezultaty z macierzą kosztów możemy zauważyć, że te wartości znacząco odbiegają od tego co w rzeczywistości chcemy otrzymać. Stąd powstaje motywacja, aby zmodyfikować podaną funkcję celu i stworzyć regresję logistyczną wrażliwą na koszt, która będzie optymalizować właściwe dla Nas wartości.
+$$ C_{FP_i} = C_{FN_i} \approx \infty \text{.}$$
+... Stąd powstaje motywacja, aby zmodyfikować podaną funkcję i stworzyć regresję logistyczną, która będzie w stanie modyfikować koszty poszczególnych klasyfikacji.
 
 \subsection{Drzewo klasyfikacyjne}
 \label{drzewo}
@@ -379,12 +382,21 @@ Kolejne modele są przedstawicielami szerokiej klasy metod \textit{ensemble}, kt
 
 % TODO: Opisać metody poniżej
 Przykładowe metody losowania próbek do modeli bazowych:
-\begin{itemize}
-	\item \textit{Pasting} -- losowanie obserwacji bez powtórzeń
-	\item \textit{Bagging} -- losowanie obserwacji z powtórzeniami
-	\item \textit{Random Subspaces} -- losowanie podzbioru zmiennych
-	\item \textit{Random Patches} -- losowanie podzbioru zmiennych oraz obserwacji 
-\end{itemize}
+
+\subsubsection{Pasting}
+losowanie obserwacji bez powtórzeń
+
+\subsubsection{Bagging}
+losowanie obserwacji z powtórzeniami
+
+\subsubsection{Random Subspaces}
+losowanie podzbioru zmiennych
+
+\subsubsection{Random Patches}
+losowanie podzbioru zmiennych oraz obserwacji 
+
+\bigskip
+\bigskip
 
 W przypadku lasu losowego proces losowania próbek jest podzielony na dwie fazy. Pierwsza z nich polega na próbkowaniu z powtórzeniami obserwacji ze zbioru treningowego dla każdego z osobnych estymatorów bazowych. Następnie podczas fazy tworzenia kolejnych węzłów w drzewach wybierany jest losowy podzbiór zmiennych, które mogą być w tym kroku wykorzystane. 
 
