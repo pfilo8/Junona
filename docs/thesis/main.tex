@@ -250,7 +250,7 @@ W zależności od praktycznego zastosowania wartości w macierzy kosztu przyjmuj
 Koncepcyjnie koszt popełnienia błędu dla każdej obserwacji powinien być większy niż koszt poprawnej klasyfikacji, to znaczy
 $$ \text{C}_{\text{FP}_{\text{i}}} >\text{C}_{\text{TP}_{\text{i}}} \text{ i } \text{C}_{\text{FN}_{\text{i}}} > \text{C}_{\text{TN}_{\text{i}}} \quad \forall_{i \in \{1, 2, \dots, N\}} \text{.}$$
 Natomiast jak możemy zauważyć na podstawie wyżej opisanych intuicji, w praktycznych zastosowaniach jest to bardzo często nierealistyczne założenie.
-
+% TODO: Opisać warunki na koszty, gdyby wszystkie były stałe.
 Przykład takiej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}.
 \begin{table}[h]
 	\begin{center}
@@ -378,29 +378,24 @@ C4.5
 CART
 
 \subsection{Las losowy}
-Kolejne modele są przedstawicielami szerokiej klasy metod \textit{ensemble}, które wykorzystują metody próbkowania w celu utworzenia różnych klasyfikatorów bazowych, aby następnie dokonać ostatecznej predykcji. Metody te są używane, aby zredukować wariancję klasyfikatora bazowego (zazwyczaj drzewa decyzyjnego) poprzez losowe dobieranie próbki i/lub zmiennych, na których model będzie uczony. W wielu przypadkach stworzenie modelu opartego o \textit{bagging} jest znacznie prostsze, ponieważ wymaga jedynie zmiany próbkowania danych bez naruszania modelu bazowego, natomiast metody typu \text{boosting} wymagają zmiany całego algorytmu. Z licznych obserwacji wynika, że pierwsza z metod dużo lepiej radzi sobie mają jako bazowe klasyfikatory złożone modele, w przeciwieństwie do drugiej, która zazwyczaj osiąga najlepsze wyniki wykorzystując proste modele (np. płytkie drzewa decyzyjne, tzn. o małej głębokości).
+Las losowy oraz algorytm XGBoost są przedstawicielami szerokiej klasy modeli typu \textit{ensemble}. Głównym celem tej metodologii jest wprowadzenie losowych perturbacji do zbioru treningowego w celu utworzenia różnych klasyfikatorów bazowych, których wspólne predykcje będą lepsze niż każdego z modeli bazowych osobno. Istnieją ponadto trzy główne powody, dlaczego te metody działają znacznie lepiej niż pojedyncze modele.
+\begin{itemize}
+	\item Statystyczny -- w przypadku, gdy mamy do czynienia z małym zbiorem danych, istnieje możliwość stworzenia kilku bardzo dobryh klasyfikatorów, które na zbiorze treningowym mają taką samą skuteczność. W przypadku dodatkowego zbioru testowego istnieje szansa wybrania nieoptymalnego;
+	\item Obliczeniowy -- większość algorytmów polega na optymalizacji numerycznej, która może zatrzymać się w minimum lokalnym. Dzięki zastosowaniu kilku modeli uzyskujemy szansę przeszukania większej części przestrzeni parametrów modeli;
+	\item Reprezentacyjny -- często funkcja $f$ reprezentująca prawdziwy model jest bardzo skomplikowana i niemożliwe jest przedstawienie jej za pomocą jednego modelu. Wykorzystując złożenie kilku modeli bazowych, mamy szansę lepiej przybliżać prawdziwą funkcję $f$.
+\end{itemize}
 
-% TODO: Opisać metody poniżej
-Przykładowe metody losowania próbek do modeli bazowych:
+W celu utworzenia $T$ klasyfikatorów bazowych należy ze zbioru treningowego $\es$ wybrać $S_j$ dla $j=1,2,\dots,T$ losowych podzbiorów obserwacji, które wykorzystamy do uczenia. W tym celu wykorzystuje się następujące procedury losowania.
 
-\subsubsection{Pasting}
-losowanie obserwacji bez powtórzeń
+\begin{itemize}
+	\item Wklejanie (\textit{Pasting}) -- Polega na niezależnym losowaniu $K < N$ próbek ze zbioru $\es$ bez powtórzeń. Najczęściej wykorzystywana jest na bardzo dużych zbiorów danych, gdzie zasoby obliczeniowe są ograniczone i nie jest możliwe wczytanie wszystkich danych do pamięci komputera. Ponadto dzięki możliwości wykorzystania obliczeń równoległych skraca się czas tworzenia całego modelu. Próbki mogą być losowane z rozkładu jednostajnego bądź wykorzystując metody biorące pod uwagę ważność poszczególnych obserwacji. \cite{Pasting}
+	\item Workowanie (\textit{ang. Bagging}) -- Polega na niezależnym losowaniu $K \leq N$ próbek ze zbioru $\es$ z powtórzeniami. Najczęściej jest wykorzystywany w przypadku małych zbiorów danych, kiedy chcemy wykorzystać maksymalnie dużą ilość obserwacji, lecz także wprowadzić losowość do kolejnych klasyfikatorów bazowych.
+	\item Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych. \cite{Random_Subspace}
+	\item Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci. \cite{Random_Patches}
+\end{itemize}
+Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone z myślą o wykorzystaniu drzewa decyzyjnego jako klasyfikatora bazowego, to nic nie stoi na przeszkodzie wykorzystać inny model. Ten fakt został między innymi wykorzystany w \cite{alej2015ensemble}, gdzie wykorzystując omawiane w sekcji \ref{csdt} drzewa decyzyjne wrażliwe na koszt, stworzono lasy losowe wrażliwe na koszt.
 
-\subsubsection{Bagging}
-losowanie obserwacji z powtórzeniami
-
-\subsubsection{Random Subspaces}
-losowanie podzbioru zmiennych
-
-\subsubsection{Random Patches}
-losowanie podzbioru zmiennych oraz obserwacji 
-
-\bigskip
-\bigskip
-
-W przypadku lasu losowego proces losowania próbek jest podzielony na dwie fazy. Pierwsza z nich polega na próbkowaniu z powtórzeniami obserwacji ze zbioru treningowego dla każdego z osobnych estymatorów bazowych. Następnie podczas fazy tworzenia kolejnych węzłów w drzewach wybierany jest losowy podzbiór zmiennych, które mogą być w tym kroku wykorzystane. 
-
-Celem tych dwóch różnych źródeł losowości jest redukcja wariancji lasu. Pojedyncze drzewa mają tendencję do zbytniego dopasowywania się do danych, zatem losowanie poszczególnych zmiennych w każdym kolejnym węźle pomaga to zredukować. Natomiast losowanie różnych próbek do każdego z klasyfikatorów pozwala na stworzenie lekko odmiennych modeli bazowych.
+Procedura tworzenia lasu losowego jest podzielona na dwie fazy. \cite{Random_Forest} Pierwsza z nich wykorzystuje workowanie do wygenerowania odpowiednich próbek dla klasyfikatorów bazowych. Następnie trenujemy zmodyfikowane drzewa decyzyjne, które na etapie tworzenia każdego kolejnego węzła w drzewie losują podzbiór zmiennych do wyboru podziału. Finalnie podczas predykcji każdy model dokonuje klasyfikacji i ostatecznym wynikiem modelu jest większość głosów. Nie jest to jedyna możliwość agregowania wyników, przykładowo wykorzystywana w bibliotece \textit{sklearn} w Python implementacja uśrednia wyniki prawdopodobieństwa z każdego klasyfikatora. \cite{sklearn_api}
 
 \subsection{XGBoost}
 % TODO: Do poprawy pierwsze zdanie
@@ -508,6 +503,7 @@ W rezultacie funkcją, która zachowuje się w powyższy sposób jest:
 % TODO: Opisać wykres.
 Następnie standardowo wykorzystując algorytm optymalizujący, który znajdzie odpowiednie współczynniki modelu trenujemy model predykcyjny.
 \subsection{Drzewo decyzyjne wrażliwe na koszt}
+\label{csdt}
 Analogicznie jak w przypadku regresji logistycznej w celu wprowadzenia kosztu do treningu drzewa decyzyjnego musimy uzależnić proces powstawania modelu od kosztu danej próbki. Naturalnym miejscem dla drzewa decyzyjnego jest proces podziału danego węzła na kolejne węzły bądź liście. Dlatego definiujemy następującą miarę zanieczyszczenia, która następujący wzór:
 $$ I_c(\es) = min \left\{ Cost(f_0(\es)), Cost(f_1(\es)) \right\} \text{.}$$
 Dodatkowo w przy dokonywaniu predykcji klasyfikacja na wartość pozytywną bądź negatywną następuje wg następującego kryterium:
