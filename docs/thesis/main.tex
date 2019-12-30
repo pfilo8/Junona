@@ -74,6 +74,7 @@
 \pagestyle{headings}
 
 \DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 \expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks% save the current one
 	\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j%
@@ -89,6 +90,7 @@
 \newcommand{\htx}{h_{\theta}(\boldsymbol{x_i})}
 \newcommand{\es}{\mathcal{S}}
 \newcommand{\ef}{\mathcal{F}}
+\newcommand{\ku}{\mathcal{Q}}
 \newcommand{\iks}{\boldsymbol{x}}
 \newcommand{\yht}[1]{y_i^{(#1)}}
 \newcommand{\ytrue}{\boldsymbol{y}_{\text{true}}}
@@ -347,35 +349,42 @@ $$ C_{TP_i} = C_{TN_i} \approx 0 \text{,}$$
 $$ C_{FP_i} = C_{FN_i} \approx \infty \text{.}$$
 ... Stąd powstaje motywacja, aby zmodyfikować podaną funkcję i stworzyć regresję logistyczną, która będzie w stanie modyfikować koszty poszczególnych klasyfikacji.
 
-\subsection{Drzewo klasyfikacyjne}
+\subsection{Drzewo decyzyjne}
 \label{drzewo}
 
-Drzewo klasyfikacyjne to przykład jednego z rodzaju drzew decyzyjnych, którego celem jest znalezienie najlepszego rozróżnienia pomiędzy klasami. W ogólności drzewo decyzyjne składa się z zestawu reguł.
+Niech $\ku$ będzie zbiorem obserwacji dla danego węzła $m$. Ponadto niech podział będzie reprezentowany przez parę $\theta = (j, t_m)$, gdzie $j$ to $j$-ty atrybut wektora $\iks_i$, a $t_m$ to warunek podziału danych na podzbiory $\ku_l$ oraz $\ku_r$, gdzie
+$$ \ku_l (\theta) = \{ \iks_i : \iks_i \in \ku \land x^{j}_i \leq t_m \} \text{,} $$
+$$ \ku_r (\theta) = \ku \setminus \ku_l(\theta) \text{.} $$
+Czystość danego węzła jest wyznaczana w następujący sposób
+$$ G(\ku, \theta) = \frac{|\ku^l|}{|\ku|} I(\ku_l (\theta)) + \frac{|\ku^r|}{|\ku|} I(\ku_r (\theta)) \text{,}$$
+gdzie $I(\cdot)$ może być dowolną miarą zanieczyszczenia. Ostatecznie w~danym węźle wybierany jest ten podział, który minimalizuje funkcję czystości
+$$ \theta^* = \argmin_\theta G(\ku, \theta) \text{.}$$
+Dalej następuje podział na podzbiory $\ku_l (\theta^*)$ i $\ku_r (\theta^*)$ i algorytm działa rekurencyjnie, aż do osiągnięcia maksymalnej głębokości, 
 
-Drzewo składa się z węzłów, które są reprezentowane przez parę $(\iks^j, l^j)$, która oznacza podział zbioru obserwacji $\es$ na dwa zbiory: $\es^{l}$ oraz $\es^{r}$ względem wektora obserwacji $\iks$ oraz progu decyzyjnego $l^j$ w następujący sposób:
-$$ \es^l = \{ \iks^* : \iks^* \in \es \land x^j_i \leq l^j \} \text{,} $$
-$$ \es^r = \{ \iks^* : \iks^* \in \es \land x^j_i > l^j \} \text{,} $$
-gdzie $\iks^j$ reprezentuje $j$-ty atrybut wektora $\iks$. Ponadto $l^j$ jest wartością taką, że $\min{\iks^j} \leq l^j < \max{\iks^j}$. Ponadto warto zauważyć, że $\es^l \cup \es^r = \es$, co oznacza, że nasz podział rozdziela wektor obserwacji na dokładnie dwa rozłączne zbiory.
-Po znalezieniu optymalnego podziału zliczamy ilość pozytywnych próbek:
-$$ \es_1  = \{ \iks^* : \iks^* \in \es \land y_i = 1 \} \text{,} $$
-a następnie zliczamy procent pozytywnych próbek jako:
-$$ \pi_1 = \frac{|\es_1|}{|\es|} \text{.}$$
-Następnie dla każdego z liści jest obliczana wielkość jego zanieczyszczenia.
+Miary zanieczyszczenia dla zadań klasyfikacyjnych
 \begin{itemize}
-	\item Misclassification: $I_m(\pi_1) = 1 - \max(\pi_1, 1 - \pi_1)$
-	\item Entropy: $I_e(\pi_1) = -\pi_1 \log(\pi_1) - (1 - \pi_1) \log (1 - \pi_1)$
-	\item Gini: $I_g(\pi_1) = 2 \pi_1 (1 - \pi_1)$
+	\item Misclassification: $I_m(\ku) = 1 - \max(p, 1 - p)$,
+	\item Entropy: $I_e(\ku) = -p \log_2 p - (1 - p) \log_2(1 - p)$,
+	\item Gini: $I_g(\ku) = 2p(1 - p)$,
 \end{itemize}{}
-Następnie dla każdego proponowanego podziału dla danej reguły $(\iks^j, l^j)$ liczony jest przyrost czystości w następujący sposób:
-$$ \text{Gain}(\iks^j, l^j) = I(\pi_1) - \frac{|\es^l|}{|\es|} I(\pi_1^l) - \frac{|\es^r|}{|\es|} I(\pi_1^r) \text{,}$$
-gdzie $I(\pi_1)$ może być dowolną z zaproponowanych miar zanieczyszczenia.
-Ostatecznie wybiera się ten podział, który maksymalizuje przyrost czystości, a następnie dzieli się zbiór $\es$ na podzbiory $\es^l$ i $\es^r$.
-W taki sposób jest pokonywany pojedynczy podział zbioru dla konkretnego węzła. Całe drzewo tworzy się poprzez kolejne podziały węzłów aż do momentu dotarcia przez algorytm do kryterium stopu.
+oraz zadań regresyjnych
+\begin{itemize}
+	\item $ \displaystyle I_{mse}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} (y_i - q)^2$,
+	\item $ \displaystyle I_{mae}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} |y_i - q|$,
+\end{itemize}
+gdzie:
+$$ p = \frac{| \{ \iks_i : \iks_i \in \ku \land y_i = 1 \}|}{|\ku|} \text{,} $$
+$$ q = \frac{\sum_{i \in \ku} y_i}{|\ku|} \text{.} $$
 
-\subsubsection{C4.5}
-C4.5
-\subsubsection{CART}
-CART
+Pruning
+
+Wyróżniamy trzy rodzaj algorytmów, które są odpowiedzialne za proces uczenia drzew. Poniżej krótki opis każdego z nich.
+\begin{itemize}
+	\item ID3 (Iterative Dichotomiser 3) -- algorytm pozwala na tworzenie drzew decyzyjnych, które w poszczególnych węzłach mogą mieć więcej niż dwa podziały. Działa jedynie dla zmiennych kategorycznych. Drzewo rośnie do maksymalnego rozmiaru, a następnie jest przycinane;
+	\item C4.5 -- następca ID3, który znosi restrykcję używania tylko kategorycznych atrybutów poprzez dyskretyzację zmiennych ciągłych. Następnie nauczone drzewo zamieniane jest w zestaw reguł, które są szeregowane względem poprawy skuteczności. Przycinanie w tym wypadku polega na usuwanie reguł, które nie poprawiają wyniku modelu;
+	\item CART (z angielskiego \textit{Classification and Regression Tree}) -- algorytm bardzo podobny do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia, który maksymalizuje przyrost informacji.
+\end{itemize}
+Warto zaznaczyć, że implementacja w bibliotece \textit{sklearn} w Pythonie wykorzystuje zoptymalizowaną wersję algorytmu CART, który nie obsługuje zmiennych kategorycznych.
 
 \subsection{Las losowy}
 Las losowy oraz algorytm XGBoost są przedstawicielami szerokiej klasy modeli typu \textit{ensemble}. Głównym celem tej metodologii jest wprowadzenie losowych perturbacji do zbioru treningowego w celu utworzenia różnych klasyfikatorów bazowych, których wspólne predykcje będą lepsze niż każdego z modeli bazowych osobno. Istnieją ponadto trzy główne powody, dlaczego te metody działają znacznie lepiej niż pojedyncze modele.
