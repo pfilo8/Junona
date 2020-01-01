@@ -21,28 +21,12 @@
 \kierunekstudiowang{Applied Mathematics}
 \specjalnosc{--} 
 \specjalnoscang{--} 
-\streszczenie{Celem pracy jest implementacja eksperymentu, który pozwoli porównać klasyczne oraz wrażliwe
-	na koszt metody predykcyjne w problemie detekcji oszustw na kartach płatniczych. Oszustwa na
-	kartach płatniczych wynikają z przekazania numeru karty nieznajomym, utraty lub kradzieży karty,
-	kradzieży przesyłki lub skopiowania danych karty. Zwykle kończą się pojawieniem się na koncie
-	nieautoryzowanych płatności. W pracy wykorzystane zostaną metody statystyczne oraz uczenia
-	maszynowego oraz ich modyfikacje wrażliwe na koszt.}
-\streszczenieang{The aim of this thesis is an implementation of an experiment, which will allow us to compare
-	classical and cost-sensitive methods in credit card fraud detection. Credit card fraud occurs when card number is passed to someone else, when card is lost or stolen, when mail is stolen or card is copied by someone. Usually credit card fraud ends in unauthorised transactions on banking
-	account. In this thesis statistical and machine learning methods will be utilized, in classical and
-	their cost-sensitive modifications.}
-%
-% Podajemy najważniejsze słowa kluczowe po polsku i angielsku
-% - w obu przypadkach, nie więcej niż 150 znaków.
-\slowakluczowe{Statystyka; Uczenie maszynowe; Klasyfikacja wrażliwa na koszt; Wykrywanie oszustw na kartach kredytowych}  
-\slowakluczoweang{Statistics; Machine Learning; Cost Sensitive Classification; Credit Card Fraud Detection}
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Definicje, lematy, twierdzenia, przykłady i wnioski
-% Komendy wywołujące twierdzenia, definicje, itd., 
-% czyli 'theorem', 'definition', 'corollary', itd., 
-% można zmienić wedle uznania.
+\streszczenie{Celem pracy była implementacja eksperymentu, który pozwoli porównać klasyczne oraz wrażliwe na koszt metody predykcyjne w problemie detekcji oszustw na kartach płatniczych. Oszustwa na kartach płatniczych wynikają z przekazania numeru karty nieznajomym, utraty lub kradzieży karty, kradzieży przesyłki lub skopiowania danych karty. Zwykle kończą się pojawieniem się na koncie nieautoryzowanych płatności. W pracy wykorzystane zostały metody statystyczne oraz uczenia maszynowego oraz ich modyfikacje wrażliwe na koszt.}
+\streszczenieang{The aim of this thesis was an implementation of an experiment, which will allow us to compare classical and cost-sensitive methods in credit card fraud detection. Credit card fraud occurs when card number is passed to someone else, when card is lost or stolen, when mail is stolen or card is copied by someone. Usually credit card fraud ends in unauthorised transactions on banking account. In this thesis statistical and machine learning methods was utilized, in classical and their cost-sensitive modifications.}
+
+\slowakluczowe{Uczenie maszynowe; Klasyfikacja wrażliwa na koszt; Wykrywanie oszustw na kartach kredytowych}  
+\slowakluczoweang{Machine Learning; Cost Sensitive Classification; Credit Card Fraud Detection}
+
 \theoremstyle{plain}
 \newtheorem{theorem}{Twierdzenie}
 \numberwithin{theorem}{chapter}
@@ -65,6 +49,18 @@
 \usepackage{makecell}
 \setcellgapes{5pt}
 \usepackage[ampersand]{easylist}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\tikzset{%
+	>={Latex[width=2mm,length=2mm]},
+	% Specifications for style of nodes:
+	base/.style = {rectangle, rounded corners, draw=black,
+		minimum width=2cm, minimum height=1cm,
+		text centered, font=\sffamily, fill=yellow!10},
+	fraud/.style = {base, fill=orange!30},
+	analityk/.style = {base, fill=red!45}
+}
 
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
@@ -131,8 +127,29 @@ Historia kart płatniczych zaczyna się już w~latach 80. XIX wieku, kiedy Edwar
 Dalszy rozwój technologiczny umożliwił nam nie tylko dokonywanie płatności kartą, lecz także wykorzystywanie do tego celu telefonu komórkowego lub zegarka. Ponadto transakcji nie dokonujemy już tylko w sklepach stacjonarnych, lecz także coraz częściej korzystamy ze sklepów internetowych. Wszystkie te czynniki powodują, że dokonywanie zakupów jest jeszcze prostsze, a~ilość dokonywanych transakcji z roku na rok rośnie. \footnote{Źródło: \url{https://worldpaymentsreport.com/non-cash-payments-volume/} (dostęp: 27.12.2019)} Niestety ten wzrost spowodował również rozwój sposobów dokonywania przestępstw związanych z~kartami płatniczymi, przykładowo przekazanie numeru karty nieznajomym, utrata lub kradzież karty, skopiowania danych karty lub kradzież przesyłki z kartą, które najczęściej kończą się nieautoryzowanymi płatności na koncie.
 
 \begin{figure}[h]
-	\includegraphics[width=\linewidth]{images/credit-card-flow.jpg}
-	\caption{Schemat płatności kartą kredytową. Rysunek pochodzi z prezentacji A.Bahnsena podczas Konferencji Analytics 2013. Źródło: \url{https://www.slideshare.net/albahnsen/correa-bahnsen-alejandroanalytics2013slideshare}}
+	\begin{center}
+		\begin{tikzpicture}[node distance=3.7cm,
+			every node/.style={fill=white, font=\sffamily}, align=center]
+			% Specification of nodes (position, etc.)
+			\node (card)         [base]                        {Karta płatnicza};
+			\node (terminal)     [base, right of=card]         {Terminal};
+			\node (network)      [base, right of=terminal]     {Sieć operatora karty};
+			\node (bank)         [base, right of=network]      {Bank};
+			\node (db)           [base, below of=bank]         {Baza danych banku};
+			\node (fraud)        [fraud, below of=terminal]    {Fraud?};
+			\node (analitic)     [analityk, left of=fraud]     {Analityk};
+			
+			\draw[->] (card) -- (terminal);
+			\draw[->] (terminal) -- (network);
+			\draw[->] (network) -- (bank);
+			\draw[->] (bank) -- (db);
+			\draw[->] (db) -- (fraud);
+			\draw[->] (fraud) -- node[text width=0.6cm] {Tak}(analitic);
+			\draw[->] (fraud) -- node[text width=4cm] {Nie. \\Koniec transakcji.} (terminal);
+		\end{tikzpicture}
+	\end{center}
+
+	\caption{Schemat płatności kartą płatniczą.}
 	\label{fig:credit-card-flow}
 \end{figure}
 
@@ -151,8 +168,6 @@ Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstęp
 Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz uczenia maszynowego, które wykorzystuje się w~zagadnieniach klasyfikacyjnych. W~szczególności zaczniemy od opisania macierzy pomyłek, macierzy kosztu oraz związane z nimi miary skuteczności modeli predykcyjnych, które służą do badania jakości predykcji. Następnie przejdziemy do modeli standardowych, które nie biorą pod uwagi różnych kosztów popełniania błędu klasyfikacyjnego. W~ramach tej grupy opiszemy regresję logistyczną, drzewo decyzyjne, las losowy oraz algorytm XGBoost. Na końcu poruszymy temat modeli wrażliwych na koszt, które dzielimy na dwie podkategorie: Trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz Klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification}).\footnote{Źródło:  \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}} Pierwsza z nich zawiera metody, które w trakcie uczenia modelu zwracają uwagę na koszt błędnej klasyfikacji. Są to rozszerzone wersje standardowych modeli, które w~trakcie uczenia się mają zmienioną postać optymalizowanej funkcji. W~tej pracy będziemy omawiać regresję logistyczną wrażliwą na koszt oraz drzewo decyzyjne wrażliwe na koszt. Druga podkategoria składa się z metod, które wykorzystują estymowane prawdopodobieństwo ze~standardowych modeli i~na jego podstawie tworzą dodatkowy model, który bierze pod uwagę koszt niepoprawnej klasyfikacji danego przypadku. Z~tej grupy omówimy optymalizację progu oraz minimalizację ryzyka bayesowskiego.
 
 W pracy będziemy wykorzystywać następujące oznaczenia:
-% TODO: Rozpisać x_i
-% TODO: Rozpisać \es
 \begin{itemize}
 	\item $\es = \{\iks_1, \iks_2, \dots, \iks_N \}$ -- zbiór wszystkich $N$ obserwacji,
 	\item $\iks_{i} = \left(x_i^{(1)}, x_i^{(2)}, \dots, x_i^{(j)} \right)$ -- $i$-ty wektor obserwacji składający się z $j$ atrybutów,
@@ -193,7 +208,7 @@ Jedną z metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyf
 \end{table}
 
 \subsection{Miary skuteczności niewrażliwe na koszt}
-Na podstawie macierzy pomyłek (tabela \ref{tab:macierz-pomylek}), którą omawialiśmy w poprzedniej podsekcji, możemy zdefiniować następujące miary skuteczności modeli, które nie biorą pod uwagę kosztu popełnienia błędu.
+Na podstawie macierzy pomyłek (tabela \ref{tab:macierz-pomylek}), którą omawialiśmy w poprzedniej podsekcji, możemy zdefiniować następujące miary skuteczności modeli, które nie biorą pod uwagę kosztu popełnienia błędu. W opisach wykorzystane są elementy pracy D.A. Powersa \cite{evaluation_metrics}.
 
 \subsubsection{Dokładność}
 Dokładność (\textit{ang. Accuracy}) mierzy stosunek poprawnie zaklasyfikowanych przypadków do ilości wszystkich obserwacji. Bierze ona pod uwagę zarówno obserwacje pozytywne, jak i negatywne. Z~tego powodu bardzo dobrze radzi sobie w sytuacji, gdy interesują nas obserwacje z obu klas, natomiast dużo gorzej, gdy istotna jest tylko jedna klasa. W~szczególności nie nadaje się ona do problemów z dużą dysproporcją klas, która pojawia się w przypadku detekcji oszustw. Dokładność zdefiniowana jest następującym wzorem
@@ -204,19 +219,19 @@ Precyzja (\textit{ang. Precision}) to stosunek poprawnie zaklasyfikowanych pozyt
 $$ \text{Precyzja} = \frac{TP}{TP + FP} \text{.}$$
 
 \subsubsection{Czułość}
-Czułość to stosunek prawdziwie pozytywnie zaklasyfikowanych przypadków do wszystkich pozytywnych obserwacji. Innymi słowy, jest to miara, która mówi nam o procencie znalezionych przez model przypadków pozytywnych. Podobnie jak precyzja skupia się jedynie na poprawnie zaklasyfikowanych obserwacjach pozytywnych. Jest ona szczególnie ważna w zastosowaniach medycznych, gdzie naszym głównym celem jest znalezienie wszystkich chorych osób. Używana jest także do wyznaczania krzywej charakterystyki pracy odbiornika (ROC, z angielskiego \textit{Receiver operating characteristic}) opisanej w~sekcji \ref{ROC} na stronie \pageref{ROC}. Czułość jest wyrażona wzorem
+Czułość (\textit{ang. Recall}) to stosunek prawdziwie pozytywnie zaklasyfikowanych przypadków do wszystkich pozytywnych obserwacji. Innymi słowy, jest to miara, która mówi nam o procencie znalezionych przez model przypadków pozytywnych. Podobnie jak precyzja skupia się jedynie na poprawnie zaklasyfikowanych obserwacjach pozytywnych. Jest ona szczególnie ważna w zastosowaniach medycznych, gdzie naszym głównym celem jest znalezienie wszystkich chorych osób. Używana jest także do wyznaczania krzywej charakterystyki pracy odbiornika (ROC, z angielskiego \textit{Receiver operating characteristic}) opisanej w~sekcji \ref{ROC} na stronie \pageref{ROC}. Czułość jest wyrażona wzorem
 $$ \text{Czułość}= \frac{TP}{TP + FN} \text{.}$$
 
 \subsubsection{Swoistość}
-Swoistość to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnych obserwacji. Inaczej nazywana też odwrotną czułością, z~uwagi na analogiczną postać do czułości, ponieważ mierzy ona również odsetek znalezionych wszystkich obserwacji, lecz dla negatywnej klasy. Wyraża się następującym wzorem
+Swoistość (\textit{ang. Specificity}) to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnych obserwacji. Inaczej nazywana też odwrotną czułością, z~uwagi na analogiczną postać do czułości, ponieważ mierzy ona również odsetek znalezionych wszystkich obserwacji, lecz dla negatywnej klasy. Wyraża się następującym wzorem
 $$ \text{Swoistość}= \frac{TN}{TN + FP} \text{.}$$
 
 \subsubsection{Ujemna wartość predykcyjna}
-Ujemna wartość predykcyjna to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnie zaklasyfikowanych obserwacji. Nazywana jest również odwrotną precyzją, ponieważ analogicznie do precyzji skupia się na mierzeniu skuteczności klasyfikowania obserwacji negatywnych. Miara ta jest także używana do wyrysowania krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}). Dana jest wzorem
+Ujemna wartość predykcyjna to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnie zaklasyfikowanych obserwacji. Nazywana jest również odwrotną precyzją, ponieważ analogicznie do precyzji skupia się na mierzeniu skuteczności klasyfikowania obserwacji negatywnych. Miara ta jest także używana do wyrysowania krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}), a dokładniej $1-$ ujemna wartość predykcyjna, która odpowiada mierze stosunek fałszywie pozytywnych klasyfikacji (ang. \textit{false positive ratio}). Dana jest wzorem
 $$ \text{Ujemna wartość predykcyjna}= \frac{TN}{TN + FN} \text{.}$$
 
 \subsubsection{Zbalansowana skuteczność} 
-Zbalansowana skuteczność to średnia arytmetyczna czułości oraz swoistości. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczość próbek w klasach, to wartość zbalansowanej skuteczności spada. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej. Zadana jest wzorem
+Zbalansowana skuteczność (\textit{ang. balanced accuracy}) to średnia arytmetyczna czułości oraz swoistości. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczość próbek w klasach, to wartość zbalansowanej skuteczności spada \cite{balanced_accuracy}. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej. Zadana jest wzorem
 $$ \text{Zbalansowana skuteczność}= \frac{\text{Czułość} + \text{Swoistość}}{2} \text{.}$$
 
 \subsubsection{F Score}
@@ -231,11 +246,19 @@ gdzie parametr $\beta>0$ odpowiada na pytanie, ile razy bardziej czułość jest
 \subsection{Krzywa charakterystyki pracy odbiornika}
 \label{ROC}
 
-Krzywa ROC
+Krzywa charakterystyki pracy odbiornika to wykres diagnostyczny modelu predykcyjnego pozwalający na zilustrowanie zdolności klasyfikatora do rozróżniania poszczególnych klas. Składa się ona z wyrysowanym na osi X stosunku fałszywie pozytywnych klasyfikacji na oraz czułości na osi Y. Miary są narysowane dla różnych wartości progu decyzyjnego, który prawdopodobieństwa zwracane przez model zamienia na decyzje binarne. Perfekcyjny klasyfikator jest w stanie osiągnąć lewy górny róg wykresu, czyli posiadać precyzję na poziomie 100\% oraz stosunek fałszywie pozytywnych klasyfikacji na poziomie 0\%. Analogicznie najgorszy klasyfikator jest w stanie osiągnąć prawy dolny róg wykresu. Model losowy będzie prostą z punktu $(0,0)$ do punktu $(1,1)$. 
+
+Przykładowy wykres znajduje się na rysunku \ref{fig:roc_example} na stronie \pageref{fig:roc_example}. Kolorem czerwonym oznaczony jest najgorszy możliwy klasyfikator, zielonym perfekcyjny, niebieskim losowy, natomiast żółtym przykładowy.
+
+\begin{figure}[h]
+	\includegraphics[width=\linewidth]{images/roc_example.png}
+	\caption{Przykładowy wykres charakterystyki pracy odbiornika. Na poziomej osi przedstawiony jest stosunek fałszywie pozytywnych klasyfikacji, natomiast na pionowej czułość. Kolorem czerwonym, zielonym, niebieskim oraz żółtym jest odpowiednio oznaczony najgorszy, najlepszy, losowy oraz przykładowy klasyfikator.}
+	\label{fig:roc_example}
+\end{figure}
 
 \subsection{Macierz kosztu}
 \label{sec:macierz-kosztu}
-W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt najpierw definiujemy macierz kosztu $C$. Ma ona postać analogiczną do macierzy pomyłek, lecz zamiast ilość obserwacji w odpowiednich komórkach wpisujemy koszt pomyłki dla $i$-tej obserwacji. Warto zaznaczyć, że koszt niekoniecznie musi być kwota pieniężną, lecz także możemy rozważać ilość poświęconego czasu, bądź inną dowolną mierzalną jednostkę. W szczególności dla przypadku klasyfikacji binarnej wyróżniamy cztery możliwe wartości:
+W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt najpierw definiujemy macierz kosztu $C$ \cite{CSCCFD, CS-Learning}. Ma ona postać analogiczną do macierzy pomyłek, lecz zamiast ilość obserwacji w odpowiednich komórkach wpisujemy koszt pomyłki dla $i$-tej obserwacji. Warto zaznaczyć, że koszt niekoniecznie musi być kwota pieniężną, lecz także możemy rozważać ilość poświęconego czasu, bądź inną dowolną mierzalną jednostkę. W szczególności dla przypadku klasyfikacji binarnej wyróżniamy cztery możliwe wartości:
 \begin{myitemize}
 	& \underscoretext{C}{TP}{i} -- koszt prawdziwie pozytywnego zaklasyfikowania $i$-tej obserwacji,
 	& \underscoretext{C}{FP}{i} -- koszt fałszywie pozytywnego zaklasyfikowania $i$-tej obserwacji,
@@ -243,7 +266,7 @@ W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt najpierw
 	& \underscoretext{C}{TN}{i} -- koszt prawdziwie negatywnego zaklasyfikowania $i$-tej obserwacji.
 \end{myitemize}
 
-W zależności od praktycznego zastosowania wartości w macierzy kosztu przyjmują różne wartości. Poniżej przedstawiamy kilka intuicji na podstawie macierzy kosztu zdefiniowanych dla różnych eksperymentów w~\cite{alej2015ensemble}.
+W zależności od praktycznego zastosowania wartości w macierzy kosztu przyjmują różne wielkości. Poniżej przedstawiamy kilka intuicji na podstawie macierzy kosztu zdefiniowanych dla różnych eksperymentów w~pracy A. Bahnsena \cite{alej2015ensemble}.
 \begin{itemize}
 	\item W przypadku, gdy predykcja klasy pozytywnej wiąże się z podjęciem jakiejś akcji, np. sprawdzenie transakcji kartą kredytową, wysłanie oferty reklamowej, to koszt pozytywnej predykcji jest dodatni, to znaczy \underscoretext{C}{TP}{i}, \underscoretext{C}{FP}{i} $>0$. Ponadto najczęściej te koszty są równe i przyjmują stałą wartość dla wszystkich przypadków, to znaczy \underscoretext{C}{TP}{i}~$=$~\underscoretext{C}{FP}{i}~$= \text{const.}$, ponieważ podejmowana zawsze jest ta sama akcja dla wszystkich obserwacji. Dodatkowo koszt pozytywnego zaklasyfikowania dla każdej obserwacji negatywnej jest zerowy, to znaczy \underscoretext{C}{TN}{i} $=0$, ponieważ słusznie nie została podjęta żadna akcja. Zatem ostatecznie jedyną wartością, która różni się między przypadkami, jest koszt fałszywie negatywnej klasyfikacji i on również jest większy od zera.
 	\item W przypadku, gdy predykcja dokonywana jest przez zautomatyzowany system, to koszt prawidłowej klasyfikacji jest równy zero, to znaczy \underscoretext{C}{TP}{i}~$=$~\underscoretext{C}{TN}{i}~$=0$, ponieważ maszynie nie musimy płacić pensji, która obsługuje daną sprawę. Natomiast koszty pomyłek są różne i zazwyczaj różnią się między obserwacjami. Biorąc jako przykład ryzyko kredytowe, możemy zauważyć, że koszty mogą być zarówno dodatnie, jak i ujemne. W tym konkretnym przypadku, gdy stwierdzimy, że dana osoba spłaci kredyt, natomiast w rzeczywistości nie zrobi tego, to będziemy stratni pewną sumę pieniędzy, co da nam dodatni koszt. Z drugiej strony, gdy uznamy, że dana osoba nie spłaci kredytu, a w rzeczywistości wywiązałaby się z zobowiązań, to utracimy pewien zarobek, zatem koszt będzie negatywny.
@@ -272,7 +295,7 @@ Przykład takiej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}
 \end{table}
 
 \subsection{Miary skuteczności modeli wrażliwe na koszt}
-Motywacją do powstania miar skuteczności wrażliwych na koszt jest potrzeba ewaluacji modeli, która miarodajnie odda złożoność rozwiązywanego problemu. Przykładowo w przypadku detekcji oszustw będzie w stanie odpowiedzieć na pytanie dotyczące zaoszczędzonej kwoty dzięki modelowi predykcyjnemu. Kolejny powodem jest fakt, że podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fałszywie pozytywnych oraz fałszywie negatywnych klasyfikacji, traktując oba błędy jednakowo. Ponadto warto zauważyć, że omawiane problemy wymagają uwzględnienia nie tylko różnych kosztów per rodzaj pomyłki, ale także per konkretna obserwacja. Bazując na wprowadzonej w sekcji \ref{sec:macierz-kosztu} macierzy kosztu $C$, zdefiniujemy kilka miar.
+Motywacją do powstania miar skuteczności wrażliwych na koszt jest potrzeba ewaluacji modeli, która miarodajnie odda złożoność rozwiązywanego problemu \cite{EDCSLR}. Przykładowo w~przypadku detekcji oszustw będzie w stanie odpowiedzieć na pytanie dotyczące zaoszczędzonej kwoty dzięki modelowi predykcyjnemu. Kolejny powodem jest fakt, że podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fałszywie pozytywnych oraz fałszywie negatywnych klasyfikacji, traktując oba błędy jednakowo. Ponadto warto zauważyć, że omawiane problemy wymagają uwzględnienia nie tylko różnych kosztów per rodzaj pomyłki, ale także per konkretna obserwacja. Bazując na wprowadzonej w sekcji \ref{sec:macierz-kosztu} macierzy kosztu $C$, zdefiniujemy kilka miar.
 
 \subsubsection{Koszt}
 Rozpoczniemy od matematycznego wprowadzenia kosztu, który wyznacza jaką wartość powinniśmy wziąć z macierzy kosztu $C_i$ dla $i$-tej obserwacji mając daną predykcję oraz prawdziwą wartość klasyfikacji.
@@ -292,13 +315,14 @@ gdzie:
 \end{itemize}
 
 \subsubsection{Oszczędności}
-Oszczędności (\textit{ang. Savings}) to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od bazowego klasyfikatora. Przy czym bazowym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
+Oszczędności (\textit{ang. Savings}) to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od naiwnego klasyfikatora. Przy czym naiwnym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
 \begin{equation}
-	\text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, C) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, C)} \text{,}
+	\label{oszczednosci}
+	\text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, \boldsymbol{C}) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, \boldsymbol{C})} \text{,}
 \end{equation}
 gdzie:
 \begin{itemize}
-	\item $ \text{Koszt bazowy}(\ytrue, C) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\}$ - koszt poniesiony w przypadku używania bazowego klasyfikatora,
+	\item $ \text{Koszt bazowy}(\ytrue, \boldsymbol{C}) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\}$ - koszt poniesiony w przypadku używania naiwnego klasyfikatora,
 	\item $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ - wektor $N$-elementowy predykcji równych $0$,
 	\item $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ - wektor $N$-elementowy predykcji równych $1$.
 \end{itemize}{}
@@ -347,10 +371,19 @@ $$
 To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
 $$ C_{TP_i} = C_{TN_i} \approx 0 \text{,}$$
 $$ C_{FP_i} = C_{FN_i} \approx \infty \text{.}$$
-... Stąd powstaje motywacja, aby zmodyfikować podaną funkcję i stworzyć regresję logistyczną, która będzie w stanie modyfikować koszty poszczególnych klasyfikacji.
+Jest to wynik, który nie oddaje charakteru nierówności kosztu popełniania różnych błędów, stąd powstaje motywacja, aby zmodyfikować podaną funkcję i stworzyć regresję logistyczną, która będzie w stanie modyfikować koszty poszczególnych klasyfikacji.
 
 \subsection{Drzewo decyzyjne}
 \label{drzewo}
+Drzewo decyzyjne to nieparametryczny model uczenia nadzorowanego, który jest wykorzystywany do regresji oraz klasyfikacji. Jego celem jest nauczenie się na podstawie dostępnych danych prostych reguł decyzyjnych. Do jego największych zalet należy prostota interpretacji otrzymanych wyników oraz mała ilość potrzebnych przygotowań danych.
+
+Wyróżniamy trzy rodzaje algorytmów, które są odpowiedzialne za proces uczenia drzew. Poniżej krótki opis każdego z nich.
+\begin{itemize}
+	\item ID3 (Iterative Dichotomiser 3) -- algorytm pozwala na tworzenie drzew decyzyjnych, które w poszczególnych węzłach mogą mieć więcej niż dwa podziały. Działa jedynie dla zmiennych kategorycznych. Drzewo rośnie do maksymalnego rozmiaru, a następnie jest przycinane;
+	\item C4.5 -- następca ID3, który znosi restrykcję używania tylko kategorycznych atrybutów poprzez dyskretyzację zmiennych ciągłych. Następnie nauczone drzewo zamieniane jest w zestaw reguł, które są szeregowane względem poprawy skuteczności. Przycinanie w tym wypadku polega na usuwanie reguł, które nie poprawiają wyniku modelu;
+	\item CART (z angielskiego \textit{Classification and Regression Tree}) -- algorytm bardzo podobny do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia, który maksymalizuje przyrost informacji.
+\end{itemize}
+Warto zaznaczyć, że implementacja w bibliotece \textit{sklearn} w Pythonie wykorzystuje zoptymalizowaną wersję algorytmu CART, który nie obsługuje zmiennych kategorycznych. Poniżej prezentujemy teorię matematyczną stojącą za implementacją tego algorytmu \cite{sklearn_api}.
 
 Niech $\ku$ będzie zbiorem obserwacji dla danego węzła $m$. Ponadto niech podział będzie reprezentowany przez parę $\theta = (j, t_m)$, gdzie $j$ to $j$-ty atrybut wektora $\iks_i$, a $t_m$ to warunek podziału danych na podzbiory $\ku_l$ oraz $\ku_r$, gdzie
 $$ \ku_l (\theta) = \{ \iks_i : \iks_i \in \ku \land x^{j}_i \leq t_m \} \text{,} $$
@@ -359,15 +392,16 @@ Czystość danego węzła jest wyznaczana w następujący sposób
 $$ G(\ku, \theta) = \frac{|\ku^l|}{|\ku|} I(\ku_l (\theta)) + \frac{|\ku^r|}{|\ku|} I(\ku_r (\theta)) \text{,}$$
 gdzie $I(\cdot)$ może być dowolną miarą zanieczyszczenia. Ostatecznie w~danym węźle wybierany jest ten podział, który minimalizuje funkcję czystości
 $$ \theta^* = \argmin_\theta G(\ku, \theta) \text{.}$$
-Dalej następuje podział na podzbiory $\ku_l (\theta^*)$ i $\ku_r (\theta^*)$ i algorytm działa rekurencyjnie, aż do osiągnięcia maksymalnej głębokości, 
+Dalej następuje podział na podzbiory $\ku_l (\theta^*)$ i $\ku_r (\theta^*)$ i algorytm działa rekurencyjnie, aż do osiągnięcia maksymalnej głębokości.
+W zależności od implementacji oraz preferencji użytkownika po zakończeniu działania algorytmu wykorzystuje się przycinanie drzew. Jest to metoda, która w ogólności polega na usuwanie nadmiarowych węzłów, które mogą powodować zbyt dokładne dopasowanie do danych. 
 
-Miary zanieczyszczenia dla zadań klasyfikacyjnych
+W~zależności od rodzaju problemu wykorzystujemy różne miary zanieczyszczenia. Dla zadań klasyfikacyjnych są to
 \begin{itemize}
 	\item Misclassification: $I_m(\ku) = 1 - \max(p, 1 - p)$,
 	\item Entropy: $I_e(\ku) = -p \log_2 p - (1 - p) \log_2(1 - p)$,
 	\item Gini: $I_g(\ku) = 2p(1 - p)$,
 \end{itemize}{}
-oraz zadań regresyjnych
+a dla zadań regresyjnych
 \begin{itemize}
 	\item $ \displaystyle I_{mse}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} (y_i - q)^2$,
 	\item $ \displaystyle I_{mae}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} |y_i - q|$,
@@ -375,16 +409,6 @@ oraz zadań regresyjnych
 gdzie:
 $$ p = \frac{| \{ \iks_i : \iks_i \in \ku \land y_i = 1 \}|}{|\ku|} \text{,} $$
 $$ q = \frac{\sum_{i \in \ku} y_i}{|\ku|} \text{.} $$
-
-Pruning
-
-Wyróżniamy trzy rodzaj algorytmów, które są odpowiedzialne za proces uczenia drzew. Poniżej krótki opis każdego z nich.
-\begin{itemize}
-	\item ID3 (Iterative Dichotomiser 3) -- algorytm pozwala na tworzenie drzew decyzyjnych, które w poszczególnych węzłach mogą mieć więcej niż dwa podziały. Działa jedynie dla zmiennych kategorycznych. Drzewo rośnie do maksymalnego rozmiaru, a następnie jest przycinane;
-	\item C4.5 -- następca ID3, który znosi restrykcję używania tylko kategorycznych atrybutów poprzez dyskretyzację zmiennych ciągłych. Następnie nauczone drzewo zamieniane jest w zestaw reguł, które są szeregowane względem poprawy skuteczności. Przycinanie w tym wypadku polega na usuwanie reguł, które nie poprawiają wyniku modelu;
-	\item CART (z angielskiego \textit{Classification and Regression Tree}) -- algorytm bardzo podobny do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia, który maksymalizuje przyrost informacji.
-\end{itemize}
-Warto zaznaczyć, że implementacja w bibliotece \textit{sklearn} w Pythonie wykorzystuje zoptymalizowaną wersję algorytmu CART, który nie obsługuje zmiennych kategorycznych.
 
 \subsection{Las losowy}
 Las losowy oraz algorytm XGBoost są przedstawicielami szerokiej klasy modeli typu \textit{ensemble}. Głównym celem tej metodologii jest wprowadzenie losowych perturbacji do zbioru treningowego w celu utworzenia różnych klasyfikatorów bazowych, których wspólne predykcje będą lepsze niż każdego z modeli bazowych osobno. Istnieją ponadto trzy główne powody, dlaczego te metody działają znacznie lepiej niż pojedyncze modele.
@@ -402,9 +426,9 @@ W celu utworzenia $T$ klasyfikatorów bazowych należy ze zbioru treningowego $\
 	\item Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych. \cite{Random_Subspace}
 	\item Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci. \cite{Random_Patches}
 \end{itemize}
-Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone z myślą o wykorzystaniu drzewa decyzyjnego jako klasyfikatora bazowego, to nic nie stoi na przeszkodzie wykorzystać inny model. Ten fakt został między innymi wykorzystany w \cite{alej2015ensemble}, gdzie wykorzystując omawiane w sekcji \ref{csdt} drzewa decyzyjne wrażliwe na koszt, stworzono lasy losowe wrażliwe na koszt.
+Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone z myślą o wykorzystaniu drzewa decyzyjnego jako klasyfikatora bazowego, to nic nie stoi na przeszkodzie wykorzystać inny model. Ten fakt został między innymi wykorzystany w pracy A.Bahnsena \cite{alej2015ensemble}, gdzie wykorzystując omawiane w sekcji \ref{csdt} drzewa decyzyjne wrażliwe na koszt, stworzono lasy losowe wrażliwe na koszt.
 
-Procedura tworzenia lasu losowego jest podzielona na dwie fazy. \cite{Random_Forest} Pierwsza z nich wykorzystuje workowanie do wygenerowania odpowiednich próbek dla klasyfikatorów bazowych. Następnie trenujemy zmodyfikowane drzewa decyzyjne, które na etapie tworzenia każdego kolejnego węzła w drzewie losują podzbiór zmiennych do wyboru podziału. Finalnie podczas predykcji każdy model dokonuje klasyfikacji i ostatecznym wynikiem modelu jest większość głosów. Nie jest to jedyna możliwość agregowania wyników, przykładowo wykorzystywana w bibliotece \textit{sklearn} w Python implementacja uśrednia wyniki prawdopodobieństwa z każdego klasyfikatora. \cite{sklearn_api}
+Procedura tworzenia lasu losowego jest podzielona na dwie fazy \cite{Random_Forest}. Pierwsza z nich wykorzystuje workowanie do wygenerowania odpowiednich próbek dla klasyfikatorów bazowych. Następnie trenujemy zmodyfikowane drzewa decyzyjne, które na etapie tworzenia każdego kolejnego węzła w drzewie losują podzbiór zmiennych do wyboru podziału. Finalnie podczas predykcji każdy model dokonuje klasyfikacji i ostatecznym wynikiem modelu jest większość głosów. Nie jest to jedyna możliwość agregowania wyników, przykładowo wykorzystywana w bibliotece \textit{sklearn} w Python implementacja uśrednia wyniki prawdopodobieństwa z każdego klasyfikatora \cite{sklearn_api}.
 
 \subsection{XGBoost}
 % TODO: Do poprawy pierwsze zdanie
@@ -441,40 +465,39 @@ $$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) $$
 % TODO: Early stopping
 
 \section{Cost Dependent Classification}
-Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym bądź developerskim. 
+Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc} na stronie \ref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna, czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym.
 \begin{figure}
 	\includegraphics[width=\linewidth]{images/cost_sensitive_classification.png}
 	\caption{Schemat przedstawiający proces uczenia klasyfikatora wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
 	\label{cdc}
 \end{figure}
 \subsection{Optymalizacja progu}
-Metoda optymalizacji progu jest popularną metodą wyznaczania odpowiedniego progu prawdopodobieństwa, powyżej którego wszystkie obserwacje oznaczamy jako pozytywnie zaklasyfikowane. Może być ona wykorzystywana nie tylko do problemów wrażliwych na koszt, lecz do dowolnie zdefiniowanego zagadnienia, w którym wyznaczenie progu jest potrzebne. Jej sformułowanie wygląda następująco
-$$ \argmin_{t \in [0,1]} f(\ytrue, y_{\text{decision}}) \text{,} $$
+Metoda optymalizacji progu jest popularną metodą wyznaczania odpowiedniego progu prawdopodobieństwa, powyżej którego wszystkie obserwacje oznaczamy jako pozytywnie zaklasyfikowane. Może być ona wykorzystywana nie tylko do problemów wrażliwych na koszt, lecz do dowolnie zdefiniowanego zagadnienia, w którym potrzebne są zero-jedynkowe predykcje. Jej sformułowanie wygląda następująco
+$$ \argmin_{t \in [0,1]} f(\ytrue, \boldsymbol{y}_{\text{decision}}) \text{,} $$
 gdzie 
 \begin{itemize}
-	\item $ f(\cdot) $ - miara skuteczność modelu, np. dokładność,
-	\item $ y_{\text{decision}} = (p_i > t)_{i=1}^n $ - wektor binarnych odpowiedzi modelu,
+	\item $f(\cdot, \cdot) $ - funkcja miary skuteczności modelu, która jako argumenty przyjmuje wektor prawdziwych wartości klasyfikacji oraz wektor binarnych predykcji, np. dokładność
+	\item $\boldsymbol{y}_{\text{decision}} = (p_i > t)_{i=1}^n $ - wektor binarnych klasyfikacji modelu,
 	\item $ \text{t} $ - wartość progu decyzyjnego.
 \end{itemize}{}
-W naszym przypadku funkcja $f$ to funkcja kosztu całkowitego (\ref{koszt-calkowity}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zminimalizuje sumaryczną wartość kosztów.
-
+W naszym przypadku funkcja $f$ to funkcja oszczędności (\ref{oszczednosci}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zmaksymalizuje wartość oszczędności.
 % TODO: Opcjonalne - odwołać się do przypadków wielu minimum. Opisać algorytmiczne wyznaczanie tej wartości.
 \subsection{Minimalizacja ryzyka bayesowskiego}
 % TODO: Zmienić oznaczenia we wzorkach
-Metoda minimalizacji ryzyka bayesowskiego (\textit{ang. Bayesian Minimum Risk}) polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób:
+Metoda minimalizacji ryzyka bayesowskiego (\textit{ang. Bayesian Minimum Risk}) polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej \cite{CSCCFD}. Definiujemy je w następujący sposób
 $$ R(p_1|\iks_{i}) = L(p_1|y_1)P(y_1|\iks_{i}) + L(p_1|y_0)P(y_0|\iks_{i}) \text{,}$$
 $$ R(p_0|\iks_{i}) = L(p_0|y_0)P(y_0|\iks_{i}) + L(p_0|y_1)P(y_1|\iks_{i}) \text{,}$$
 gdzie
 \begin{itemize}
 	\item $P(p_1|\iks_{i})$, $P(p_0|\iks_{i})$ - oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(p_0|\iks_{i}) = 1 - P(p_1|\iks_{i})$,
-	\item $L(p_{i}|y_{j})$ oraz $i,j \in \{l,f\}$ - funkcja kosztu.
+	\item $L(p_{i}|y_{j})$ oraz $i,j \in \{0, 1\}$ - funkcja kosztu, która określa stratę, którą poniesiemy w zależności od wyniku poprawności klasyfikacji.
 \end{itemize}{}
-Klasyfikacja danej obserwacji jest opisana następującą nierównością:
+Decyzja dotycząca danej obserwacji jest opisana następującą nierównością
 $$ R(p_1|\iks_{i}) \leq R(p_0|\iks_{i})$$
-I oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
+i oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
 Po przeprowadzaniu odpowiednich przekształceń algebraicznych otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
 $$ P(p_1|\iks_{i}) \ge \frac{L(p_1|y_0) - L(p_0|y_0)}{L(p_0|y_1) - L(p_1|y_1) - L(p_0|y_0) + L(p_1|y_0)} \text{.}$$
-W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartość z macierzy kosztu, to otrzymujemy następujący prób decyzyjny:
+W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymujemy następujący próg decyzyjny
 $$ p \ge \frac{C_{FP_i} - C_{TN_i}}{C_{FN_i} - C_{TP_i} - C_{TN_i} + C_{FP_i}} \text{.}$$
 
 \section{Cost Sensitive Training}
@@ -486,7 +509,7 @@ Drugą podgrupą metod wrażliwych na koszt jest \textit{Cost Sensitive Trainig}
 \end{figure}	
 
 \subsection{Regresja logistyczna wrażliwa na koszt}
-Pierwszy modelem, który stosunkowo łatwo przystosować do bycia wrażliwym na koszt jest regresja logistyczna. Kontynuując rozważania z podrozdziału \ref{reg-log} chcemy, aby funkcja straty przyjmowała następujące wartości, które odpowiadają wartościom z macierzy kosztu:
+Pierwszy modelem, który stosunkowo łatwo przystosować do bycia wrażliwym na koszt jest regresja logistyczna. Kontynuując rozważania z podrozdziału \ref{reg-log}, chcemy, aby funkcja straty przyjmowała następujące wartości, które odpowiadają wartościom z macierzy kosztu:
 $$
 J^c_i(\theta)=\left\{
 \begin{array}{rl}
@@ -497,39 +520,35 @@ C_{FN_i}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 0$}.
 \end{array}
 \right.
 $$
-W rezultacie funkcją, która zachowuje się w powyższy sposób jest:
+W rezultacie funkcją, która zachowuje się w następujący sposób, jest
 \begin{talign*}
-	J^c(\theta) &= \frac{1}{N} \sum_{i=1}^{N} \bigg( y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) + \\
-	&+ (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \bigg)
+	J^c_i(\theta) &= y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) + (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \text{.}
 \end{talign*}
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{images/cost_sensitive_ce.png}
-	\label{cost-sensitive-loss-function}
 	\caption{Wykres zależności wrażliwej na koszt funkcji straty od prawdopodobieństwa predykcji danej obserwacji. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej. Wykres dla przykładowych wartości: $C_{\text{TP}} = 1 \text{, } C_{\text{FN}} = 10 \text{, } C_{\text{FP}} = 1 \text{, } C_{\text{TN}} = 0$.}
+	\label{fig:cost-sensitive-loss-function}
 \end{figure}
 
-% TODO: Opisać wykres.
-Następnie standardowo wykorzystując algorytm optymalizujący, który znajdzie odpowiednie współczynniki modelu trenujemy model predykcyjny.
+Wykres funkcji $J^c_i(\theta)$ jest przedstawiony na wykresie \ref{fig:cost-sensitive-loss-function}. Kolorem niebieskim zaznaczona jest predykcja dla klasy negatywnej, a pomarańczowym dla pozytywnej. Możemy zauważyć pożądaną przez nas asymetrię popełniania błędów oraz dokładne wartości, jakie funkcja przyjmuje podczas odpowiednich rodzajów błędów.
+
+Ostatecznie funkcją, którą będziemy minimalizować, jest 
+$$ J^c(\theta) = \frac{1}{N} \sum_{i=1}^{N} J^c_i(\theta) \text{.} $$
+Następnie podobnie jak w przypadku standardowej regresji logistycznej wykorzystujemy odpowiedni algorytm optymalizujący, który znajdzie odpowiednie współczynniki modelu.
+
 \subsection{Drzewo decyzyjne wrażliwe na koszt}
 \label{csdt}
-Analogicznie jak w przypadku regresji logistycznej w celu wprowadzenia kosztu do treningu drzewa decyzyjnego musimy uzależnić proces powstawania modelu od kosztu danej próbki. Naturalnym miejscem dla drzewa decyzyjnego jest proces podziału danego węzła na kolejne węzły bądź liście. Dlatego definiujemy następującą miarę zanieczyszczenia, która następujący wzór:
-$$ I_c(\es) = min \left\{ Cost(f_0(\es)), Cost(f_1(\es)) \right\} \text{.}$$
-Dodatkowo w przy dokonywaniu predykcji klasyfikacja na wartość pozytywną bądź negatywną następuje wg następującego kryterium:
-$$ f(\es) =  \left\{
-\begin{array}{rl}
-0, &\mbox{jeżeli $\text{Cost}(f_0(\es)) \leq \text{Cost}(f_1(\es))$}, \\
-1, &\mbox{w przeciwnym wypadku},
-\end{array}{}
-\right.
-$$
-gdzie jak zawsze 1 oznacza wartość pozytywną, a 0 negatywną. 
-Z poprzednich rozważań oczywiście możliwe jest stworzenie modeli typu \textit{ensemble}, w których klasyfikatorem bazowym byłoby drzewo decyzyjne wrażliwe na koszt, natomiast jest to poza obszarem badań aktualnej pracy.
+Analogicznie jak w przypadku regresji logistycznej w celu wprowadzenia kosztu do treningu drzewa decyzyjnego musimy uzależnić proces powstawania modelu od kosztu danej próbki. Naturalnym miejscem dla drzewa decyzyjnego jest moment podziału danego węzła. W tym celu definiujemy następującą miarę zanieczyszczenia
+$$ I_c(\ku) = \text{Koszt bazowy}(\ytrue^{\ku}, \boldsymbol{C}^{\ku}) \text{,}$$
+gdzie górny indeks $\ku$ oznacza odpowiedni podzbiór obserwacji, które wybieramy do wektora $\ytrue$ oraz $\boldsymbol{C}$.
 
+Ponadto predykcją dla liścia jest klasa, która w przypadku oznaczenia wszystkich obserwacji użytych podczas treningu w danym liściu, generowałaby najmniejszy koszt całkowity.
 
+Możliwe jest także stworzenie modeli typu \textit{ensemble}, w których klasyfikatorem bazowym byłoby omawiane drzewo decyzyjne wrażliwe na koszt, natomiast wykracza to poza niniejszą pracę. Szczegóły takiego podejścia są opisane w odpowiedniej pracy A. Bahnsensa \cite{alej2015ensemble}.
 
 \chapter{Eksperyment}
-W celu porównania skuteczności metod wrażliwych na koszt względem siebie wykonamy eksperyment, którego celem będzie sprawdzenie, który z modeli lub ich kombinacja przyniesie największe oszczędności na zbiorze danych dot. oszustw z wykorzystaniem kart kredytowych. Jako dodatkowy wskaźnik wykorzystamy miarę skuteczności modelu F1 Score, która będzie w stanie odpowiedzieć jak zmieniła się ogólna skuteczność modelu.
+W celu porównania skuteczności metod wrażliwych na koszt względem siebie wykonamy eksperyment, którego celem będzie sprawdzenie, który z modeli lub ich kombinacja przyniesie największe oszczędności na zbiorze danych dot. oszustw z wykorzystaniem kart kredytowych. Jako dodatkowy wskaźnik wykorzystamy miarę skuteczności modelu F1 Score, która będzie w stanie odpowiedzieć, jak zmieniła się ogólna skuteczność modelu.
 
 % TODO: Inspiracja z artykułu ...
 
@@ -562,7 +581,7 @@ Na podstawie wymienionych informacji tworzy się agregaty czasowe bazujące na h
 \end{itemize}
 Przykładowymi zmiennymi, które powstają w tym procesie są: Ilość transakcji dla tego samego klienta w ciągu ostatnich 6/12/24 godzin, Średnia wartość transakcji dla danego klienta z ostatniego tygodnia. 
 
-Informacja, która jest najbardziej istotna z punktu widzenia naszego modelowania, to rozkład oraz charakterystyka zmiennej dot. kwoty transakcji. Na Rysunku \ref{} znajduje się wykres rozkładu ... 
+Informacja, która jest najbardziej istotna z punktu widzenia naszego modelowania, to rozkład oraz charakterystyka zmiennej dot. kwoty transakcji. Na Rysunku znajduje się wykres rozkładu ... 
 
 Warto zauważyć, że najpopularniejszymi wartościami transakcji są: 
 
@@ -589,7 +608,7 @@ Na podstawie przeprowadzonej analizy definiujemy w Tabeli \ref{tab:macierz-koszt
 Eksperyment został przeprowadzony w następujący sposób:
 50-krotnie dzielimy zbiór danych w proporcjach 50:17:33 na zbiór treningowy, walidacyjny oraz testowy. Następnie uczymy wszystkie modele na zbiorze treningowym. Dla modelu XGBoost wykorzystujemy zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO korzystamy z tego zbioru jako zbiór treningowy. Następnie dla wszystkich modeli dokonujemy predykcyji na zbiorze testowym i mierzymy skuteczność typowań. Warto wspomnieć, że 50-krotne losowanie nowych podziałów zbioru ma na celu zmniejszenie ryzyka, że wynik zależy od wylosowanej próbki. Ponadto wykorzystano tą technikę w opozycji do standardowej warstwowej walidacji krzyżowej (\textit{ang. Stratified Cross Validation}) z uwagi na chęć uniknięcia zbyt małej próbki testowej w przypadku walidacji krzyżowej z dużą ilością podziałów. Następnie dla każdego modelu została obliczona wartość średnia oraz odchylenie standardowe dla wcześniej określonych miar.
 
-Do implementacji skryptów został wykorzystany język programowania Python wraz z bibliotekami costcla, sklearn, pandas, numpy, matplotlib oraz język programowania bash.
+Do implementacji skryptów został wykorzystany język programowania Python wraz z~bibliotekami costcla, sklearn, pandas, numpy, matplotlib oraz język programowania bash.
 
 \section{Wyniki}
 Lorem ipsum ...
@@ -624,11 +643,3 @@ Korzystając z Rysunku \ref{fig:results-f1} możemy zauważyć, że: ...
 \bibliografia{references} 
 
 \end{document}
-
-% Referencje
-% 
-
-% TODO:
-% Resampling to LR
-% Streszczenie
-
