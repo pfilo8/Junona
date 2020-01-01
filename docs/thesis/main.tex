@@ -165,7 +165,7 @@ Praca jest zorganizowana w następujący sposób. Rozdział pierwszy jest wstęp
 
 \chapter{Wprowadzenie teoretyczne}
 
-Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz uczenia maszynowego, które wykorzystuje się w~zagadnieniach klasyfikacyjnych. W~szczególności zaczniemy od opisania macierzy pomyłek, macierzy kosztu oraz związane z nimi miary skuteczności modeli predykcyjnych, które służą do badania jakości predykcji. Następnie przejdziemy do modeli standardowych, które nie biorą pod uwagi różnych kosztów popełniania błędu klasyfikacyjnego. W~ramach tej grupy opiszemy regresję logistyczną, drzewo decyzyjne, las losowy oraz algorytm XGBoost. Na końcu poruszymy temat modeli wrażliwych na koszt, które dzielimy na dwie podkategorie: Trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz Klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification}).\footnote{Źródło:  \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}} Pierwsza z nich zawiera metody, które w trakcie uczenia modelu zwracają uwagę na koszt błędnej klasyfikacji. Są to rozszerzone wersje standardowych modeli, które w~trakcie uczenia się mają zmienioną postać optymalizowanej funkcji. W~tej pracy będziemy omawiać regresję logistyczną wrażliwą na koszt oraz drzewo decyzyjne wrażliwe na koszt. Druga podkategoria składa się z metod, które wykorzystują estymowane prawdopodobieństwo ze~standardowych modeli i~na jego podstawie tworzą dodatkowy model, który bierze pod uwagę koszt niepoprawnej klasyfikacji danego przypadku. Z~tej grupy omówimy optymalizację progu oraz minimalizację ryzyka bayesowskiego.
+Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz uczenia maszynowego, które wykorzystuje się w~zagadnieniach klasyfikacyjnych. W~szczególności zaczniemy od opisania macierzy pomyłek, macierzy kosztu oraz związane z nimi miary skuteczności modeli predykcyjnych, które służą do badania jakości predykcji. Następnie przejdziemy do modeli standardowych, które nie biorą pod uwagi różnych kosztów popełniania błędu klasyfikacyjnego. W~ramach tej grupy opiszemy regresję logistyczną, drzewo decyzyjne, las losowy oraz algorytm XGBoost. Na końcu poruszymy temat modeli wrażliwych na koszt, które dzielimy na dwie podkategorie: trening wrażliwy na koszt (\textit{ang. Cost Sensitive Training}) oraz klasyfikacja wrażliwa na koszt (\textit{ang. Cost Sensitive Classification})\footnote{Źródło:  \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}. Pierwsza z nich zawiera metody, które w trakcie uczenia modelu zwracają uwagę na koszt błędnej klasyfikacji. Są to rozszerzone wersje standardowych modeli, które w~trakcie uczenia się mają zmienioną postać optymalizowanej funkcji. W~tej pracy będziemy omawiać regresję logistyczną wrażliwą na koszt oraz drzewo decyzyjne wrażliwe na koszt. Druga podkategoria składa się z metod, które wykorzystują estymowane prawdopodobieństwo ze~standardowych modeli i~na jego podstawie tworzą dodatkowy model, który bierze pod uwagę koszt niepoprawnej klasyfikacji danego przypadku. Z~tej grupy omówimy optymalizację progu oraz minimalizację ryzyka bayesowskiego.
 
 W pracy będziemy wykorzystywać następujące oznaczenia:
 \begin{itemize}
@@ -342,8 +342,8 @@ oraz korzystając z faktu, że $y_i \in \{0,1\}$, możemy zapisać
 $$ P(Y = y_i|\iks_{i};\theta) = \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
 Następnie zakładając, że wszystkie obserwacje są niezależne i~pochodzą z~rozkładu Bernoulliego, wyznaczamy funkcję największej wiarygodności, aby wyestymować parametry~$\theta$.
 $$ L(\theta | \es) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)}$$
-W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es)$ i~otrzymujemy
-$$ J(\theta):= \log L(\theta | \es)  = \frac{1}{N} \sum_{i=1}^N J_i(\theta)\text{,}$$
+W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es)$ i~otrzymujemy funkcję straty $J(\theta)$
+$$ J(\theta) = \log L(\theta | \es)  = \frac{1}{N} \sum_{i=1}^N J_i(\theta)\text{,}$$
 gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
@@ -381,9 +381,9 @@ Wyróżniamy trzy rodzaje algorytmów, które są odpowiedzialne za proces uczen
 \begin{itemize}
 	\item ID3 (Iterative Dichotomiser 3) -- algorytm pozwala na tworzenie drzew decyzyjnych, które w poszczególnych węzłach mogą mieć więcej niż dwa podziały. Działa jedynie dla zmiennych kategorycznych. Drzewo rośnie do maksymalnego rozmiaru, a następnie jest przycinane;
 	\item C4.5 -- następca ID3, który znosi restrykcję używania tylko kategorycznych atrybutów poprzez dyskretyzację zmiennych ciągłych. Następnie nauczone drzewo zamieniane jest w zestaw reguł, które są szeregowane względem poprawy skuteczności. Przycinanie w tym wypadku polega na usuwanie reguł, które nie poprawiają wyniku modelu;
-	\item CART (z angielskiego \textit{Classification and Regression Tree}) -- algorytm bardzo podobny do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia, który maksymalizuje przyrost informacji.
+	\item CART (z angielskiego \textit{Classification and Regression Tree}) -- bardzo podobny algorytm do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia, który maksymalizuje przyrost informacji.
 \end{itemize}
-Warto zaznaczyć, że implementacja w bibliotece \textit{sklearn} w Pythonie wykorzystuje zoptymalizowaną wersję algorytmu CART, który nie obsługuje zmiennych kategorycznych. Poniżej prezentujemy teorię matematyczną stojącą za implementacją tego algorytmu \cite{sklearn_api}.
+Warto zaznaczyć, że implementacja w bibliotece \textit{sklearn} w Pythonie wykorzystuje zmodyfikowaną wersję algorytmu CART, który nie obsługuje zmiennych kategorycznych. Poniżej prezentujemy teorię matematyczną stojącą za implementacją tego algorytmu \cite{sklearn_api}.
 
 Niech $\ku$ będzie zbiorem obserwacji dla danego węzła $m$. Ponadto niech podział będzie reprezentowany przez parę $\theta = (j, t_m)$, gdzie $j$ to $j$-ty atrybut wektora $\iks_i$, a $t_m$ to warunek podziału danych na podzbiory $\ku_l$ oraz $\ku_r$, gdzie
 $$ \ku_l (\theta) = \{ \iks_i : \iks_i \in \ku \land x^{j}_i \leq t_m \} \text{,} $$
@@ -426,46 +426,45 @@ W celu utworzenia $T$ klasyfikatorów bazowych należy ze zbioru treningowego $\
 	\item Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych. \cite{Random_Subspace}
 	\item Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci. \cite{Random_Patches}
 \end{itemize}
-Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone z myślą o wykorzystaniu drzewa decyzyjnego jako klasyfikatora bazowego, to nic nie stoi na przeszkodzie wykorzystać inny model. Ten fakt został między innymi wykorzystany w pracy A.Bahnsena \cite{alej2015ensemble}, gdzie wykorzystując omawiane w sekcji \ref{csdt} drzewa decyzyjne wrażliwe na koszt, stworzono lasy losowe wrażliwe na koszt.
+Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone z myślą o wykorzystaniu drzewa decyzyjnego jako klasyfikatora bazowego, to nic nie stoi na przeszkodzie wykorzystać inny model. Ten fakt został między innymi wykorzystany w~pracy A.Bahnsena \cite{alej2015ensemble}, gdzie wykorzystując omawiane w sekcji \ref{csdt} drzewa decyzyjne wrażliwe na koszt, stworzono lasy losowe wrażliwe na koszt.
 
 Procedura tworzenia lasu losowego jest podzielona na dwie fazy \cite{Random_Forest}. Pierwsza z nich wykorzystuje workowanie do wygenerowania odpowiednich próbek dla klasyfikatorów bazowych. Następnie trenujemy zmodyfikowane drzewa decyzyjne, które na etapie tworzenia każdego kolejnego węzła w drzewie losują podzbiór zmiennych do wyboru podziału. Finalnie podczas predykcji każdy model dokonuje klasyfikacji i ostatecznym wynikiem modelu jest większość głosów. Nie jest to jedyna możliwość agregowania wyników, przykładowo wykorzystywana w bibliotece \textit{sklearn} w Python implementacja uśrednia wyniki prawdopodobieństwa z każdego klasyfikatora \cite{sklearn_api}.
 
 \subsection{XGBoost}
-% TODO: Do poprawy pierwsze zdanie
-Algorytm XGBoost jest przykładem modelu, który w iteracyjny sposób tworzy kolejne bazowe klasyfikatory. W przypadku tego algorytmu jako klasyfikator bazowy wykorzystujemy implementację drzew decyzyjnych typu CART, które nieznacznie różnią się od standardowych drzew decyzyjnych opisywanych w \ref{drzewo}, ponieważ liść drzewa jest rozszerzony o wartość rzeczywistą, która reprezentuje decyzję modelu. Ponieważ jest to złożenie wielu klasyfikatorów, to możemy zapisać nasz model w~następującej postaci:
-$$ \hat{y_i} = \sum_{k=1}^K f_k(x_i) \text{,} \quad f_k \in \ef \text{,} $$
-gdzie $K$ oznacza liczbę drzew, $f$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
-Zatem funkcją, którą będziemy optymalizować przyjmuje następującą postać
-% TODO: Opisać cały wzorek
+Algorytm XGBoost to model, który w iteracyjny sposób tworzy kolejne drzewa decyzyjne typu CART opisywane w sekcji \ref{drzewo}. Jest to podobnie jak w przypadku lasu losowego złożenie wielu klasyfikatorów bazowych, stąd możemy zapisać predykcję $i$-tej obserwacji jako
+$$ \hat{y_i} = \sum_{k=1}^K f_k(\iks_i) \text{,} \quad f_k \in \ef \text{,} $$
+gdzie $K$ oznacza liczbę drzew decyzyjnych, $f$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
+W ogólności proces trenowania modeli w uczeniu maszynowym polega na znalezieniu najlepszych parametrów $\theta$, które najlepiej pasują do danych treningowych ze zbioru $\es$ i ich prawdziwych wartości $\ytrue$. W celu dokonania tego procesu definiujemy funkcję celu (\textit{ang. objective}), którą w ogólnej postaci możemy zapisać jako
+$$ \text{Obj}(\theta) = J(\theta) + \Omega(\theta) \text{,}$$
+gdzie $J(\theta)$ to funkcja straty, a $\Omega$ to wyraz odpowiadający za regularyzację, która nakłada odpowiednie kary na współczynniki modelu, aby zapobiec zbytniemu dopasowaniu do danych. Za funkcję straty najczęściej przyjmujemy w przypadku zadań regresyjnych błąd średnio kwadratowy
+$$ J(\theta) = \sum_{i=1}^{N} (y_i - \bar{y})^2 $$
+lub w przypadku zadań klasyfikacyjnych entropię krzyżową daną równaniem \ref{c-e}.
+
+Przechodząc na bardziej jawne wzory, funkcja celu w kroku iteracji $t$ przyjmuje postać
 \begin{equation}
 	\label{Obj}
-	\text{Obj}(\theta) = \sum_{i=1}^{n} l(y_i, \yht{t}) + \sum_{k=1}^{K} \Omega(f_k)
+	\text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} l(y_i, \yht{t}) + \sum_{k=1}^{K} \Omega(f_k) \text{,}
 \end{equation}
-W przypadku klasyfikacji przyjmujemy tak samo jak poprzednio funkcję entropii krzyżowej (\ref{c-e}).
-Patrząc na postać modelu nie różni się ona niczym od lasu losowego. Zatem różnica między tymi modelami polega na sposobie trenowania drzew, który pokrótce opiszemy.
-
-Ponieważ naszym modelem bazowym jest drzewo, to nie jesteśmy w stanie wprost rozwiązać zagadnienia optymalizacyjnego poprzez obliczenie gradientu funkcji i iteracyjne znalezienie rozwiązania. W tym przypadku posłużymy się treningiem addytywnym, który polega na iteracyjnym poprawianiem błędów z poprzednich modeli poprzez odpowiednie przydzielanie wag próbkom w kolejnych krokach algorytmu. 
-Oznaczmy wartość predykcji w kroku $t$ jako $\yht{t}$.
-
+gdzie $l(y_i, \yht{t})$ to w innej formie zapisana funkcja straty $J(\theta)$, a $\yht{t}$ oznacza wartość predykcji w kroku $t$.
+W przypadku tego algorytmu wykorzystamy trening addytywny, który polega na iteracyjnym poprawianiu nieprawidłowych klasyfikacji z poprzednich modeli poprzez odpowiednie przydzielanie wag próbkom w kolejnych fazach. Zatem dalej mamy
 $$ \yht{0} = 0 $$
 $$ \yht{1} = f_1(x_i)  = \yht{0} + f_1(x_i) $$
 $$ \yht{2} = f_1(x_i) + f_2(x_i) = \yht{1} + f_2(x_i) $$
 $$ ... $$
 $$ \yht{t} = \sum_{k=1}^{t} f_k(x_i) = \yht{t-1} + f_t(x_i) $$
-Pozostaje zagadnienie jakie drzewo chcemy wybrać w każdym z kroków. Oczywiście takie, które optymalizuje naszą funkcję Obj. Korzystając z powyższych wzorów oraz \ref{Obj} otrzymujemy następującą postać tej funkcji:
-$$ \sum_{i=1}^{n} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{constant .}$$
-Korzystając z rozwinięcia szeregu Taylora dla funkcji straty otrzymujemy ogólny wzór:
-$$ \text{Obj}^{(t)} = \sum_{i=1}^{n} \left[ l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) + \text{const. ,} $$
+Korzystając z powyższych wzorów oraz \ref{Obj} otrzymujemy następujące wyrażenie
+$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{n} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{const. .}$$
+Korzystając z rozwinięcia szeregu Taylora dla funkcji straty, otrzymujemy ogólny wzór:
+$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{n} \left[ l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) + \text{const. ,} $$
 gdzie 
-$$ g_i = \partial_{\yht{t-1}} l(y_i, \yht{t-1}) $$
-$$ h_i = \partial^2_{\yht{t-1}} l(y_i, \yht{t-1}) $$
-Zatem po redukcji stałych, które są nieistotne z punktu widzenia optymalizacji otrzymujemy:
-$$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) $$
+$$ g_i = \partial_{\yht{t-1}} l(y_i, \yht{t-1}) \text{,} $$
+$$ h_i = \partial^2_{\yht{t-1}} l(y_i, \yht{t-1}) \text{.}$$
+Następnie po redukcji stałych, które są nieistotne z punktu widzenia optymalizacji, otrzymujemy
+$$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) \text{.}$$
+Zauważmy, że nigdzie bezpośrednio nie korzystaliśmy z postaci funkcji straty, zatem w ten sposób jesteśmy w stanie zbudować model optymalizujący dowolną dwukrotnie różniczkowalną funkcję ciągłą. Taka uniwersalność powoduje, że algorytm ten znajduje zastosowanie w wielu zadniach z zakresu uczenia maszynowego, jak i innych problemów optymalizacyjnych.
 
-% TODO: Early stopping
-
-\section{Cost Dependent Classification}
-Metody \textit{Cost Dependent Classification} są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc} na stronie \ref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna, czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym.
+\section{Klasyfikacja wrażliwa na koszt}
+Metody klasyfikacji wrażliwej na koszt (\textit{ang. Cost Dependent Classification})  są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc} na stronie \ref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna, czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym.
 \begin{figure}
 	\includegraphics[width=\linewidth]{images/cost_sensitive_classification.png}
 	\caption{Schemat przedstawiający proces uczenia klasyfikatora wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
@@ -483,7 +482,6 @@ gdzie
 W naszym przypadku funkcja $f$ to funkcja oszczędności (\ref{oszczednosci}). Innymi słowy, w tym przypadku będziemy szukać takiego progu decyzyjnego, który zmaksymalizuje wartość oszczędności.
 % TODO: Opcjonalne - odwołać się do przypadków wielu minimum. Opisać algorytmiczne wyznaczanie tej wartości.
 \subsection{Minimalizacja ryzyka bayesowskiego}
-% TODO: Zmienić oznaczenia we wzorkach
 Metoda minimalizacji ryzyka bayesowskiego (\textit{ang. Bayesian Minimum Risk}) polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej \cite{CSCCFD}. Definiujemy je w następujący sposób
 $$ R(p_1|\iks_{i}) = L(p_1|y_1)P(y_1|\iks_{i}) + L(p_1|y_0)P(y_0|\iks_{i}) \text{,}$$
 $$ R(p_0|\iks_{i}) = L(p_0|y_0)P(y_0|\iks_{i}) + L(p_0|y_1)P(y_1|\iks_{i}) \text{,}$$
@@ -500,8 +498,8 @@ $$ P(p_1|\iks_{i}) \ge \frac{L(p_1|y_0) - L(p_0|y_0)}{L(p_0|y_1) - L(p_1|y_1) - 
 W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymujemy następujący próg decyzyjny
 $$ p \ge \frac{C_{FP_i} - C_{TN_i}}{C_{FN_i} - C_{TP_i} - C_{TN_i} + C_{FP_i}} \text{.}$$
 
-\section{Cost Sensitive Training}
-Drugą podgrupą metod wrażliwych na koszt jest \textit{Cost Sensitive Trainig}. Są to metody, które już na etapie treningu modelu biorą pod uwagę koszt związany z klasyfikacją danej obserwacji. Schemat uczenia modelu jest przedstawiony na Rysunku \ref{cst}. Model jako wejście otrzymuje zbiór danych treningowych, następnie dokonuje predykcji i na bazie prawdziwych odpowiedzi oraz kosztów wyznaczana jest skuteczność modelu i kolejno aktualizowane są wagi, a cały proces jest iteracyjnie powtarzany aż do momentu osiągnięcia zadanego kryterium stopu.
+\section{Trening wrażliwy na koszt}
+Drugą podgrupą metod wrażliwych na koszt jest trening wrażliwy na koszt (\textit{ang. Cost Sensitive Trainig}). Są to metody, które już na etapie treningu modelu biorą pod uwagę koszt związany z klasyfikacją danej obserwacji. Schemat uczenia modelu jest przedstawiony na Rysunku \ref{cst}. Model jako wejście otrzymuje zbiór danych treningowych, następnie dokonuje predykcji i na bazie prawdziwych odpowiedzi oraz kosztów wyznaczana jest skuteczność modelu i kolejno aktualizowane są wagi, a cały proces jest iteracyjnie powtarzany aż do momentu osiągnięcia zadanego kryterium stopu.
 \begin{figure}
 	\includegraphics[width=\linewidth]{images/cost_sensitive_training.png}
 	\caption{Schemat przedstawiający proces uczenia modelu wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
@@ -544,8 +542,6 @@ $$ I_c(\ku) = \text{Koszt bazowy}(\ytrue^{\ku}, \boldsymbol{C}^{\ku}) \text{,}$$
 gdzie górny indeks $\ku$ oznacza odpowiedni podzbiór obserwacji, które wybieramy do wektora $\ytrue$ oraz $\boldsymbol{C}$.
 
 Ponadto predykcją dla liścia jest klasa, która w przypadku oznaczenia wszystkich obserwacji użytych podczas treningu w danym liściu, generowałaby najmniejszy koszt całkowity.
-
-Możliwe jest także stworzenie modeli typu \textit{ensemble}, w których klasyfikatorem bazowym byłoby omawiane drzewo decyzyjne wrażliwe na koszt, natomiast wykracza to poza niniejszą pracę. Szczegóły takiego podejścia są opisane w odpowiedniej pracy A. Bahnsensa \cite{alej2015ensemble}.
 
 \chapter{Eksperyment}
 W celu porównania skuteczności metod wrażliwych na koszt względem siebie wykonamy eksperyment, którego celem będzie sprawdzenie, który z modeli lub ich kombinacja przyniesie największe oszczędności na zbiorze danych dot. oszustw z wykorzystaniem kart kredytowych. Jako dodatkowy wskaźnik wykorzystamy miarę skuteczności modelu F1 Score, która będzie w stanie odpowiedzieć, jak zmieniła się ogólna skuteczność modelu.
