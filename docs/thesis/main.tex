@@ -89,15 +89,6 @@
 \newcommand{\iks}{\boldsymbol{x}}
 \newcommand{\yht}[1]{y_i^{(#1)}}
 \newcommand{\ytrue}{\boldsymbol{y}}
-\newcommand{\underscoretext}[3]{$\text{#1}_{\text{#2}_{\text{#3}}}$}
-
-\newenvironment{talign}
-{\align}
-{\endalign}
-
-\newenvironment{talign*}
-{\csname align*\endcsname}
-{\endalign}
 
 
 \frontmatter
@@ -163,9 +154,10 @@ W pracy będziemy wykorzystywać następujące oznaczenia:
 	\item $\es = \{\iks_1, \iks_2, \dots, \iks_N \}$ -- zbiór wszystkich $N$ obserwacji,
 	\item $\iks_{i} = \left(x_i^{(1)}, x_i^{(2)}, \dots, x_i^{(j)} \right)$ -- $i$-ty poziomy wektor obserwacji składający się z $j$ atrybutów,
 	\item $x_i^{(k)}$ -- $k$-ty atrybut $i$-tego wektora obserwacji,
-	\item $\ytrue = (y_1, y_2, \dots, y_N)$ - wektor poziomy prawdziwych stanów klasyfikacji,
+	\item $\ytrue = (y_1, y_2, \dots, y_N)$ - poziomy wektor prawdziwych stanów klasyfikacji,
 	\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji,
 	\item $p_i \in [0,1]$ -- estymowana wartość prawdopodobieństwa dla $i$-tej obserwacji,
+	\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ - poziomy wektor przewidywanych klas
 	\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji.
 \end{itemize}
 Ponadto wartość $0$ zmiennej $y_i$ oraz $c_i$ oznacza klasyfikację negatywną, natomiast wartość $1$ oznacza klasyfikację pozytywną.
@@ -212,11 +204,15 @@ Na podstawie macierzy pomyłek (tabela \ref{tab:macierz-pomylek}) możemy zdefin
 
 \subsubsection{Dokładność}
 Dokładność (\textit{ang. Accuracy}) mierzy stosunek poprawnie zaklasyfikowanych przypadków do ilości wszystkich obserwacji. Bierze ona pod uwagę zarówno obserwacje pozytywne, jak i negatywne. Z~tego powodu bardzo dobrze radzi sobie w sytuacji, gdy interesują nas obserwacje z obu klas, natomiast dużo gorzej, gdy istotna jest tylko jedna klasa. W~szczególności nie nadaje się ona do problemów z dużą dysproporcją klas, która pojawia się w przypadku detekcji oszustw. Dokładność zdefiniowana jest następującym wzorem
-$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} \text{.}$$
+$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} = \alpha \cdot \text{Czułość} + (1-\alpha) \cdot \text{Swoistość} \text{,}$$
+gdzie $\alpha$ to odsetek przypadków pozytywnych w danych, a czułość oraz swoistość są opisane w~następnych podsekcjach. 
+
+W celu uniknięcia różnic w obu populacjach wykorzystuje się zbalansowaną skuteczność (\textit{ang. balanced accuracy}), która za parametr $\alpha$ przyjmuje wartość $\frac{1}{2}$. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczność próbek w klasach, to wartość zbalansowanej skuteczności spada \cite{balanced_accuracy}. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej.
 
 \subsubsection{Precyzja}
 Precyzja (\textit{ang. Precision}) to stosunek poprawnie zaklasyfikowanych pozytywnych przypadków do wszystkich obserwacji zaklasyfikowanych jako pozytywne. Mierzy ona, jaki procent próbek prawidłowo zaklasyfikowaliśmy jako pozytywne. Warto zauważyć, że nie bierze ona pod uwagę obserwacji negatywnych. Jest ona bardzo często wykorzystywana podczas rozwiązywania większości problemów z~zakresu uczenia maszynowego, ponieważ najczęściej interesuje nas, aby nasze typowania były możliwie najbardziej skuteczne. Z~tego też powodu precyzja jest często nazywana skutecznością klasyfikacji prawdziwie pozytywnych (\textit{ang. True Positive Accuracy}). Zapisana wzorem przyjmuje postać
 $$ \text{Precyzja} = \frac{TP}{TP + FP} \text{.}$$
+Rozpatrzmy jeszcze przykład z~medycyny. Załóżmy, że mamy test diagnostyczny, który klasyfikuje wszystkich pacjentów jako chorych. W~tym przypadku czułość przyjmuje wartość $1$, swoistość wartość $0$, a precyzja jest równa frakcji przypadków pozytywnych w danych. Odwrotnie, załóżmy teraz, że nasz test oznacza wszystkich pacjentów jako zdrowych. W~tym przypadku czułość jest równa $0$, swoistość $1$, natomiast precyzja jest niezdefiniowana (symbol nieoznaczony -- $\frac{0}{0}$). Ten przykład pokazuje, że precyzja jest zależna od zbalansowania klas.
 
 \subsubsection{Czułość}
 Czułość (\textit{ang. Recall}) to stosunek prawdziwie pozytywnie zaklasyfikowanych przypadków do wszystkich pozytywnych obserwacji. Innymi słowy, jest to miara, która mówi nam o procencie znalezionych przez model przypadków pozytywnych. Podobnie jak precyzja skupia się jedynie na poprawnie zaklasyfikowanych obserwacjach pozytywnych. Jest ona szczególnie ważna w zastosowaniach medycznych, gdzie naszym głównym celem jest znalezienie wszystkich chorych osób. Używana jest także do wyznaczania krzywej ROC opisanej w~sekcji \ref{ROC} na stronie \pageref{ROC}. Czułość jest wyrażona wzorem
@@ -229,10 +225,6 @@ $$ \text{Swoistość}= \frac{TN}{TN + FP} \text{.}$$
 \subsubsection{Ujemna wartość predykcyjna}
 Ujemna wartość predykcyjna to stosunek prawdziwie negatywnie zaklasyfikowanych przypadków do wszystkich negatywnie zaklasyfikowanych obserwacji. Nazywana jest również odwrotną precyzją, ponieważ analogicznie do precyzji skupia się na mierzeniu skuteczności klasyfikowania obserwacji negatywnych. Miara ta jest także używana do wyrysowania krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}), a dokładniej wartość $1- \text{ujemna wartość predykcyjna}$, która odpowiada stosunekowi fałszywie pozytywnych klasyfikacji (ang. \textit{false positive ratio}). Dana jest wzorem
 $$ \text{Ujemna wartość predykcyjna}= \frac{TN}{TN + FN} \text{.}$$
-
-\subsubsection{Zbalansowana skuteczność} 
-Zbalansowana skuteczność (\textit{ang. balanced accuracy}) to średnia arytmetyczna czułości oraz swoistości. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczość próbek w klasach, to wartość zbalansowanej skuteczności spada \cite{balanced_accuracy}. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej. Zadana jest wzorem
-$$ \text{Zbalansowana skuteczność}= \frac{\text{Czułość} + \text{Swoistość}}{2} \text{.}$$
 
 \subsubsection{F Score}
 $\text{F}_1$ Score to miara łącząca w sobie precyzję oraz czułość za pomocą średniej harmonicznej. Z~uwagi na wykorzystanie tych dwóch wartości nie bierze ona pod uwagę prawidłowo zaklasyfikowanych obserwacji negatywnych. Wykorzystanie średniej harmonicznej powoduje, że kładziemy równy nacisk na obie użyte miary. Standardowy wzór wygląda następująco
@@ -258,22 +250,26 @@ Przykładowy wykres znajduje się na rysunku \ref{fig:roc_example} na stronie \p
 
 \subsection{Macierz kosztu}
 \label{sec:macierz-kosztu}
-W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt potrzebujemy najpierw zdefiniować macierz kosztu $C$ \cite{CSCCFD, CS-Learning}. Ma ona postać analogiczną do macierzy pomyłek, lecz zamiast ilość obserwacji w odpowiednich komórkach wpisujemy koszt pomyłki dla $i$-tej obserwacji. Warto zaznaczyć, że koszt niekoniecznie musi być kwota pieniężną, lecz także możemy rozważać ilość poświęconego czasu, bądź inną dowolną mierzalną jednostkę. W szczególności dla przypadku klasyfikacji binarnej wyróżniamy cztery możliwe wartości:
+W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt potrzebujemy najpierw zdefiniować wektor macierzy kosztu
+$$ \boldsymbol{C} = (C_1, C_2, \dots, C_N) $$
+gdzie $ C^{(i)} = [C^{(i)}_{j,k}]_{j,k=0}^1 $ oznacza macierz kosztu dla $i$-tej obserwacji \cite{CSCCFD, CS-Learning}. Ma ona postać analogiczną do macierzy pomyłek, lecz zamiast ilość obserwacji w odpowiednich komórkach wpisujemy koszt pomyłki dla $i$-tej obserwacji. Warto zaznaczyć, że koszt niekoniecznie musi być kwota pieniężną, lecz także możemy rozważać ilość poświęconego czasu, bądź inną dowolną mierzalną jednostkę. W szczególności dla przypadku klasyfikacji binarnej wyróżniamy cztery możliwe wartości:
 \begin{itemize}
-	\item[--] \underscoretext{C}{TP}{i} -- koszt prawdziwie pozytywnego zaklasyfikowania $i$-tej obserwacji,
-	\item[--] \underscoretext{C}{FP}{i} -- koszt fałszywie pozytywnego zaklasyfikowania $i$-tej obserwacji,
-	\item[--] \underscoretext{C}{FN}{i} -- koszt fałszywie negatywnego zaklasyfikowania $i$-tej obserwacji,
-	\item[--] \underscoretext{C}{TN}{i} -- koszt prawdziwie negatywnego zaklasyfikowania $i$-tej obserwacji.
+	\item[--] $C_{1,1}$ -- koszt prawdziwie pozytywnego zaklasyfikowania $i$-tej obserwacji,
+	\item[--] $C_{1,0}$ -- koszt fałszywie pozytywnego zaklasyfikowania $i$-tej obserwacji,
+	\item[--] $C_{0,1}$ -- koszt fałszywie negatywnego zaklasyfikowania $i$-tej obserwacji,
+	\item[--] $C_{0,0}$ -- koszt prawdziwie negatywnego zaklasyfikowania $i$-tej obserwacji.
 \end{itemize}
 
 W zależności od praktycznego zastosowania wartości w macierzy kosztu przyjmują różne wielkości. Poniżej przedstawiamy kilka intuicji na podstawie macierzy kosztu zdefiniowanych dla różnych eksperymentów w~pracy A. Bahnsena \cite{alej2015ensemble}.
 \begin{itemize}
-	\item W przypadku, gdy predykcja klasy pozytywnej wiąże się z podjęciem jakiejś akcji, np. sprawdzenie transakcji kartą kredytową, wysłanie oferty reklamowej, to koszt pozytywnej predykcji jest dodatni, to znaczy \underscoretext{C}{TP}{i}, \underscoretext{C}{FP}{i} $>0$. Ponadto najczęściej te koszty są równe i przyjmują stałą wartość dla wszystkich przypadków, to znaczy \underscoretext{C}{TP}{i}~$=$~\underscoretext{C}{FP}{i}~$= \text{const.}$, ponieważ podejmowana zawsze jest ta sama akcja dla wszystkich obserwacji. Dodatkowo koszt pozytywnego zaklasyfikowania dla każdej obserwacji negatywnej jest zerowy, to znaczy \underscoretext{C}{TN}{i} $=0$, ponieważ słusznie nie została podjęta żadna akcja. Zatem ostatecznie jedyną wartością, która różni się między przypadkami, jest koszt fałszywie negatywnej klasyfikacji i on również jest większy od zera.
-	\item W przypadku, gdy predykcja dokonywana jest przez zautomatyzowany system, to koszt prawidłowej klasyfikacji jest równy zero, to znaczy \underscoretext{C}{TP}{i}~$=$~\underscoretext{C}{TN}{i}~$=0$, ponieważ maszynie nie musimy płacić pensji, która obsługuje daną sprawę. Natomiast koszty pomyłek są różne i zazwyczaj różnią się między obserwacjami. Biorąc jako przykład ryzyko kredytowe, możemy zauważyć, że koszty mogą być zarówno dodatnie, jak i ujemne. W tym konkretnym przypadku, gdy stwierdzimy, że dana osoba spłaci kredyt, natomiast w rzeczywistości nie zrobi tego, to będziemy stratni pewną sumę pieniędzy, co da nam dodatni koszt. Z drugiej strony, gdy uznamy, że dana osoba nie spłaci kredytu, a w rzeczywistości wywiązałaby się z zobowiązań, to utracimy pewien zarobek, zatem koszt będzie negatywny.
+	\item W przypadku, gdy predykcja klasy pozytywnej wiąże się z podjęciem jakiejś akcji, np. sprawdzenie transakcji kartą kredytową, wysłanie oferty reklamowej, to koszt pozytywnej predykcji jest dodatni, to znaczy $C^{(i)}_{1,1}$, $C^{(i)}_{1,0}$ $>0$. Ponadto najczęściej te koszty są równe i przyjmują stałą wartość dla wszystkich przypadków, to znaczy $C^{(i)}_{1,1} = C^{(i)}_{1,0} =  \text{const.}$, ponieważ podejmowana zawsze jest ta sama akcja dla wszystkich obserwacji. Dodatkowo koszt pozytywnego zaklasyfikowania dla każdej obserwacji negatywnej jest zerowy, to znaczy $C^{(i)}_{0,0} = 0$, ponieważ słusznie nie została podjęta żadna akcja. Zatem ostatecznie jedyną wartością, która różni się między przypadkami, jest koszt fałszywie negatywnej klasyfikacji i on również jest większy od zera.
+	\item W przypadku, gdy predykcja dokonywana jest przez zautomatyzowany system, to koszt prawidłowej klasyfikacji jest równy zero, to znaczy $C^{(i)}_{1,1} = C^{(i)}_{0,0} = 0$, ponieważ maszynie nie musimy płacić pensji, która obsługuje daną sprawę. Natomiast koszty pomyłek są różne i zazwyczaj różnią się między obserwacjami. Biorąc jako przykład ryzyko kredytowe, możemy zauważyć, że koszty mogą być zarówno dodatnie, jak i ujemne. W tym konkretnym przypadku, gdy stwierdzimy, że dana osoba spłaci kredyt, natomiast w rzeczywistości nie zrobi tego, to będziemy stratni pewną sumę pieniędzy, co da nam dodatni koszt. Z drugiej strony, gdy uznamy, że dana osoba nie spłaci kredytu, a w rzeczywistości wywiązałaby się z zobowiązań, to utracimy pewien zarobek, zatem koszt będzie negatywny.
 \end{itemize}
 
 Koncepcyjnie koszt popełnienia błędu dla każdej obserwacji powinien być większy niż koszt poprawnej klasyfikacji, to znaczy
-$$ \text{C}_{\text{FP}_{\text{i}}} >\text{C}_{\text{TP}_{\text{i}}} \text{ i } \text{C}_{\text{FN}_{\text{i}}} > \text{C}_{\text{TN}_{\text{i}}} \quad \forall_{i \in \{1, 2, \dots, N\}} \text{.}$$
+
+$$ C^{(i)}_{1,0} > C^{(i)}_{1,1} \text{ i } C^{(i)}_{0,1} > C^{(i)}_{0,0} \quad \forall_{i \in \{1, 2, \dots, N\}} \text{.}$$
+
 Natomiast jak możemy zauważyć na podstawie wyżej opisanych intuicji, w praktycznych zastosowaniach jest to bardzo często nierealistyczne założenie.
 % TODO: Opisać warunki na koszty, gdyby wszystkie były stałe.
 Przykład takiej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}.
@@ -283,36 +279,26 @@ Przykład takiej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}
 			\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
 			& $y_i = 1$            & $y_i = 0$ \\
 			\hline
-			Predykcja pozytywna & \multirow{2}{4em}{\centering \underscoretext{C}{TP}{i}} & \multirow{2}{4em}{\centering \underscoretext{C}{FP}{i}} \\
+			Predykcja pozytywna & \multirow{2}{4em}{\centering $C^{(i)}_{1,1}$} & \multirow{2}{4em}{\centering $C^{(i)}_{1,0}$} \\
 			$c_i = 1$         &                    &                    \\
 			\hline
-			Predykcja negatywna & \multirow{2}{4em}{\centering \underscoretext{C}{FN}{i}} & \multirow{2}{4em}{\centering \underscoretext{C}{TN}{i}} \\
+			Predykcja negatywna & \multirow{2}{4em}{\centering $C^{(i)}_{0,1}$} & \multirow{2}{4em}{\centering $C^{(i)}_{0,0}$} \\
 			$c_i = 0$         &                    &                    \\
 		\end{tabular}
 	\end{center}
-	\caption{Macierz kosztu.}
+	\caption{Macierz kosztu dla $i$-tej obserwacji.}
 	\label{tab:macierz-kosztu}
 \end{table}
 
 \subsection{Miary skuteczności modeli wrażliwych na koszt}
-Motywacją do powstania miar skuteczności wrażliwych na koszt jest potrzeba ewaluacji modeli, która miarodajnie odda złożoność rozwiązywanego problemu \cite{EDCSLR}. Przykładowo w~przypadku detekcji oszustw będzie w stanie odpowiedzieć na pytanie dotyczące zaoszczędzonej kwoty dzięki modelowi predykcyjnemu. Kolejny powodem jest fakt, że podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fałszywie pozytywnych oraz fałszywie negatywnych klasyfikacji, traktując oba błędy jednakowo. Ponadto warto zauważyć, że omawiane problemy wymagają uwzględnienia nie tylko różnych kosztów per rodzaj pomyłki, ale także per konkretna obserwacja. Bazując na wprowadzonej w sekcji \ref{sec:macierz-kosztu} macierzy kosztu $C$, zdefiniujemy kilka miar.
-
-\subsubsection{Koszt}
-Rozpoczniemy od matematycznego wprowadzenia kosztu, który wyznacza jaką wartość powinniśmy wziąć z macierzy kosztu $C_i$ dla $i$-tej obserwacji mając daną predykcję oraz prawdziwą wartość klasyfikacji.
-$$ \text{Koszt}(y_i, c_i, C_i) = y_i \left(c_i C_{TP_i} + (1-c_i)C_{FN_i}\right) + (1-y_i)\left(c_i C_{FP_i} + (1-c_i)C_{TN_i}\right) \text{,}$$
-gdzie $C_{TP_{i}}\text{,} C_{FP_{i}}\text{,} C_{FN_{i}}\text{,} C_{TN_{i}}$ to odpowiednie wartości z macierzy kosztu $C_i$.
+Motywacją do powstania miar skuteczności wrażliwych na koszt jest potrzeba ewaluacji modeli, która miarodajnie odda złożoność rozwiązywanego problemu \cite{EDCSLR}. Przykładowo w~przypadku detekcji oszustw będzie w stanie odpowiedzieć na pytanie dotyczące zaoszczędzonej kwoty dzięki modelowi predykcyjnemu. Kolejny powodem jest fakt, że podstawowe metryki nie uwzględniają różnicy w kosztach pomyłki dla fałszywie pozytywnych oraz fałszywie negatywnych klasyfikacji, traktując oba błędy jednakowo. Ponadto warto zauważyć, że omawiane problemy wymagają uwzględnienia nie tylko różnych kosztów per rodzaj pomyłki, ale także per konkretna obserwacja. Bazując na wprowadzonym w sekcji \ref{sec:macierz-kosztu} wektorze macierzy kosztu $C$, zdefiniujemy kilka miar.
 
 \subsubsection{Koszt całkowity}
 Koszt całkowity (TC, z angielskiego \textit{ang. Total Cost}) to suma kosztów poniesionych dla danego zestawy predykcji $\boldsymbol{c}$, który zostały wygenerowany przez pewien model predykcyjny. Definiowany jest wzorem
 \begin{equation}
 	\label{koszt-calkowity}
-	\text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \sum_{i=1}^{N}\text{Koszt}(y_i, c_i, C_i) \text{,}
+	\text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \sum_{i=1}^N C^{(i)}_{c_i,y_i} \text{,}
 \end{equation} 
-gdzie:
-\begin{itemize}
-	\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ - wektor przewidywanych klas,
-	\item $\boldsymbol{C} = (C_1, C_2, \dots, C_N) $ - wektor macierzy kosztu.
-\end{itemize}
 
 \subsubsection{Oszczędności}
 Oszczędności (\textit{ang. Savings}) to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od naiwnego klasyfikatora. Przy czym naiwnym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
@@ -332,7 +318,7 @@ gdzie:
 
 \subsection{Regresja logistyczna}
 \label{reg-log}
-Regresja logistyczna to model statystyczny, którego celem jest modelowanie prawdopodobieństwa, że zmienna losowa $Y$ przyjmie wartość $0$ lub $1$, na~podstawie danych empirycznych. Rozważmy następującą definicję modelu regresji logistycznej parametryzowaną wektorem współczynników $\theta = (\theta_1, \theta_2, \dots, \theta_n)$ daną w~następujący sposób
+Regresja logistyczna to model statystyczny, którego celem jest modelowanie prawdopodobieństwa, że zmienna losowa $Y$ przyjmie wartość $0$ lub $1$, na~podstawie danych empirycznych. Rozważmy następującą definicję modelu regresji logistycznej parametryzowaną poziomym wektorem współczynników $\theta = (\theta_1, \theta_2, \dots, \theta_n)$ daną w~następujący sposób
 \begin{equation}
 	\htx = \frac{1}{1+e^{-\iks_{i}\theta^T}} = P(Y = 1|X = \iks_{i};\theta) \text{.}
 \end{equation} 
@@ -343,13 +329,13 @@ $$ P(Y = y_i|\iks_{i};\theta) = \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
 Następnie wyznaczamy funkcję największej wiarygodności, aby wyestymować parametry~$\theta$.
 $$ L(\theta | \es, \ytrue) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)}$$
 W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es)$ i~otrzymujemy funkcję straty $J(\theta)$
-$$ J(\theta) = \log L(\theta | \es)  = \sum_{i=1}^N J_i(\theta)\text{,}$$
+$$ J(\theta) = \log L(\theta | \es, \ytrue)  = -\sum_{i=1}^N J_i(\theta)\text{,}$$
 gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
 	J_i(\theta) = -y_i\log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i})) \text{.}
 \end{equation}
-Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję wiarygodności, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{Iteratively Reweighted Least Squares}).
+Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję wiarygodności, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{ang. Iteratively Reweighted Least Squares}).
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cross_entropy.png}
@@ -363,14 +349,14 @@ Wykres \ref{fig:cross-entropy-plot} ze strony \pageref{fig:cross-entropy-plot} p
 $$
 J_i(\theta) \approx \left\{
 \begin{array}{rl}
-0, &\mbox{jeżeli $y_i \approx \htx$}, \\
-\infty, &\mbox{jeżeli $y_i \approx (1 - \htx)$}.
+0, &\mbox{jeżeli $\htx \approx y_i$}, \\
+\infty, &\mbox{jeżeli $1 - \htx \approx y_i$}.
 \end{array}{}
 \right.
 $$
 To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
-$$ C_{TP_i} = C_{TN_i} \approx 0 \text{,}$$
-$$ C_{FP_i} = C_{FN_i} \approx \infty \text{.}$$
+$$ C^{(i)}_{1,1} = C^{(i)}_{0,0} \approx 0 \text{,}$$
+$$ C^{(i)}_{1,0} = C^{(i)}_{0,1} \approx \infty \text{.}$$
 Jest to wynik, który nie oddaje charakteru nierówności kosztu popełniania różnych błędów, stąd powstaje motywacja, aby zmodyfikować podaną funkcję i stworzyć regresję logistyczną, która będzie w stanie modyfikować koszty poszczególnych klasyfikacji.
 
 \subsection{Drzewo decyzyjne}
@@ -395,7 +381,7 @@ $$ \theta^* = \argmin_\theta G(\ku, \theta) \text{.}$$
 Dalej następuje podział na podzbiory $\ku_l (\theta^*)$ i $\ku_r (\theta^*)$ i algorytm działa rekurencyjnie, aż do osiągnięcia maksymalnej głębokości. Ostatnie podziały, które pozostały na końcu drzewa, nazywamy liśćmi i w momencie predykcji klasyfikują one daną próbkę lub zwracają odpowiednie prawdopodobieństwo.
 W zależności od implementacji oraz preferencji użytkownika po zakończeniu działania algorytmu wykorzystuje się przycinanie drzew. Jest to metoda, która w ogólności polega na usuwanie nadmiarowych węzłów, które mogą powodować zbyt dokładne dopasowanie do danych. 
 
-W~zależności od rodzaju problemu wykorzystujemy różne miary zanieczyszczenia. Dla zadań klasyfikacyjnych są to
+W~zależności od rodzaju problemu wykorzystujemy różne miary zanieczyszczenia \cite{sklearn_api}. Dla zadań klasyfikacyjnych są to
 \begin{itemize}
 	\item Misclassification: $I_m(\ku) = 1 - \max(p, 1 - p)$,
 	\item Entropy: $I_e(\ku) = -p \log_2 p - (1 - p) \log_2(1 - p)$,
@@ -421,7 +407,7 @@ Las losowy oraz algorytm XGBoost są przedstawicielami szerokiej klasy modeli ty
 W celu utworzenia $T$ klasyfikatorów bazowych należy ze zbioru treningowego $\es$ wybrać $S_j$ dla $j=1,2,\dots,T$ losowych podzbiorów obserwacji, które wykorzystamy do uczenia. W tym celu wykorzystuje się następujące procedury losowania.
 
 \begin{itemize}
-	\item Wklejanie (\textit{Pasting}) -- Polega na niezależnym losowaniu $K < N$ próbek ze zbioru $\es$ bez powtórzeń. Najczęściej wykorzystywana jest na bardzo dużych zbiorów danych, gdzie zasoby obliczeniowe są ograniczone i nie jest możliwe wczytanie wszystkich danych do pamięci komputera. Ponadto dzięki możliwości wykorzystania obliczeń równoległych skraca się czas tworzenia całego modelu. Próbki mogą być losowane z rozkładu jednostajnego bądź wykorzystując metody biorące pod uwagę ważność poszczególnych obserwacji. \cite{Pasting}
+	\item Wklejanie (\textit{Pasting}) -- Polega na niezależnym losowaniu $K < N$ próbek ze zbioru $\es$ bez powtórzeń. Najczęściej wykorzystywana jest na bardzo dużych zbiorów danych, gdzie zasoby obliczeniowe są ograniczone i nie jest możliwe wczytanie wszystkich danych do pamięci komputera. Ponadto dzięki możliwości wykorzystania obliczeń równoległych skraca się czas tworzenia całego modelu. Próbki mogą być losowane z rozkładu jednostajnego bądź wykorzystując metody biorące pod uwagę ważność poszczególnych obserwacji \cite{Pasting}.
 	\item Workowanie (\textit{ang. Bagging}) -- Polega na niezależnym losowaniu $K \leq N$ próbek ze zbioru $\es$ z powtórzeniami. Najczęściej jest wykorzystywany w przypadku małych zbiorów danych, kiedy chcemy wykorzystać maksymalnie dużą ilość obserwacji, lecz także wprowadzić losowość do kolejnych klasyfikatorów bazowych.
 	\item Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych. \cite{Random_Subspace}
 	\item Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci. \cite{Random_Patches}
@@ -433,7 +419,7 @@ Procedura tworzenia lasu losowego jest podzielona na dwie fazy \cite{Random_Fore
 \subsection{XGBoost}
 Algorytm XGBoost (lub z~angielskiego \textit{Extreme Gradient Boosting})to model, który w iteracyjny sposób tworzy kolejne drzewa decyzyjne typu CART opisywane w~sekcji \ref{drzewo} \cite{xgboost}. Jest to podobnie jak w przypadku lasu losowego złożenie wielu klasyfikatorów bazowych, stąd możemy zapisać predykcję $i$-tej obserwacji jako
 $$ \hat{y_i} = \sum_{k=1}^K f_k(\iks_i) \text{,} \quad f_k \in \ef \text{,} $$
-gdzie $K$ oznacza liczbę drzew decyzyjnych, $f$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
+gdzie $K$ oznacza liczbę drzew decyzyjnych, $f_k$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
 W ogólności proces trenowania modeli w uczeniu maszynowym polega na znalezieniu najlepszych parametrów $\theta$, które najlepiej pasują do danych treningowych ze zbioru $\es$ i ich prawdziwych wartości $\ytrue$. W celu dokonania tego procesu definiujemy funkcję celu (\textit{ang. objective}), którą w ogólnej postaci możemy zapisać jako
 $$ \text{Obj}(\theta) = J(\theta) + \Omega(\theta) \text{,}$$
 gdzie $J(\theta)$ to funkcja straty, a $\Omega$ to wyraz odpowiadający za regularyzację, która nakłada odpowiednie kary na współczynniki modelu, aby zapobiec zbytniemu dopasowaniu do danych. Za funkcję straty najczęściej przyjmujemy w przypadku zadań regresyjnych błąd średnio kwadratowy
@@ -464,7 +450,7 @@ $$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) \text{
 Zauważmy, że nigdzie bezpośrednio nie korzystaliśmy z postaci funkcji straty, zatem w ten sposób jesteśmy w stanie zbudować model optymalizujący dowolną dwukrotnie różniczkowalną funkcję ciągłą. Taka uniwersalność powoduje, że algorytm ten znajduje zastosowanie w wielu zadniach z zakresu uczenia maszynowego, jak i innych problemów optymalizacyjnych.
 
 \section{Klasyfikacja wrażliwa na koszt}
-Metody klasyfikacji wrażliwej na koszt (\textit{ang. Cost Dependent Classification})  są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa i~informacja o koszcie jest uwzględniana dopiero w tej fazie modelowania. Cały proces jest przedstawiony na Rysunku \ref{cdc} na stronie \pageref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna, czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym.
+Metody klasyfikacji wrażliwej na koszt (\textit{ang. Cost Dependent Classification})  są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening zawierający informację o koszcie odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa. Cały proces jest przedstawiony na Rysunku \ref{cdc} na stronie \pageref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna, czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym.
 \begin{figure}
 	\includegraphics[width=\linewidth]{images/cost_sensitive_classification.png}
 	\caption{Schemat przedstawiający proces uczenia klasyfikatora wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
@@ -472,31 +458,31 @@ Metody klasyfikacji wrażliwej na koszt (\textit{ang. Cost Dependent Classificat
 \end{figure}
 \subsection{Optymalizacja progu}
 Metoda optymalizacji progu (TO z angielskiego \textit{threshold optimization}) jest popularną metodą wyznaczania odpowiedniego progu prawdopodobieństwa, powyżej którego wszystkie obserwacje oznaczamy jako pozytywnie zaklasyfikowane, a poniżej negatywnie. Może być ona wykorzystywana nie tylko do problemów wrażliwych na koszt, lecz do dowolnie zdefiniowanego zagadnienia, w którym potrzebne są zero-jedynkowe predykcje. Jej sformułowanie wygląda następująco
-$$ \argmin_{t \in [0,1]} f(\ytrue, \boldsymbol{y}_{\text{decision}}) \text{,} $$
+$$ \argmin_{t \in [0,1]} f(\ytrue, \boldsymbol{c}) \text{,} $$
 gdzie 
 \begin{itemize}
 	\item $f(\cdot, \cdot) $ - funkcja miary skuteczności modelu, która jako argumenty przyjmuje wektor prawdziwych wartości klasyfikacji oraz wektor binarnych predykcji, np. dokładność,
-	\item $\boldsymbol{y}_{\text{decision}} = (p_i > t)_{i=1}^n $ - wektor binarnych klasyfikacji modelu,
+	\item $\boldsymbol{c} = (p_i > t)_{i=1}^n $ - wektor binarnych klasyfikacji modelu,
 	\item $ \text{t} $ - wartość progu decyzyjnego.
 \end{itemize}{}
 W naszym przypadku funkcją $f$ będzie funkcja oszczędności (\ref{oszczednosci}). Innymi słowy, będziemy szukać takiego progu decyzyjnego, który zmaksymalizuje wartość oszczędności.
 
 \subsection{Minimalizacja ryzyka bayesowskiego}
 Minimalizacja ryzyka bayesowskiego (BMR z angielskiego \textit{Bayesian Minimum Risk}) to model decyzyjny, którego celem jest zmierzenie oraz porównanie wartości prawdopodobieństw wystąpienia pewnych zdarzeń i kosztów związanych z podjęciem określonych decyzji  \cite{CSCCFD}. Polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób
-$$ R(p_1|\iks_{i}) = L(p_1|y_1)P(y_1|\iks_{i}) + L(p_1|y_0)P(y_0|\iks_{i}) \text{,}$$
-$$ R(p_0|\iks_{i}) = L(p_0|y_0)P(y_0|\iks_{i}) + L(p_0|y_1)P(y_1|\iks_{i}) \text{,}$$
+$$ R(c_i = 1|\iks_{i}) = L(c_i = 1|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 1|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
+$$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) + L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) \text{,}$$
 gdzie
 \begin{itemize}
-	\item $P(p_1|\iks_{i})$, $P(p_0|\iks_{i})$ - oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(p_0|\iks_{i}) = 1 - P(p_1|\iks_{i})$,
-	\item $L(p_{i}|y_{j})$ oraz $i,j \in \{0, 1\}$ - funkcja kosztu, która określa stratę, którą poniesiemy w zależności od wyniku poprawności klasyfikacji.
+	\item $P(y_i = 1|\iks_{i})$, $P(y_i = 0|\iks_{i})$ - oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(y_i = 0|\iks_{i}) = 1 - P(y_i = 1|\iks_{i})$,
+	\item $L(c_i = j|y_i = k)$ oraz $j,k \in \{0, 1\}$ - funkcja kosztu, która określa stratę, którą poniesiemy w zależności od wyniku poprawności klasyfikacji.
 \end{itemize}{}
 Decyzja dotycząca danej obserwacji jest opisana następującą nierównością
-$$ R(p_1|\iks_{i}) \leq R(p_0|\iks_{i})$$
+$$ R(c_i = 1|\iks_{i}) \leq R(c_i = 0|\iks_{i})$$
 i oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
 Po przeprowadzaniu odpowiednich przekształceń algebraicznych otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
-$$ P(p_1|\iks_{i}) \ge \frac{L(p_1|y_0) - L(p_0|y_0)}{L(p_0|y_1) - L(p_1|y_1) - L(p_0|y_0) + L(p_1|y_0)} \text{.}$$
+$$ P(c_i = 1|\iks_{i}) \ge \frac{L(c_i = 1|y_i = 0) - L(c_i = 0|y_i = 0)}{L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0)} \text{.}$$
 W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymamy następujący próg decyzyjny
-$$ p \ge \frac{C_{FP_i} - C_{TN_i}}{C_{FN_i} - C_{TP_i} - C_{TN_i} + C_{FP_i}} \text{.}$$
+$$ P(c_i = 1|\iks_{i}) \ge \frac{C^{(i)}_{1,0} - C^{(i)}_{0,0}}{C^{(i)}_{0,1} - C^{(i)}_{1,1} - C^{(i)}_{0,0} + C^{(i)}_{1,0}} \text{.}$$
 
 \section{Trening wrażliwy na koszt}
 Drugą podgrupą metod wrażliwych na koszt jest trening wrażliwy na koszt (\textit{ang. Cost Sensitive Trainig}). Są to metody, które już na etapie treningu modelu biorą pod uwagę koszt związany z klasyfikacją danej obserwacji. Schemat uczenia modelu jest przedstawiony na wykresie \ref{cst} na stronie \pageref{cst}. Model jako wejście otrzymuje zbiór danych treningowych, następnie dokonuje predykcji i na bazie prawdziwych odpowiedzi oraz kosztów wyznaczana jest skuteczność modelu. W następnej kolejności aktualizowane są wagi, a cały proces jest iteracyjnie powtarzany aż do momentu osiągnięcia zadanego kryterium stopu.
@@ -511,17 +497,18 @@ Pierwszy modelem, który stosunkowo łatwo przystosować do bycia wrażliwym na 
 $$
 J^c_i(\theta)=\left\{
 \begin{array}{rl}
-C_{TP_i}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 1$}, \\
-C_{TN_i}, &\mbox{jeżeli $y_i = 0$ i $\htx \approx 0$}, \\
-C_{FP_i}, &\mbox{jeżeli $y_i = 0$ i $\htx \approx 1$}, \\
-C_{FN_i}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 0$}.
+C^{(i)}_{1,1}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 1$}, \\
+C^{(i)}_{0,0}, &\mbox{jeżeli $y_i = 0$ i $\htx \approx 0$}, \\
+C^{(i)}_{1,0}, &\mbox{jeżeli $y_i = 0$ i $\htx \approx 1$}, \\
+C^{(i)}_{0,1}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 0$}.
 \end{array}
 \right.
 $$
 W rezultacie funkcją, która zachowuje się w następujący sposób, jest
-\begin{talign*}
-	J^c_i(\theta) &= y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) + (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \text{.}
-\end{talign*}
+% TODO
+\begin{equation}
+	J^c_i(\theta) = y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) + (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \text{.}
+\end{equation}
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cost_sensitive_ce.png}
@@ -576,10 +563,10 @@ Na podstawie wiedzy dotyczącej modelowania detekcji fraudów z artykułu A. Bah
 			\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
 			& $y_i = 1$            & $y_i = 0$ \\
 			\hline
-			Predykcja pozytywna & \multirow{2}{8em}{\centering \underscoretext{C}{TP}{i} $ = \text{C}_{\text{a}} = 1$} & \multirow{2}{8em}{\centering \underscoretext{C}{FP}{i} $ = \text{C}_{\text{a}} = 1$} \\
+			Predykcja pozytywna & \multirow{2}{8em}{\centering $C^{(i)}_{1,1} = \text{C}_{\text{a}} = 1$} & \multirow{2}{8em}{\centering $C^{(i)}_{1,0} = \text{C}_{\text{a}} = 1$} \\
 			$c_i = 1$         &                    &                    \\
 			\hline
-			Predykcja negatywna & \multirow{2}{8em}{\centering \underscoretext{C}{FN}{i} $ = \text{Amt}_{\text{i}}$} & \multirow{2}{8em}{\centering \underscoretext{C}{TN}{i} $ = 0$} \\
+			Predykcja negatywna & \multirow{2}{8em}{\centering $C^{(i)}_{0,1} = \text{Amt}_{\text{i}}$} & \multirow{2}{8em}{\centering $C^{(i)}_{0,0} = 0$} \\
 			$c_i = 0$         &                    &                    \\
 		\end{tabular}
 	\end{center}
