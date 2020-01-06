@@ -330,7 +330,7 @@ Następnie wyznaczamy funkcję największej wiarygodności, aby wyestymować par
 $$ L(\theta | \es, \ytrue) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)}$$
 W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es, \ytrue)$ i~otrzymujemy funkcję straty $J(\theta)$
 $$ J(\theta) = \log L(\theta | \es, \ytrue)  = -\sum_{i=1}^N J_i(\theta)\text{,}$$
-która w tej postaci jest nazywana entropią krzyżową oraz gdzie $J_i(\theta)$ przyjmuje postać
+gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
 	J_i(\theta) = -\big(y_i\log(h_{\theta}(\boldsymbol{x_i})) + (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i}))\big) \text{.}
