@@ -328,24 +328,30 @@ oraz korzystając z faktu, że $y_i \in \{0,1\}$, możemy zapisać
 $$ P(Y = y_i|\iks_{i};\theta) = \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
 Następnie wyznaczamy funkcję największej wiarygodności, aby wyestymować parametry~$\theta$.
 $$ L(\theta | \es, \ytrue) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)}$$
-W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es)$ i~otrzymujemy funkcję straty $J(\theta)$
+W celu znalezienia maksimum funkcji wiarygodności logarytmujemy funkcję $L(\theta | \es, \ytrue)$ i~otrzymujemy funkcję straty $J(\theta)$
 $$ J(\theta) = \log L(\theta | \es, \ytrue)  = -\sum_{i=1}^N J_i(\theta)\text{,}$$
-gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
+która w tej postaci jest nazywana entropią krzyżową oraz gdzie $J_i(\theta)$ przyjmuje postać
 \begin{equation}
 	\label{c-e}
-	J_i(\theta) = -y_i\log(h_{\theta}(\boldsymbol{x_i})) - (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i})) \text{.}
+	J_i(\theta) = -\big(y_i\log(h_{\theta}(\boldsymbol{x_i})) + (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i}))\big) \text{.}
 \end{equation}
 Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję wiarygodności, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{ang. Iteratively Reweighted Least Squares}).
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cross_entropy.png}
-	\caption{Wykres zależności funkcji entropii krzyżowej od prawdopodobieństwa predykcji danej obserwacji. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej. Źródło: Opracowanie własne.}
+	\caption{Wykres zależności funkcji $J_i(\theta)$ od prawdopodobieństwa predykcji danej obserwacji. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej. Źródło: Opracowanie własne.}
 	\label{fig:cross-entropy-plot}
 \end{figure}
 
-Zauważmy, że maksymalizowana funkcja wiarygodności jest sumą wartości entropii krzyżowej dla poszczególnych obserwacji. W celu lepszego zrozumienia całości przyjrzymy się bliżej własnościom funkcji $J_i(\theta)$.
+Zauważmy, że maksymalizowana funkcja wiarygodności jest sumą wartości funkcji $J_i(\theta)$ dla poszczególnych obserwacji. W celu lepszego zrozumienia całości przyjrzymy się bliżej własnościom funkcji $J_i(\theta)$.
 
-Wykres \ref{fig:cross-entropy-plot} ze strony \pageref{fig:cross-entropy-plot} przedstawia przyjmowane wartości funkcji $J_i(\theta)$ w zależności od estymowanego prawdopodobieństwa $\htx$. Kolorem niebieskim jest wyznaczony przebieg funkcji dla klasy negatywnej, a pomarańczowym dla pozytywnej. Możemy zauważyć, że funkcja jest symetryczna względem wartości prawdopodobieństwa $0.5$ dla obu klas. Oznacza to, że ten klasyfikator przykłada taką samą wagę dla obu rodzajów błędów. Ponadto koszt klasyfikacji dla pojedynczej obserwacji przyjmuje w przybliżeniu następujące wartości:
+Wykres \ref{fig:cross-entropy-plot} ze strony \pageref{fig:cross-entropy-plot} przedstawia przyjmowane wartości funkcji $J_i(\theta)$ w zależności od estymowanego prawdopodobieństwa $\htx$. Kolorem niebieskim jest wyznaczony przebieg funkcji dla klasy negatywnej, a pomarańczowym dla pozytywnej. Możemy zauważyć, że funkcja jest symetryczna względem wartości prawdopodobieństwa $0.5$ dla obu klas. Oznacza to, że ten klasyfikator przykłada taką samą wagę dla obu rodzajów błędów. Ponadto rozważając następujące granice dla $y_i=0$
+$$ \lim\limits_{\htx\to 0} -\log(1-\htx) = 0 \text{,}$$
+$$ \lim\limits_{\htx\to 1} -\log(1-\htx) = \infty $$
+oraz dla $y_i=1$
+$$ \lim\limits_{\htx\to 0} -\log(\htx) = \infty \text{,}$$
+$$ \lim\limits_{\htx\to 1} -\log(\htx) = 0 $$
+otrzymujemy, że koszt klasyfikacji dla pojedynczej obserwacji przyjmuje w przybliżeniu następujące wartości:
 $$
 J_i(\theta) \approx \left\{
 \begin{array}{rl}
@@ -412,6 +418,13 @@ W celu utworzenia $T$ klasyfikatorów bazowych należy ze zbioru treningowego $\
 	\item Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych. \cite{Random_Subspace}
 	\item Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci. \cite{Random_Patches}
 \end{itemize}
+Na rysunku \ref{fig:sampling_plot} schematycznie przedstawiono wyżej omówione zasady działania poszczególnych procedur losowania. Należy zwrócić uwagę zarówno na powtarzające się lub nie numery wierszy, jak i~na kolory kolumny symbolizujące odpowiednie zmienne z~oryginalnego zbioru danych.
+\begin{figure}[h]
+	\includegraphics[width=\linewidth]{sampling_plot.pdf}
+	\caption{Schemat działania procedur losowania. Źródło: Opracowanie własne.}
+	\label{fig:sampling_plot}
+\end{figure}
+
 Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone z myślą o wykorzystaniu drzewa decyzyjnego jako klasyfikatora bazowego, to nic nie stoi na przeszkodzie wykorzystać inny model. Ten fakt został między innymi wykorzystany w~pracy A.Bahnsena \cite{alej2015ensemble}, gdzie wykorzystując omawiane w sekcji \ref{csdt} drzewa decyzyjne wrażliwe na koszt, stworzono lasy losowe wrażliwe na koszt.
 
 Procedura tworzenia lasu losowego jest podzielona na dwie fazy \cite{Random_Forest}. Pierwsza z nich wykorzystuje workowanie do wygenerowania odpowiednich próbek dla klasyfikatorów bazowych. Następnie trenujemy zmodyfikowane drzewa decyzyjne, które na etapie tworzenia każdego kolejnego węzła w drzewie losują podzbiór zmiennych do wyboru podziału. Finalnie podczas predykcji każdy model dokonuje klasyfikacji i ostatecznym wynikiem modelu jest większość głosów. Nie jest to jedyna możliwość agregowania wyników, przykładowo wykorzystywana w bibliotece \textit{sklearn} w Python implementacja uśrednia wyniki prawdopodobieństwa z każdego klasyfikatora \cite{sklearn_api}.
@@ -468,6 +481,7 @@ gdzie
 W naszym przypadku funkcją $f$ będzie funkcja oszczędności (\ref{oszczednosci}). Innymi słowy, będziemy szukać takiego progu decyzyjnego, który zmaksymalizuje wartość oszczędności.
 
 \subsection{Minimalizacja ryzyka bayesowskiego}
+\label{bmr}
 Minimalizacja ryzyka bayesowskiego (BMR z angielskiego \textit{Bayesian Minimum Risk}) to model decyzyjny, którego celem jest zmierzenie oraz porównanie wartości prawdopodobieństw wystąpienia pewnych zdarzeń i kosztów związanych z podjęciem określonych decyzji  \cite{CSCCFD}. Polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób
 $$ R(c_i = 1|\iks_{i}) = L(c_i = 1|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 1|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
 $$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) + L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) \text{,}$$
@@ -479,7 +493,9 @@ gdzie
 Decyzja dotycząca danej obserwacji jest opisana następującą nierównością
 $$ R(c_i = 1|\iks_{i}) \leq R(c_i = 0|\iks_{i})$$
 i oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
-Po przeprowadzaniu odpowiednich przekształceń algebraicznych otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
+Po przeprowadzaniu odpowiednich przekształceń algebraicznych (patrz dodatek \ref{bmr-proof}) oraz zakładając, że 
+$$ L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0) > 0 $$ 
+otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
 $$ P(c_i = 1|\iks_{i}) \ge \frac{L(c_i = 1|y_i = 0) - L(c_i = 0|y_i = 0)}{L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0)} \text{.}$$
 W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymamy następujący próg decyzyjny
 $$ P(c_i = 1|\iks_{i}) \ge \frac{C^{(i)}_{1,0} - C^{(i)}_{0,0}}{C^{(i)}_{0,1} - C^{(i)}_{1,1} - C^{(i)}_{0,0} + C^{(i)}_{1,0}} \text{.}$$
@@ -505,10 +521,9 @@ C^{(i)}_{0,1}, &\mbox{jeżeli $y_i = 1$ i $\htx \approx 0$}.
 \right.
 $$
 W rezultacie funkcją, która zachowuje się w następujący sposób, jest
-% TODO
-\begin{equation}
-	J^c_i(\theta) = y_i \Big( \htx C_{TP_i} + (1 - \htx)C_{FN_i} \Big) + (1-y_i) \Big( \htx C_{FP_i} + (1 - \htx)C_{TN_i} \Big) \text{.}
-\end{equation}
+
+$$ J^c_i(\theta) = y_i \Big( \htx C^{(i)}_{1,1} + (1 - \htx)C^{(i)}_{0,1} \Big) + (1-y_i) \Big( \htx C^{(i)}_{1,0} + (1 - \htx)C^{(i)}_{0,0} \Big) \text{.} $$
+
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cost_sensitive_ce.png}
@@ -606,6 +621,7 @@ Zestawiając uzyskane rezultaty z obu miar, możemy dojść do wniosku, że jeż
 Na końcu warto dodać, że pierwsze eksperymenty były wykonywane również z~wykorzystaniem regresji logistycznej wrażliwej na koszt, natomiast z~nieznanych nam przyczyn (być może błędy implementacyjne) uzyskiwała ona ujemne wartości oszczędności oraz $F_1$~Score bliski zeru. Z~tego powodu uzyskane wyniki nie zostały opublikowane w podsumowaniu eksperymentu, ponieważ nie wnosiły one żadnej użytecznej informacji w kontekście przeprowadzanego rozumowania. Ponadto poza tokiem przeprowadzonych prac został zrealizowany dodatkowy eksperyment na innym zbiorze danych i~model ten uzyskiwał prawidłowe rezultaty, zatem wina może leżeć także po stronie naszego zbioru danych i/lub definicji macierzy kosztu.
 
 \chapter*{Podsumowanie}
+\addcontentsline{toc}{chapter}{Podsumowanie} \markboth{Podsumowanie}{}
 Pracę rozpoczęliśmy od wprowadzenia problemu detekcji oszustw na kartach kredytowych oraz omówienia aktualnego podejścia do tworzenia systemów wykrywających oszustwa. Następnie omówiliśmy rodzaje miar, które są standardowo wykorzystywane w statystyce oraz uczeniu maszynowym, a także miary, które stosuje się w~problemach wrażliwych na koszt. Dalej opisaliśmy podstawy teoretyczne standardowych modeli predykcyjnych, ich modyfikacji wrażliwych na koszt oraz klasyfikatorów wrażliwych na koszt. W~ostatniej części pracy przeprowadziliśmy eksperyment, którego celem było porównanie wybranych klasyfikatorów na danych rzeczywistych dotyczących detekcji oszustw na kartach kredytowych.
 
 Na podstawie przeprowadzonego eksperymentu ustaliliśmy, że na tym konkretnym zbiorze danych dzięki wykorzystaniu metod wrażliwych na koszt bylibyśmy w stanie zwiększyć oszczędności w problemie detekcji oszustw na kartach kredytowych. Najlepszym modelem pod tym względem okazał się XGBoost, który do tej pory nie był rozważanych w pracach A.~Bahnsena dotyczących podobnych zagadnień. Dodatkowo zauważyliśmy, że wykorzystanie klasyfikatorów wrażliwych na koszt znacząco obniża skuteczność modelu w~sensie standardowych miar. W~przypadku, gdybyśmy chcieli zachować balans pomiędzy tymi dwoma miarami, najlepszych wyborem byłby algorytm XGBoost, las losowy lub drzewo decyzyjne wrażliwe na koszt.
@@ -613,9 +629,39 @@ Na podstawie przeprowadzonego eksperymentu ustaliliśmy, że na tym konkretnym z
 Na podstawie przeprowadzonych badań wydaje się, że bardzo ciekawym kierunkiem do dalszych rozważań mogą być metody typu \textit{ensemble}, których klasyfikatorem bazowym byłoby drzewo decyzyjne wrażliwe na koszt. Takie działania zostały już podjęte dla lasów losowych w cytowanej wcześniej pracy A.~Bahnsena \cite{alej2015ensemble}. Z uwagi na fakt, że algorytm XGBoost otrzymywał najlepsze rezultaty dla obu miar skuteczności oraz drzewo decyzyjne w wersji wrażliwej na koszt uzyskiwało lepsze rezultaty niż standradowa wersja modelu, daje to nadzieje, że XGBoost wrażliwy na koszt mógłby dawać jeszcze lepsze wyniki.
 
 % Bibliografia
+
+\appendix
+
+\chapter{Minimalizacja ryzyka bayesowskiego}
+\label{bmr-proof}
+W tej części dodatku wyprowadzimy wzór 
+$$ P(c_i = 1|\iks_{i}) \ge \frac{L(c_i = 1|y_i = 0) - L(c_i = 0|y_i = 0)}{L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0)} \text{.}$$
+
+Przypomnijmy, że klasyfikujemy daną obserwację jako pozytywną, jeżeli prawdziwa jest  nierówność
+\begin{equation}
+	\label{decyzja-bmr}
+	R(c_i = 1|\iks_{i}) \leq R(c_i = 0|\iks_{i}) \text{.}
+\end{equation}
+Ponadto w sekcji \ref{bmr} definiowaliśmy ryzyko klasyfikacji w następujący sposób
+$$ R(c_i = 1|\iks_{i}) = L(c_i = 1|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 1|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
+$$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) + L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) \text{.}$$
+W celu skrócenia zapisu wprowadźmy jeszcze następujące oznaczenia:
+$$ P_k = P(y_i = k|\iks_{i}), \quad k \in \{0,1\} $$
+$$ L_{m,n} = L(c_i = m|y_i = n), \quad m,n \in \{0,1\}$$
+Korzystając z powyższych oznaczeń, definicji $R(c_i = 1|\iks_{i}), R(c_i = 0|\iks_{i})$ oraz równania \ref{decyzja-bmr} otrzymujemy
+$$ L_{1,1}P_1 + L_{1,0}P_0 \leq L_{0,0}P_0 + L_{0,1}P_1 \text{.}$$
+Korzystając z własności 
+$$ P_0 = 1 - P_1 $$
+mamy
+$$ L_{1,1}P_1 + L_{1,0}(1-P_1) \leq L_{0,0}(1-P_1) + L_{0,1}P_1 \text{.}$$
+Następnie dokonując przekształcenia algebraiczne, dostajemy
+$$ L_{1,0}-L_{0,0} \leq P_1 (L_{0,1} - L_{0,0} - L_{1,1} + L_{1,0}) \text{.} $$
+Zakładając, że $L_{0,1} - L_{0,0} - L_{1,1} + L_{1,0} > 0$ ostatecznie otrzymujemy
+$$ P_1 \geq \frac{L_{1,0}-L_{0,0}}{L_{0,1} - L_{0,0} - L_{1,1} + L_{1,0}}. \qed $$
 \backmatter
 \nocite{*}
 
 \bibliografia{references} 
+\markboth{Bibliografia}{}
 
 \end{document}

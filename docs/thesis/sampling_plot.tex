@@ -1,0 +1,132 @@
+\documentclass[border=10pt]{standalone}
+\usepackage{tikz,collcell}
+\usetikzlibrary{positioning,shapes,shadows,arrows,arrows.meta}
+
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+
+\newcommand*{\cellset}{\pgfqkeys{/cell}}
+\newcommand*{\myCell}{\cellset}
+\newcolumntype{C}[1]{>{\collectcell\myCell}#1<{\endcollectcell}}
+\makeatletter
+\tikzset{overlay linewidth/.code=\tikz@addmode{\tikzset{overlay}}}
+\cellset{.unknown/.code={\edef\pgfkeys@temp{\noexpand\cellset{box=\pgfkeyscurrentname}}\pgfkeys@temp}}
+
+\definecolor{redi}{RGB}{255,38,0}
+\definecolor{redii}{RGB}{200,50,30}
+\definecolor{yellowi}{RGB}{255,251,0}
+\definecolor{yellowii}{RGB}{222,247,100}
+\definecolor{bluei}{RGB}{0,150,255}
+\definecolor{orangei}{RGB}{240,143,50}
+\definecolor{greeni}{RGB}{166,247,166}
+
+\cellset{
+	myCell/.style={
+		draw=black,
+		overlay linewidth,
+		inner sep=+0pt,
+		outer sep=+0pt,
+		anchor=center,
+		fill={#1},
+		minimum size=+1.7em},
+	box/.code={%
+		\tikz[baseline=-1ex]
+		\node[/cell/myCell={#1}]{};},
+	box/.default=none,
+	./.style={box},
+	@define/.style args={#1:#2}{#1/.style={box=#2}}
+}
+\begin{document}
+\begin{tikzpicture}[node distance=1cm]
+	\node (Dataset) {
+		\begin{minipage}{5cm}
+			\begin{table}
+				\begin{tabular}{r @{ } *7{C{c} @{}}}
+				1 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				2 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				3 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				4 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				5 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				6 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				7 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				8 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				\end{tabular}
+				\caption*{Zbiór danych}
+			\end{table}
+		\end{minipage}
+	};
+
+	\node (Bagging) [below=2cm of Dataset, xshift=-1.5cm]{
+		\begin{minipage}{5cm}
+			\begin{table}
+				\begin{tabular}{r @{ } *7{C{c} @{}}}
+				7 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				8 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				1 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				4 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				3 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				2 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				4 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				5 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				\end{tabular}
+				\caption*{Workowanie}
+			\end{table}
+		\end{minipage}
+	};	
+	
+	\node (Pasting) [left = of Bagging]{
+		\begin{minipage}{5cm}
+			\begin{table}
+				\begin{tabular}{r @{ } *7{C{c} @{}}}
+				7 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				5 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				1 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				4 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				3 & redi & yellowi & greeni & orangei & bluei & redii & yellowii \\
+				\end{tabular}
+				\caption*{Wklejanie}
+			\end{table}
+		\end{minipage}
+
+	};
+
+	\node (RandomSubspaces) [right = of Bagging]{
+		\begin{minipage}{4cm}
+			\begin{table}
+				\begin{tabular}{r @{ } *5{C{c} @{}}}
+				1 & redi & yellowi & orangei & bluei & yellowii \\
+				2 & redi & yellowi & orangei & bluei & yellowii \\
+				3 & redi & yellowi & orangei & bluei & yellowii \\
+				4 & redi & yellowi & orangei & bluei & yellowii \\
+				5 & redi & yellowi & orangei & bluei & yellowii \\
+				6 & redi & yellowi & orangei & bluei & yellowii \\
+				7 & redi & yellowi & orangei & bluei & yellowii \\
+				8 & redi & yellowi & orangei & bluei & yellowii \\
+				\end{tabular}
+				\caption*{Losowe podprzestrzenie}
+			\end{table}
+		\end{minipage}
+	};
+
+	\node (RandomPatches) [right = of RandomSubspaces]{
+		\begin{minipage}{3cm}
+			\begin{table}
+				\begin{tabular}{>{\footnotesize}r @{ } *4{C{c} @{}}}
+				7 & redi & greeni & orangei & redii \\
+				6 & redi & greeni & orangei & redii \\
+				2 & redi & greeni & orangei & redii \\
+				6 & redi & greeni & orangei & redii \\
+				\end{tabular}
+				\caption*{Losowe łaty}
+			\end{table}
+		\end{minipage}
+	};
+
+	\draw[->] (Dataset) -- (Pasting);
+	\draw[->] (Dataset) -- (Bagging);
+	\draw[->] (Dataset) -- (RandomSubspaces);
+	\draw[->] (Dataset) -- (RandomPatches);
+\end{tikzpicture}
+
+\end{document}
