@@ -87,7 +87,7 @@
 \newcommand{\ef}{\mathcal{F}}
 \newcommand{\ku}{\mathcal{Q}}
 \newcommand{\iks}{\boldsymbol{x}}
-\newcommand{\yht}[1]{y_i^{(#1)}}
+\newcommand{\yht}[1]{\hat{y_i}^{(#1)}}
 \newcommand{\ytrue}{\boldsymbol{y}}
 
 
@@ -430,36 +430,40 @@ Warto zauważyć, że mimo tego, że powyższe metody były oryginalnie tworzone
 Procedura tworzenia lasu losowego jest podzielona na dwie fazy \cite{Random_Forest}. Pierwsza z nich wykorzystuje workowanie do wygenerowania odpowiednich próbek dla klasyfikatorów bazowych. Następnie trenujemy zmodyfikowane drzewa decyzyjne, które na etapie tworzenia każdego kolejnego węzła w drzewie losują podzbiór zmiennych do wyboru podziału. Finalnie podczas predykcji każdy model dokonuje klasyfikacji i ostatecznym wynikiem modelu jest większość głosów. Nie jest to jedyna możliwość agregowania wyników, przykładowo wykorzystywana w bibliotece \textit{sklearn} w Python implementacja uśrednia wyniki prawdopodobieństwa z każdego klasyfikatora \cite{sklearn_api}.
 
 \subsection{XGBoost}
-Algorytm XGBoost (lub z~angielskiego \textit{Extreme Gradient Boosting})to model, który w iteracyjny sposób tworzy kolejne drzewa decyzyjne typu CART opisywane w~sekcji \ref{drzewo} \cite{xgboost}. Jest to podobnie jak w przypadku lasu losowego złożenie wielu klasyfikatorów bazowych, stąd możemy zapisać predykcję $i$-tej obserwacji jako
-$$ \hat{y_i} = \sum_{k=1}^K f_k(\iks_i) \text{,} \quad f_k \in \ef \text{,} $$
-gdzie $K$ oznacza liczbę drzew decyzyjnych, $f_k$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART.
-W ogólności proces trenowania modeli w uczeniu maszynowym polega na znalezieniu najlepszych parametrów $\theta$, które najlepiej pasują do danych treningowych ze zbioru $\es$ i ich prawdziwych wartości $\ytrue$. W celu dokonania tego procesu definiujemy funkcję celu (\textit{ang. objective}), którą w ogólnej postaci możemy zapisać jako
-$$ \text{Obj}(\theta) = J(\theta) + \Omega(\theta) \text{,}$$
-gdzie $J(\theta)$ to funkcja straty, a $\Omega$ to wyraz odpowiadający za regularyzację, która nakłada odpowiednie kary na współczynniki modelu, aby zapobiec zbytniemu dopasowaniu do danych. Za funkcję straty najczęściej przyjmujemy w przypadku zadań regresyjnych błąd średnio kwadratowy
-$$ J(\theta) = \sum_{i=1}^{N} (y_i - \bar{y})^2 $$
-lub w przypadku zadań klasyfikacyjnych entropię krzyżową daną równaniem \ref{c-e}.
-
-Przechodząc na bardziej jawne wzory, funkcja celu w kroku iteracji $t$ przyjmuje postać
+W~ogólności proces trenowania modeli w~uczeniu maszynowym polega na znalezieniu najlepszych parametrów modelu $\theta$, które najlepiej pasują do danych treningowych ze zbioru $\es$ i~ich prawdziwych wartości $\ytrue$. W~celu dokonania tego procesu definiujemy funkcję celu (\textit{ang. objective}), którą w ogólnej postaci możemy zapisać jako
 \begin{equation}
-	\label{Obj}
-	\text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} l(y_i, \yht{t}) + \sum_{k=1}^{K} \Omega(f_k) \text{,}
+	\label{obj-general}
+	\text{Obj}(\theta) = J(\theta) + \Omega(\theta) \text{,}
 \end{equation}
-gdzie $l(y_i, \yht{t})$ to w innej formie zapisana funkcja straty $J(\theta)$, a $\yht{t}$ oznacza wartość predykcji w kroku $t$.
-W przypadku tego algorytmu wykorzystamy trening addytywny, który polega na iteracyjnym poprawianiu nieprawidłowych klasyfikacji z poprzednich modeli poprzez odpowiednie przydzielanie wag próbkom w kolejnych fazach. Zatem dalej mamy
+gdzie $J(\theta)$ to funkcja straty, a $\Omega(\theta)$ to wyraz odpowiadający za regularyzację, która nakłada odpowiednie kary na współczynniki modelu, aby zapobiec zbytniemu dopasowaniu do danych. Za funkcję straty najczęściej przyjmujemy w przypadku zadań regresyjnych błąd średniokwadratowy
+$$ J(\theta) = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y_i})^2 \text{,}$$
+gdzie $\hat{y_i}$ to predykcja modelu dla $i$-tej obserwacji, lub w przypadku zadań klasyfikacyjnych entropię krzyżową daną równaniem \ref{c-e}.
+
+Algorytm XGBoost (lub z~angielskiego \textit{Extreme Gradient Boosting}) to model, który w iteracyjny sposób tworzy kolejne drzewa decyzyjne typu CART (patrz sekcja \ref{drzewo}), które na liściu nie zawierają samej decyzji binarnej, lecz przypisują liczbę rzeczywistą, która daje znacznie bogatszą reprezentację, która wychodzi poza zagadnienia klasyfikacyjne \cite{xgboost}. Podobnie jak w przypadku lasu losowego wykorzystujemy wiele klasyfikatorów bazowych, a następnie dzięki wspomnianej reprezentacji możemy zapisać predykcję $i$-tej obserwacji jako
+$$ \hat{y_i} = \sum_{k=1}^K f_k(\iks_i) \text{,} \quad f_k \in \ef \text{,} $$
+gdzie $K$ oznacza liczbę drzew decyzyjnych, $f_k$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART. Warto zaznaczyć, że w~przypadku zagadnienia regresyjnego predykcja $y_i$ jest bezpośrednim wynikiem, natomiast dla problemów klasyfikacyjnych wykorzystuje się funkcję sigmoidalną (podobnie jak w regresji logistycznej) w~celu zamiany wartości liczby rzeczywistej na predykcję z~przedziału $[0,1]$.
+
+Korzystając z ogólnej postaci funkcji celu danej równaniem \ref{obj-general} funkcja $\text{Obj}(\theta)$, którą będziemy optymalizować, przyjmuje następującą postać:
+$$ \text{Obj}(\theta) = \sum_{i=1}^{N} l(y_i, \hat{y_i}) + \sum_{k=1}^{K} \Omega(f_k) \text{,} $$
+gdzie $l(y_i, \hat{y_i})$ to funkcja straty, przykładowo błąd średniokwadratowy lub entropia krzyżowa, a $\Omega(f_k)$ to regularyzacja nałożona na drzewo $f_k$.
+
+Uczenie drzew decyzyjnych jest znacznie trudniejszym zadaniem niż standardowe zagadnienia optymalizacyjne, gdyż w tym przypadku nie jesteśmy w stanie wprost policzyć gradientu i~wyliczyć kolejnych wartości współczynników. Zamiast tego użyjemy uczenia addytywnego, które polega na naprawianiu błędów z~poprzedniej iteracji oraz dodanie kolejnego drzewa. Przez $\yht{t}$ będziemy oznaczać predykcję dla $i$-tej obserwacji w~kroku $t$. Zatem możemy zapisać kolejne predykcje w następujący sposób.
 $$ \yht{0} = 0 $$
 $$ \yht{1} = f_1(x_i)  = \yht{0} + f_1(x_i) $$
 $$ \yht{2} = f_1(x_i) + f_2(x_i) = \yht{1} + f_2(x_i) $$
 $$ ... $$
 $$ \yht{t} = \sum_{k=1}^{t} f_k(x_i) = \yht{t-1} + f_t(x_i) $$
-Korzystając z powyższych wzorów oraz \ref{Obj} otrzymujemy następujące wyrażenie
-$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{n} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{const. .}$$
+Podczas każdego z~kroków iteracji będziemy chcieli minimalizować odpowiednią funkcję celu, która w~tym przypadku ma postać
+$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} l(y_i, \yht{t}) + \sum_{k=1}^{t} \Omega(f_k) \text{.} $$
+Wykorzystując powyższe wzory, otrzymujemy następujące wyrażenie
+$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{const. .}$$
 Korzystając z rozwinięcia szeregu Taylora dla funkcji straty, otrzymujemy ogólny wzór:
-$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{n} \left[ l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) + \text{const. ,} $$
+$$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} \left[ l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) + \text{const. ,} $$
 gdzie 
 $$ g_i = \partial_{\yht{t-1}} l(y_i, \yht{t-1}) \text{,} $$
 $$ h_i = \partial^2_{\yht{t-1}} l(y_i, \yht{t-1}) \text{.}$$
 Następnie po redukcji stałych, które są nieistotne z punktu widzenia optymalizacji, otrzymujemy
-$$ \sum_{i=1}^{n} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) \text{.}$$
+$$ \sum_{i=1}^{N} [g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)] + \Omega(f_t) \text{.}$$
 Zauważmy, że nigdzie bezpośrednio nie korzystaliśmy z postaci funkcji straty, zatem w ten sposób jesteśmy w stanie zbudować model optymalizujący dowolną dwukrotnie różniczkowalną funkcję ciągłą. Taka uniwersalność powoduje, że algorytm ten znajduje zastosowanie w wielu zadniach z zakresu uczenia maszynowego, jak i innych problemów optymalizacyjnych.
 
 \section{Klasyfikacja wrażliwa na koszt}
