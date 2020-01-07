@@ -207,7 +207,7 @@ Dokładność (\textit{ang. Accuracy}) mierzy stosunek poprawnie zaklasyfikowany
 $$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} = \alpha \cdot \text{Czułość} + (1-\alpha) \cdot \text{Swoistość} \text{,}$$
 gdzie $\alpha$ to odsetek przypadków pozytywnych w danych, a czułość oraz swoistość są opisane w~następnych podsekcjach. 
 
-W celu uniknięcia różnic w obu populacjach wykorzystuje się zbalansowaną skuteczność (\textit{ang. balanced accuracy}), która za parametr $\alpha$ przyjmuje wartość $\frac{1}{2}$. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczność próbek w klasach, to wartość zbalansowanej skuteczności spada \cite{balanced_accuracy}. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej.
+W celu uniknięcia różnic w obu populacjach wykorzystuje się zbalansowaną skuteczność (\textit{BACC, ang. balanced accuracy}), która za parametr $\alpha$ przyjmuje wartość $\frac{1}{2}$. W przypadku, gdy klasyfikator działa równie dobrze dla obu klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczność próbek w klasach, to wartość zbalansowanej skuteczności spada \cite{balanced_accuracy}. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC (patrz sekcja \ref{ROC} na stronie \pageref{ROC}) wg. metryki taksówkowej.
 
 \subsubsection{Precyzja}
 Precyzja (\textit{ang. Precision}) to stosunek poprawnie zaklasyfikowanych pozytywnych przypadków do wszystkich obserwacji zaklasyfikowanych jako pozytywne. Mierzy ona, jaki procent próbek prawidłowo zaklasyfikowaliśmy jako pozytywne. Warto zauważyć, że nie bierze ona pod uwagę obserwacji negatywnych. Jest ona bardzo często wykorzystywana podczas rozwiązywania większości problemów z~zakresu uczenia maszynowego, ponieważ najczęściej interesuje nas, aby nasze typowania były możliwie najbardziej skuteczne. Z~tego też powodu precyzja jest często nazywana skutecznością klasyfikacji prawdziwie pozytywnych (\textit{ang. True Positive Accuracy}). Zapisana wzorem przyjmuje postać
@@ -238,7 +238,7 @@ gdzie parametr $\beta>0$ odpowiada na pytanie, ile razy bardziej czułość jest
 \subsection{Krzywa ROC}
 \label{ROC}
 
-Krzywa charakterystyki pracy odbiornika to wykres diagnostyczny modelu predykcyjnego pozwalający na zilustrowanie zdolności klasyfikatora do rozróżniania poszczególnych klas. Składa się ona z wyrysowanym na osi X stosunku fałszywie pozytywnych klasyfikacji na oraz czułości na osi Y \cite{evaluation_metrics}. Miary są narysowane dla różnych wartości progu decyzyjnego, który prawdopodobieństwa zwracane przez model zamienia na decyzje binarne. Perfekcyjny klasyfikator jest w stanie osiągnąć lewy górny róg wykresu, czyli posiadać precyzję na poziomie 100\% oraz stosunek fałszywie pozytywnych klasyfikacji na poziomie 0\%. Analogicznie najgorszy klasyfikator jest w stanie osiągnąć prawy dolny róg wykresu. Modelem losowy będzie punkt na prostej z punktu $(0,0)$ do punktu $(1,1)$. 
+Krzywa ROC to wykres diagnostyczny modelu predykcyjnego pozwalający na zilustrowanie zdolności klasyfikatora do rozróżniania poszczególnych klas. Składa się ona z wyrysowanym na osi X stosunku fałszywie pozytywnych klasyfikacji na oraz czułości na osi Y \cite{evaluation_metrics}. Miary są narysowane dla różnych wartości progu decyzyjnego, który prawdopodobieństwa zwracane przez model zamienia na decyzje binarne. Perfekcyjny klasyfikator jest w stanie osiągnąć lewy górny róg wykresu, czyli posiadać precyzję na poziomie 100\% oraz stosunek fałszywie pozytywnych klasyfikacji na poziomie 0\%. Analogicznie najgorszy klasyfikator jest w stanie osiągnąć prawy dolny róg wykresu. Modelem losowy będzie punkt na prostej z punktu $(0,0)$ do punktu $(1,1)$. 
 
 Przykładowy wykres znajduje się na rysunku \ref{fig:roc_example} na stronie \pageref{fig:roc_example}. Kolorem czerwonym oznaczony jest najgorszy możliwy klasyfikator, zielonym perfekcyjny, niebieskim losowy, natomiast żółtym przykładowy.
 
@@ -247,6 +247,21 @@ Przykładowy wykres znajduje się na rysunku \ref{fig:roc_example} na stronie \p
 	\caption{Przykładowy wykres charakterystyki pracy odbiornika. Na poziomej osi przedstawiony jest stosunek fałszywie pozytywnych klasyfikacji, natomiast na pionowej czułość. Kolorem czerwonym, zielonym, niebieskim oraz żółtym jest odpowiednio oznaczony najgorszy, najlepszy, losowy oraz przykładowy klasyfikator. Źródło: Opracowanie własne.}
 	\label{fig:roc_example}
 \end{figure}
+
+Celem tworzenia oraz ulepszania kolejnych modeli predykcyjnych jest zbliżanie się w~wynikach do lewego górnego rogu wykresu. Odległość danego punktu reprezentującego konkretny model możemy definiować w różnych metrykach. Przykładowo w metryce taksówkowej (metryka $L_1$) będzie to 
+$$ 1 - \text{Swoistość} + 1 - \text{Czułość} \text{.}$$
+Dokonując kolejne przekształcenia otrzymujemy
+\begin{equation*}
+	\begin{split}
+		& 1 - \text{Swoistość} + 1 - \text{Czułość} = 2 - (\text{Czułość} + \text{Swoistość}) = \\
+		& = 2 \cdot (1 - (\text{Czułość} + \text{Swoistość})/2) = 2*(1 - \text{BACC}) \text{.}
+	\end{split}
+\end{equation*}
+Oznacza to, że im większa zbalansowana skuteczność danego modelu, tym bliżej znajduje się model na krzywej ROC lewego górnego rogu. W podobny sposób możemy także rozważać inne metryki. Przykładowo w metryce euklidesowej (metryka $L_2$)będziemy chcieli minimalizować następujące wyrażenie
+$$ \sqrt{(1 - \text{Swoistość})^2 + (1 - \text{Czułość})^2} $$
+bądź ogólniej w metryce $L_p$
+$$ \big( (1 - \text{Swoistość})^p + (1 - \text{Czułość})^p \big)^{\frac{1}{p}} \text{.} $$
+Z~uwagi na fakt, że w przypadku metryki $L_1$ uzyskaliśmy bezpośrednią miarę skuteczności do optymalizacji, to istnieje szansa, że dla metryki $L_2$ oraz ogólnie $L_p$ istnieją również analogiczne miary. Natomiast w~toku przeprowadzanej pracy nie udało się uzyskać takiego rezultatu. 
 
 \subsection{Macierz kosztu}
 \label{sec:macierz-kosztu}
