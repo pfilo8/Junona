@@ -11,25 +11,27 @@
 	ISSN={},
 	month={Dec},
 }
-@inbook{ICCFD,
-	author = {Alejandro Correa Bahnsen and Aleksandar Stojanovic and Djamila Aouada and Björn Ottersten},
-	title = {Improving Credit Card Fraud Detection with Calibrated Probabilities},
-	booktitle = {Proceedings of the 2014 SIAM International Conference on Data Mining},
-	chapter = {},
-	pages = {677-685},
-	doi = {10.1137/1.9781611973440.78},
-	URL = {https://epubs.siam.org/doi/abs/10.1137/1.9781611973440.78},
-	eprint = {https://epubs.siam.org/doi/pdf/10.1137/1.9781611973440.78}
-}
-@inproceedings{EDCSLR,
-	author = {Alejandro Correa Bahnsen and Aouada, Djamila and Ottersten, Björn},
+@inproceedings{ICCFD,
+	author = {Correa Bahnsen, Alejandro and Stojanovic, Aleksandar and Aouada, Djamila and Ottersten, Björn},
 	year = {2014},
-	month = {12},
+	month = {04},
 	pages = {},
-	title = {Example-Dependent Cost-Sensitive Logistic Regression for Credit Scoring},
-	journal = {Proceedings - 2014 13th International Conference on Machine Learning and Applications, ICMLA 2014},
-	doi = {10.1109/ICMLA.2014.48}
+	title = {Improving Credit Card Fraud Detection with Calibrated Probabilities},
+	booktitle = {Proceedings of the 2014 SIAM International Conference on Data Mining. Pennsylvania, USA},
+	doi = {10.1137/1.9781611973440.78}
 }
+@INPROCEEDINGS{EDCSLR,
+	author={A. C. {Bahnsen} and D. {Aouada} and B. {Ottersten}},
+	booktitle={2014 13th International Conference on Machine Learning and Applications},
+	title={Example-Dependent Cost-Sensitive Logistic Regression for Credit Scoring},
+	year={2014},
+	volume={},
+	number={},
+	pages={263-269},
+	keywords={financial management;matrix algebra;regression analysis;example-dependent cost-sensitive logistic regression;credit scoring;cost-sensitive classification;financial cost;lending business;example-dependent cost matrix;Radio frequency;Logistics;Training;Databases;Standards;Sensitivity;Cost function;Cost sensitive classification;Credit Scoring;Logistic Regression},
+	doi={10.1109/ICMLA.2014.48},
+	ISSN={null},
+	month={Dec},}
 @article{EDCSDT,
 	author = {Alejandro Correa Bahnsen and Aouada, Djamila and Ottersten, Bj\"{o}rn},
 	title = {Example-dependent Cost-sensitive Decision Trees},
@@ -49,20 +51,27 @@
 	address = {Tarrytown, NY, USA},
 	keywords = {Cost-sensitive classifier, Cost-sensitive learning, Credit scoring, Decision trees, Direct marketing, Fraud detection},
 } 
-@misc{alej2015ensemble,
-    title={Ensemble of Example-Dependent Cost-Sensitive Decision Trees},
-    author={Alejandro Correa Bahnsen and Djamila Aouada and Bjorn Ottersten},
-    year={2015},
-    eprint={1505.04637},
-    archivePrefix={arXiv},
-    primaryClass={cs.LG}
+@article{alej2015ensemble,
+	author    = {Alejandro Correa Bahnsen and
+	Djamila Aouada and
+	Bj{\"{o}}rn E. Ottersten},
+	title     = {Ensemble of Example-Dependent Cost-Sensitive Decision Trees},
+	journal   = {CoRR},
+	volume    = {abs/1505.04637},
+	year      = {2015},
+	url       = {http://arxiv.org/abs/1505.04637},
+	archivePrefix = {arXiv},
+	eprint    = {1505.04637},
+	timestamp = {Mon, 13 Aug 2018 16:47:14 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/BahnsenAO15},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 @article{evaluation_metrics,
-	author = {Powers, David and Ailab},
+	author = {Powers, David},
 	year = {2011},
 	month = {01},
 	pages = {2229-3981},
-	title = {Evaluation: From precision, recall and F-measure to ROC, informedness, markedness \& correlation},
+	title = {Evaluation: From precision, recall and F-measure to {ROC}, informedness, markedness \& correlation},
 	volume = {2},
 	journal = {J. Mach. Learn. Technol},
 	doi = {10.9735/2229-3981}
@@ -146,14 +155,22 @@
 	doi={10.1109/34.709601},
 	ISSN={1939-3539},
 	month={Aug},}
-@inproceedings{Random_Patches,
-	author = {Louppe, Gilles and Geurts, Pierre},
-	year = {2012},
-	month = {09},
-	pages = {346-361},
-	title = {Ensembles on Random Patches},
-	doi = {10.1007/978-3-642-33460-3_28}
+@InProceedings{Random_Patches,
+	author="Louppe, Gilles
+	and Geurts, Pierre",
+	editor="Flach, Peter A.
+	and De Bie, Tijl
+	and Cristianini, Nello",
+	title="Ensembles on Random Patches",
+	booktitle="Machine Learning and Knowledge Discovery in Databases",
+	year="2012",
+	publisher="Springer Berlin Heidelberg",
+	address="Berlin, Heidelberg",
+	pages="346--361",
+	abstract="In this paper, we consider supervised learning under the assumption that the available memory is small compared to the dataset size. This general framework is relevant in the context of big data, distributed databases and embedded systems. We investigate a very simple, yet effective, ensemble framework that builds each individual model of the ensemble from a random patch of data obtained by drawing random subsets of both instances and features from the whole dataset. We carry out an extensive and systematic evaluation of this method on 29 datasets, using decision tree-based estimators. With respect to popular ensemble methods, these experiments show that the proposed method provides on par performance in terms of accuracy while simultaneously lowering the memory needs, and attains significantly better performance when memory is severely constrained.",
+	isbn="978-3-642-33460-3"
 }
+
 @Article{Random_Forest,
 	author="Breiman, Leo",
 	title="Random Forests",
@@ -203,6 +220,34 @@
 	author = {Roman Moser},
 	title = {Fraud detection with cost-sensitive machine learning},
 	year = 2019,
-	url = {https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9},
+	howpublished = {\url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}},
 	urldate = {2020-01-06}
+}
+@misc{wiki:karta_platnicza,
+	author = "{Wikipedia contributors}",
+	title = "Karta płatnicza -- {W}ikipedia{,} Wolna encyklopedia",
+	howpublished = {\url{https://pl.wikipedia.org/wiki/Karta_p\%C5\%82atnicza}},
+	note = "[Online; dostęp 27-12-2019]"
+}
+@misc{wiki:payment_card,
+	author = "{Wikipedia contributors}",
+	title = "Payment card -- {W}ikipedia{,} Wolna encyklopedia",
+	howpublished = {\url{https://en.wikipedia.org/wiki/Payment_card}},
+	note = "[Online; dostęp 27-12-2019]"
+}
+@article{practitioner_perspective,
+	author = {Dal Pozzolo, Andrea and Caelen, Olivier and Le Borgne, Yann-Aël and Waterschoot, Serge and Bontempi, Gianluca},
+	year = {2014},
+	month = {08},
+	pages = {4915–4928},
+	title = {Learned lessons in credit card fraud detection from a practitioner perspective},
+	volume = {41},
+	journal = {Expert Systems with Applications},
+	doi = {10.1016/j.eswa.2014.02.026}
+}
+@misc{bahnsen_presentation,
+	author = "Alejandro Correa Bahnsen",
+	title = {Credit Card Fraud Detection: Why Theory Doesn't Adjust to Practice},
+	howpublished = {\url{https://www.youtube.com/watch?v=YCNkxaVDiA0}},
+	note = {SAS Analytics Conference, June 2, 2013, London, UK}
 }
