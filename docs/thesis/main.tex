@@ -50,18 +50,6 @@
 \usepackage{makecell}
 \setcellgapes{5pt}
 
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta}
-\tikzset{%
-	>={Latex[width=2mm,length=2mm]},
-	% Specifications for style of nodes:
-	base/.style = {rectangle, rounded corners, draw=black,
-		minimum width=2cm, minimum height=1cm,
-		text centered, font=\sffamily, fill=yellow!10},
-	fraud/.style = {base, fill=orange!30},
-	analityk/.style = {base, fill=red!45}
-}
-
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
 \usepackage{polski}
@@ -112,28 +100,7 @@ Historia kart płatniczych zaczyna się już w~latach osiemdziesiątych XIX wiek
 Dalszy rozwój technologiczny umożliwił nie tylko dokonywanie płatności kartą, lecz także wykorzystywanie do tego celu telefonu komórkowego lub zegarka. Ponadto transakcji nie dokonujemy już tylko w sklepach stacjonarnych, lecz także coraz częściej korzystamy ze sklepów internetowych. Wszystkie te czynniki powodują, że dokonywanie zakupów jest jeszcze prostsze, a~ilość dokonywanych transakcji z roku na rok rośnie\footnote{Źródło: \url{https://worldpaymentsreport.com/non-cash-payments-volume/} (dostęp: 27.12.2019)}. Niestety ten wzrost spowodował również rozwój sposobów dokonywania przestępstw związanych z~kartami płatniczymi, przykładowo przekazanie numeru karty nieznajomym, utrata lub kradzież karty, skopiowania danych karty lub kradzież przesyłki z kartą, które najczęściej kończą się nieautoryzowanymi płatności na koncie.
 
 \begin{figure}[h]
-	\begin{center}
-		\begin{tikzpicture}[node distance=3.7cm,
-			every node/.style={fill=white, font=\sffamily}, align=center]
-			% Specification of nodes (position, etc.)
-			\node (card)         [base]                        {Karta płatnicza};
-			\node (terminal)     [base, right of=card]         {Terminal};
-			\node (network)      [base, right of=terminal]     {Sieć operatora karty};
-			\node (bank)         [base, right of=network]      {Bank};
-			\node (db)           [base, below of=bank]         {Baza danych banku};
-			\node (fraud)        [fraud, below of=terminal]    {Fraud?};
-			\node (analitic)     [analityk, left of=fraud]     {Analityk};
-			
-			\draw[->] (card) -- (terminal);
-			\draw[->] (terminal) -- (network);
-			\draw[->] (network) -- (bank);
-			\draw[->] (bank) -- (db);
-			\draw[->] (db) -- (fraud);
-			\draw[->] (fraud) -- node[text width=0.6cm] {Tak}(analitic);
-			\draw[->] (fraud) -- node[text width=4cm] {Nie. \\Koniec transakcji.} (terminal);
-		\end{tikzpicture}
-	\end{center}
-
+	\includegraphics[width=\linewidth]{plots/transaction_schema.pdf}
 	\caption{Schemat płatności kartą płatniczą. Źródło: Opracowanie własne na podstawie prezentacji A. Bahnsena~\cite{bahnsen_presentation}.}
 	\label{fig:credit-card-flow}
 \end{figure}
@@ -155,6 +122,7 @@ W pracy będziemy wykorzystywać następujące oznaczenia:
 	\item $x_i^{(k)}$ -- $k$-ty atrybut $i$-tego wektora obserwacji,
 	\item $\ytrue = (y_1, y_2, \dots, y_N)$ -- wektor prawdziwych stanów klasyfikacji,
 	\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji,
+	\item $\boldsymbol{p} = (p_1, p_2, \dots, p_N)$ -- wektor estymowanych wartość prawdopodobieństwa,
 	\item $p_i = P(y_i = 1 | \es)$ -- estymowana wartość prawdopodobieństwa dla $i$-tej obserwacji,
 	\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ -- wektor przewidywanych klas
 	\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji.
@@ -216,7 +184,9 @@ $$ \text{Swoistość}= \frac{TN}{TN + FP} \text{.}$$
 
 \subsubsection{Dokładność}
 Dokładność (\textit{ang. Accuracy}) mierzy stosunek poprawnie zaklasyfikowanych przypadków do ilości wszystkich obserwacji. Bierze ona pod uwagę zarówno obserwacje pozytywne, jak i negatywne. Z~tego powodu bardzo dobrze radzi sobie w sytuacji, gdy interesują nas obserwacje z obu klas, natomiast dużo gorzej, gdy istotna jest tylko jedna klasa. W~szczególności nie nadaje się ona do problemów z dużą dysproporcją klas, która pojawia się w przypadku detekcji oszustw. Dokładność zdefiniowana jest następującym wzorem
-$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} = \alpha \cdot \text{Czułość} + (1-\alpha) \cdot \text{Swoistość} \text{,}$$
+$$ \text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} \text{,}$$
+który możemy zapisać również jako (wyprowadzenie w dodatku \ref{dokladnosc-dd})
+$$ \text{Dokładność} = \alpha \cdot \text{Czułość} + (1-\alpha) \cdot \text{Swoistość} \text{,}$$
 gdzie $\alpha$ to odsetek przypadków sprzyjających w danych, a czułość oraz swoistość są opisane w~następnych podsekcjach. 
 
 Rozpatrzmy pewien przykład. Załóżmy, że mamy dwóch naukowców, którzy posługują się tą samą metodą w badaniach, lecz mają oni różne proporcje stanów w populacji. W~tym przypadku otrzymają oni różną dokładność, mimo tego, że wyniki nie powinny się różnić z~uwagi na korzystanie z~tej samej metody. W~celu uniknięcia takiej sytuacji możemy wykorzystać miarę zbalansowanej skuteczność (\textit{BACC, ang. balanced accuracy}). Dana jest wzorem na dokładność, gdzie za parametr $\alpha$ przyjmuje się wartość $\frac{1}{2}$. W~przypadku, gdy mamy równe proporcje klas, to sprowadza się ona do dokładności, natomiast gdy standardowa dokładność jest wysoka tylko z uwagi na niezbalansowaną liczność próbek w klasach, to wartość zbalansowanej skuteczności spada \cite{balanced_accuracy}. Jest ona również ważna, ponieważ maksymalizacja tej miary odpowiada standardowemu szukaniu optymalnego punktu na krzywej ROC według metryki taksówkowej.
@@ -341,7 +311,7 @@ gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 	\label{c-e}
 	J_i(\theta) = -\big(y_i\log(h_{\theta}(\boldsymbol{x_i})) + (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i}))\big) \text{.}
 \end{equation}
-Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję wiarygodności, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{ang. Iteratively Reweighted Least Squares}).
+Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję straty $J(\theta)$, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{ang. Iteratively Reweighted Least Squares}). Warto zaznaczyć, że w~literaturze najczęściej funkcja straty $J(\theta)$ podawana jest bez znaku minus, a~algorytm szuka odpowiednio minimum funkcji.
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cross_entropy.png}
@@ -475,9 +445,9 @@ Zauważmy, że nigdzie bezpośrednio nie korzystaliśmy z postaci funkcji straty
 
 \section{Klasyfikacja wrażliwa na koszt}
 Metody klasyfikacji wrażliwej na koszt (\textit{ang. Cost Dependent Classification})  są przykładem pierwszego rodzaju modeli wrażliwych na koszt. W przypadku tych metod trening zawierający informację o koszcie odbywa się dopiero po etapie stworzenia modelu zwracającego prawdopodobieństwa. Cały proces jest przedstawiony na Rysunku \ref{cdc} na stronie \pageref{cdc}. Górna część diagramu przedstawia standardowy proces uczenia modelu predykcyjnego, natomiast dolna część reprezentuje schemat dokonywania predykcji, w którym najpierw estymujemy prawdopodobieństwa dla zbioru testowego, a następnie wykorzystując te wartości oraz koszt klasyfikacji dokonujemy ostatecznej decyzji, czy dana obserwacja jest pozytywna, czy negatywna. Warto wspomnieć, że w celu dokonania kolejnego treningu modelu potrzebujemy podzbioru danych, który nie był wykorzystywany do uczenia podstawowego modelu. Najczęściej taki zbiór nazywamy walidacyjnym.
-\begin{figure}
-	\includegraphics[width=\linewidth]{images/cost_sensitive_classification.png}
-	\caption{Schemat przedstawiający proces uczenia klasyfikatora wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
+\begin{figure}[h]
+	\includegraphics[width=\linewidth]{plots/cost_sensitive_classification.pdf}
+	\caption{Schemat przedstawiający proces uczenia klasyfikatora wrażliwego na koszt. Źródło: Opracowanie własne na podstawie artykułu \cite{RMoser}.}
 	\label{cdc}
 \end{figure}
 \subsection{Optymalizacja progu}
@@ -508,14 +478,14 @@ Po przeprowadzaniu odpowiednich przekształceń algebraicznych (rozpisane w~doda
 $$ L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0) > 0 $$ 
 otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
 $$ P(c_i = 1|\iks_{i}) \ge \frac{L(c_i = 1|y_i = 0) - L(c_i = 0|y_i = 0)}{L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0)} \text{.}$$
-W przypadku gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymamy następujący próg decyzyjny
+W przypadku, gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymamy następujący próg decyzyjny
 $$ c_i = 1 <=> P(c_i = 1|\iks_{i}) \ge \frac{C^{(i)}_{1,0} - C^{(i)}_{0,0}}{C^{(i)}_{0,1} - C^{(i)}_{1,1} - C^{(i)}_{0,0} + C^{(i)}_{1,0}} \text{.}$$
 
 \section{Trening wrażliwy na koszt}
 Drugą podgrupą metod wrażliwych na koszt jest trening wrażliwy na koszt (\textit{ang. Cost Sensitive Trainig}). Są to metody, które już na etapie treningu modelu biorą pod uwagę koszt związany z klasyfikacją danej obserwacji. Schemat uczenia modelu jest przedstawiony na wykresie \ref{cst} na stronie \pageref{cst}. Algorytm jako wejście otrzymuje zbiór danych treningowych, następnie dokonuje predykcji i~na bazie prawdziwych odpowiedzi oraz kosztów wyznaczana jest skuteczność modelu. W następnej kolejności aktualizowane są wagi, a cały proces jest iteracyjnie powtarzany, aż do momentu osiągnięcia zadanego kryterium stopu.
 \begin{figure}[h]
-	\includegraphics[width=\linewidth]{images/cost_sensitive_training.png}
-	\caption{Schemat przedstawiający proces uczenia modelu wrażliwego na koszt. Źródło: \url{https://towardsdatascience.com/fraud-detection-with-cost-sensitive-machine-learning-24b8760d35d9}}
+	\includegraphics[width=\linewidth]{plots/cost_sensitive_training.pdf}
+	\caption{Schemat przedstawiający proces uczenia modelu wrażliwego na koszt. Źródło: Opracowanie własne na podstawie artykułu \cite{RMoser}.}
 	\label{cst}
 \end{figure}	
 
@@ -543,11 +513,11 @@ $$ J^c_i(\theta) = y_i \Big( \htx C^{(i)}_{1,1} + (1 - \htx)C^{(i)}_{0,1} \Big) 
 	\label{fig:cost-sensitive-loss-function}
 \end{figure}
 
-Wykres funkcji $J^c_i(\theta)$ jest przedstawiony na wykresie \ref{fig:cost-sensitive-loss-function} na stronie \pageref{fig:cost-sensitive-loss-function}. Kolorem niebieskim zaznaczona jest predykcja dla klasy negatywnej, a pomarańczowym dla pozytywnej. Możemy zauważyć pożądaną przez nas asymetrię popełniania błędów oraz dokładne wartości, jakie funkcja przyjmuje podczas odpowiednich rodzajów błędów.
+Wykres funkcji $J^c_i(\theta)$ jest przedstawiony na wykresie \ref{fig:cost-sensitive-loss-function} na stronie \pageref{fig:cost-sensitive-loss-function}. Kolor niebieski przedstawia wykres dla próbki o prawdziwej klasie pozytywnej, natomiast kolor pomarańczowy dla negatywnej. Możemy zauważyć pożądaną przez nas asymetrię popełniania błędów oraz osiąganie przez funkcję odpowiednich wartości w granicach prawdopodobieństwa równego $0$ oraz $1$.
 
 Ostatecznie funkcją, którą będziemy minimalizować, jest 
 $$ J^c(\theta) = \sum_{i=1}^{N} J^c_i(\theta) \text{.} $$
-Podobnie jak w przypadku standardowej regresji logistycznej, wykorzystujemy odpowiedni algorytm optymalizujący, który znajdzie odpowiednie współczynniki modelu.
+Podobnie jak w przypadku standardowej regresji logistycznej, wykorzystując algorytm optymalizujący, szukamy optymalnych współczynników modelu.
 
 \subsection{Drzewo decyzyjne wrażliwe na koszt}
 \label{csdt}
@@ -648,6 +618,26 @@ Na podstawie przeprowadzonych badań wydaje się, że bardzo ciekawym kierunkiem
 % Bibliografia
 
 \appendix
+
+\chapter{Dokładność}
+\label{dokladnosc-dd}
+W tej części udowodnimy następujący wzór
+\begin{equation}
+	\label{eq:dokladnosc}
+	\text{Dokładność} = \frac{TP + TN}{TP + FP + FN + TN} = \alpha \cdot \text{Czułość} + (1-\alpha) \cdot \text{Swoistość} \text{.}
+\end{equation}
+
+Przypomnijmy, że
+$$ \alpha = \frac{TP + FN}{TP + FP + FN + TN} \text{,} $$
+$$ 1 - \alpha = \frac{TN + FP}{TP + FP + FN + TN} \text{,} $$
+$$ \text{Czułość} = \frac{TP}{TP + FN} \text{,} $$
+$$ \text{Swoistość} = \frac{TN}{TN + FP} \text{.} $$
+
+Wstawiając do prawej strony równania \ref{eq:dokladnosc} odpowiednie wartości otrzymujemy
+$$\frac{TP + FN}{TP + FP + FN + TN} \cdot \frac{TP}{TP + FN} + \frac{TN + FP}{TP + FP + FN + TN} \cdot \frac{TN}{TN + FP} $$
+Skracając  ułamki otrzymujemy
+$$ \frac{TP}{TP + FP + FN + TN} + \frac{TN}{TP + FP + FN + TN} = \text{Dokładność} \text{.} \qed $$
+
 
 \chapter{Minimalizacja ryzyka bayesowskiego}
 \label{bmr-proof}
