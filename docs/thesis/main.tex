@@ -475,7 +475,9 @@ Zauważmy, że powyższe równania możemy zapisać jako
 $$ R(c_i = c|\iks_{i}) = L(c_i = c|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = c|y_i = 0)P(y_i = 0|\iks_{i})\text{.} $$
 Rozważając przypadek binarny, możemy bez straty ogólności przyjąć, że
 $$ L(c_i = j|y_i = k) = C_{j, k}^{(i)} $$
-oraz traktując $y_i$ jako zmienną losową zapisać ryzyko klasyfikacji danej obserwacji jako
+zatem wzór na ryzyko przyjmuje postać
+$$ R(c_i = c|\iks_{i}) = C_{c, 1}^{(i)}P(y_i = 1|\iks_{i}) + C_{c, 0}^{(i)}P(y_i = 0|\iks_{i})\text{.} $$
+Ponadto warto zauważyć, że traktując $y_i$ jako zmienną losową możemy zapisać ryzyko klasyfikacji danej obserwacji jako
 $$ R(c_i = c|\iks_{i}) = E[C_{c, y_i}^{(i)} | \iks_{i}] \text{.}$$
 
 Decyzja dotycząca danej obserwacji jest opisana następującą nierównością
@@ -647,7 +649,7 @@ $$ \frac{TP}{TP + FP + FN + TN} + \frac{TN}{TP + FP + FN + TN} = \text{Dokładno
 \chapter{Minimalizacja ryzyka bayesowskiego}
 \label{bmr-proof}
 W tej części dodatku wyprowadzimy wzór 
-$$ P(c_i = 1|\iks_{i}) \ge \frac{L(c_i = 1|y_i = 0) - L(c_i = 0|y_i = 0)}{L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0)} \text{.}$$
+$$ c_i = 1 <=> P(c_i = 1|\iks_{i}) \ge \frac{C^{(i)}_{1,0} - C^{(i)}_{0,0}}{C^{(i)}_{0,1} - C^{(i)}_{1,1} - C^{(i)}_{0,0} + C^{(i)}_{1,0}} \text{.}$$
 
 Przypomnijmy, że klasyfikujemy daną obserwację jako pozytywną, jeżeli prawdziwa jest  nierówność
 \begin{equation}
@@ -655,21 +657,20 @@ Przypomnijmy, że klasyfikujemy daną obserwację jako pozytywną, jeżeli prawd
 	c_i = 1 \Leftrightarrow R(c_i = 1|\iks_{i}) \leq R(c_i = 0|\iks_{i}) \text{.}
 \end{equation}
 Ponadto w sekcji \ref{bmr} definiowaliśmy ryzyko klasyfikacji w następujący sposób
-$$ R(c_i = 1|\iks_{i}) = L(c_i = 1|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 1|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
-$$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) + L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) \text{.}$$
-W celu skrócenia zapisu wprowadźmy jeszcze następujące oznaczenia:
+$$ R(c_i = 1|\iks_{i}) = C^{(i)}_{1,1}P(y_i = 1|\iks_{i}) + C^{(i)}_{1,0}P(y_i = 0|\iks_{i}) \text{,}$$
+$$ R(c_i = 0|\iks_{i}) = C^{(i)}_{0,1}P(y_i = 1|\iks_{i}) + C^{(i)}_{0,0}P(y_i = 0|\iks_{i}) \text{.}$$
+W celu skrócenia zapisu wprowadźmy jeszcze następujące oznaczenie:
 $$ P_k = P(y_i = k|\iks_{i}), \quad k \in \{0,1\} $$
-$$ L_{m,n} = L(c_i = m|y_i = n), \quad m,n \in \{0,1\}$$
 Korzystając z powyższych oznaczeń, definicji $R(c_i = 1|\iks_{i}), R(c_i = 0|\iks_{i})$ oraz równania \ref{decyzja-bmr} otrzymujemy
-$$ L_{1,1}P_1 + L_{1,0}P_0 \leq L_{0,0}P_0 + L_{0,1}P_1 \text{.}$$
+$$ C^{(i)}_{1,1}P_1 +  C^{(i)}_{1,0}P_0 \leq  C^{(i)}_{0,0}P_0 +  C^{(i)}_{0,1}P_1 \text{.}$$
 Korzystając z własności 
 $$ P_0 = 1 - P_1 $$
 mamy
-$$ L_{1,1}P_1 + L_{1,0}(1-P_1) \leq L_{0,0}(1-P_1) + L_{0,1}P_1 \text{.}$$
+$$  C^{(i)}_{1,1}P_1 +  C^{(i)}_{1,0}(1-P_1) \leq  C^{(i)}_{0,0}(1-P_1) +  C^{(i)}_{0,1}P_1 \text{.}$$
 Następnie dokonując przekształcenia algebraiczne, dostajemy
-$$ L_{1,0}-L_{0,0} \leq P_1 (L_{0,1} - L_{0,0} - L_{1,1} + L_{1,0}) \text{.} $$
-Zakładając, że $L_{0,1} - L_{0,0} - L_{1,1} + L_{1,0} > 0$ ostatecznie otrzymujemy
-$$ P_1 \geq \frac{L_{1,0}-L_{0,0}}{L_{0,1} - L_{0,0} - L_{1,1} + L_{1,0}}. \qed $$
+$$  C^{(i)}_{1,0}- C^{(i)}_{0,0} \leq P_1 ( C^{(i)}_{0,1} -  C^{(i)}_{0,0} -  C^{(i)}_{1,1} +  C^{(i)}_{1,0}) \text{.} $$
+Zakładając, że $ C^{(i)}_{0,1} -  C^{(i)}_{0,0} -  C^{(i)}_{1,1} +  C^{(i)}_{1,0} > 0$ ostatecznie otrzymujemy
+$$ P_1 \geq \frac{ C^{(i)}_{1,0}- C^{(i)}_{0,0}}{ C^{(i)}_{0,1} -  C^{(i)}_{0,0} -  C^{(i)}_{1,1} +  C^{(i)}_{1,0}}. \qed $$
 \backmatter
 \nocite{*}
 
