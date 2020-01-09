@@ -702,15 +702,22 @@ $$ P_1 \geq \frac{ C^{(i)}_{1,0}- C^{(i)}_{0,0}}{ C^{(i)}_{0,1} -  C^{(i)}_{0,0}
 
 \chapter{Skrypty}
 \label{scripts}
-W tej części prezentujemy skrypty, które zostały wykorzystane do przeprowadzenia eksperymentu.
+W tej części zostaną zaprezentowane skrypty, które były wykorzystane do przeprowadzenia eksperymentu.
 
 Główna część eksperymentu była wykonywana w skrypcie \textit{trainmodels.py}. Był on odpowiedzialny za wczytanie danych oraz konfiguracji, podział danych na odpowiednie podzbiory, a także rozdzielenie obliczeń na kilka wątków procesora.
 \lstinputlisting[language=Python, caption={Skrypt \textit{trainmodels.py} odpowiedzialny za główną część eksperymentu.}]{../../train_models.py}
 
-Zdecydowana większość funkcji została natomiast zawarta w skrypcie \textit{utils.py}.
+Zdecydowana większość kodu została zawarta w skrypcie \textit{utils.py}. Składa się on z~funkcji służących między innymi do 
+\begin{itemize}
+	\item wywoływania skryptu z~poziomu linii komend,
+	\item wczytywania plików \textit{json} z~konifugracją,
+	\item generowania macierzy kosztu w~odpowiednim formacie,
+	\item trenowania modeli,
+	\item tworzenia podsumowania wyników.
+\end{itemize}
 \lstinputlisting[language=Python, caption={Skrypt \textit{utils.py} zawierający funkcje pomocnicze do głównej części eksperymentu.}]{../../src/utils.py}
 
-Eksperyment uruchamiano za pomocą skryptu BASH, który wykonywał skrypt do trenowania modeli z~odpowiednimi argumentami.
+Eksperyment uruchamiano za pomocą skryptu \textit{trainmodels.sh}, który wykonywał skrypt \textit{trainmodels.py} z~odpowiednimi argumentami.
 \lstinputlisting[language=bash, caption={Skrypt \textit{trainmodels.sh} odpowiedzialny za uruchamianie eksperymentu.}]{../../train_models.sh}
 
 \backmatter
