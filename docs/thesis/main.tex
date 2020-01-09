@@ -463,22 +463,27 @@ W naszym przypadku funkcją $f$ będzie funkcja oszczędności (\ref{oszczednosc
 
 \subsection{Minimalizacja ryzyka bayesowskiego}
 \label{bmr}
-Minimalizacja ryzyka bayesowskiego (BMR z angielskiego \textit{Bayesian Minimum Risk}) to model decyzyjny, którego celem jest zmierzenie oraz porównanie wartości prawdopodobieństw wystąpienia pewnych zdarzeń i kosztów związanych z podjęciem określonych decyzji  \cite{CSCCFD}. Polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób
+Minimalizacja ryzyka bayesowskiego (BMR, z angielskiego \textit{Bayesian Minimum Risk}) to model decyzyjny, którego celem jest zmierzenie oraz porównanie wartości prawdopodobieństw wystąpienia pewnych zdarzeń i kosztów związanych z podjęciem określonych decyzji  \cite{CSCCFD}. Polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób
 $$ R(c_i = 1|\iks_{i}) = L(c_i = 1|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 1|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
-$$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) + L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) \text{,}$$
+$$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
 gdzie
 \begin{itemize}
 	\item $P(y_i = 1|\iks_{i})$, $P(y_i = 0|\iks_{i})$ -- oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(y_i = 0|\iks_{i}) = 1 - P(y_i = 1|\iks_{i})$,
 	\item $L(c_i = j|y_i = k)$ oraz $j,k \in \{0, 1\}$ -- funkcja kosztu, która określa stratę, którą poniesiemy w zależności od wyniku poprawności klasyfikacji.
 \end{itemize}{}
+Zauważmy, że powyższe równania możemy zapisać jako
+$$ R(c_i = c|\iks_{i}) = L(c_i = c|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = c|y_i = 0)P(y_i = 0|\iks_{i})\text{.} $$
+Rozważając przypadek binarny, możemy bez straty ogólności przyjąć, że
+$$ L(c_i = j|y_i = k) = C_{j, k}^{(i)} $$
+oraz traktując $y_i$ jako zmienną losową zapisać ryzyko klasyfikacji danej obserwacji jako
+$$ R(c_i = c|\iks_{i}) = E[C_{c, y_i}^{(i)} | \iks_{i}] \text{.}$$
+
 Decyzja dotycząca danej obserwacji jest opisana następującą nierównością
 $$ c_i = 1 \Leftrightarrow R(c_i = 1|\iks_{i}) \leq R(c_i = 0|\iks_{i})$$
 i oznacza ona, że klasyfikujemy dany przykład jako pozytywny, jeżeli ryzyko takiej decyzji jest mniejsze niż zaklasyfikowania danej obserwacji jako negatywną. 
 Po przeprowadzaniu odpowiednich przekształceń algebraicznych (rozpisane w~dodatku \ref{bmr-proof}) oraz zakładając, że 
-$$ L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0) > 0 $$ 
+$$ C_{0, 1}^{(i)} - C_{1, 1}^{(i)} - C_{0, 0}^{(i)} + C_{1, 1}^{(i)} > 0 $$ 
 otrzymujemy następujący wzór na klasyfikację przykładu jako pozytywny:
-$$ P(c_i = 1|\iks_{i}) \ge \frac{L(c_i = 1|y_i = 0) - L(c_i = 0|y_i = 0)}{L(c_i = 0|y_i = 1) - L(c_i = 1|y_i = 1) - L(c_i = 0|y_i = 0) + L(c_i = 1|y_i = 0)} \text{.}$$
-W przypadku, gdy za funkcję kosztu przyjmiemy odpowiednie wartości z macierzy kosztu, to otrzymamy następujący próg decyzyjny
 $$ c_i = 1 <=> P(c_i = 1|\iks_{i}) \ge \frac{C^{(i)}_{1,0} - C^{(i)}_{0,0}}{C^{(i)}_{0,1} - C^{(i)}_{1,1} - C^{(i)}_{0,0} + C^{(i)}_{1,0}} \text{.}$$
 
 \section{Trening wrażliwy na koszt}
