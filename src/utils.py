@@ -92,25 +92,9 @@ def generate_models():
         'CI-DecisionTree': DecisionTreeClassifier(random_state=RANDOM_STATE),
         'CI-RandomForest': RandomForestClassifier(random_state=RANDOM_STATE),
         'CI-XGBoost': xgboost.XGBClassifier(random_state=RANDOM_STATE, verbosity=0),
-        'CST-CostSensitiveLogisticRegression': CostSensitiveLogisticRegression(solver='bfgs'),
         'CST-CostSensitiveDecisionTreeClassifier': CostSensitiveDecisionTreeClassifier()
     }
-
-    #ecsdt_models = generate_ecsdt_models()
-    #models.update(ecsdt_models)
     return models
-
-
-def generate_ecsdt_models():
-    ecsdt_models = {}
-
-    combinations = ["majority_voting", "weighted_voting", "stacking"]
-    for model in ECSDT_MODELS:
-        for combination in combinations:
-            name = f'ECSDT-{model}_{combination}'
-            ecsdt_models[name] = model(combination=combination, n_jobs=N_JOBS)
-
-    return ecsdt_models
 
 
 def train_standard_models(X_train, y_train, cost_matrix_train, X_val, y_val, models):
@@ -145,8 +129,7 @@ def train_to_models(X_val, y_val, cost_matrix_val, models):
         if model_type in XGB_MODELS or model_type in CI_MODELS:
             for calibration in [True]:
                 print(model_type, calibration)
-                to_model = _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_val,
-                                                             calibration=calibration)
+                to_model = _create_threshold_optimized_model(model, X_val, y_val, cost_matrix_val, calibration=calibration)
                 model_name = name + '-TO' #+ f'_{calibration}'
                 trained_models[model_name] = to_model
 

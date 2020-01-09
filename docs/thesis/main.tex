@@ -42,7 +42,35 @@
 
 \usepackage{amsmath}
 \usepackage{bbm}
+
 \usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+\lstset{style=mystyle}
 
 \usepackage{hyperref}
 \usepackage{graphicx}
@@ -588,7 +616,7 @@ Inspiracja do eksperymentu pochodzi z pracy A. Bahnsena dotyczącej porównania 
 
 W~celu przeprowadzenia eksperymentu zbiór danych został pięćdziesięciokrotnie podzielony w~proporcjach 50:17:33 na odpowiednio zbiór treningowy, walidacyjny oraz testowy. Losowanie nowych podziałów zbioru miało na celu zmniejszenie ryzyka, że wynik będzie zależny od wylosowanej próbki. Ponadto wykorzystano tę technikę zamiast standardowej warstwowej walidacji krzyżowej (\textit{ang. Stratified Cross Validation}) z~uwagi na zbyt małą próbkę testową, która powstaje w~przypadku wykorzystania walidacji krzyżowej. Następnie wytrenowano wszystkie modele standardowe oraz drzewo decyzyjne wrażliwe na koszt na zbiorze treningowym. Dla modelu XGBoost wykorzystano zbiór walidacyjny do procesu wczesnego zatrzymywania (\textit{ang. Early stopping}), natomiast dla modeli BMR oraz TO wykorzystano ten zbiór jako treningowy. Następnie dla wszystkich modeli dokonano predykcji na zbiorze testowym i~zmierzono skuteczność typowań, wykorzystując miarę oszczędności oraz $F_1$ Score. Ostatecznie wyniki z~wszystkich pięćdziesięciu prób zostały uśrednione oraz obliczono wartość odchylenia standardowego.
 
-Do implementacji skryptów wykorzystano język programowania Python wraz z~bibliotekami \textit{costcla}, \textit{sklearn}, \textit{pandas}, \textit{numpy}, \textit{matplotlib} oraz język programowania BASH.
+Do implementacji skryptów wykorzystano język programowania Python wraz z~bibliotekami \textit{costcla}, \textit{sklearn}, \textit{pandas}, \textit{numpy}, \textit{matplotlib} oraz język programowania BASH. Kody źródłowe programu można znaleźć w~dodatku \ref{scripts}.
 
 \section{Wyniki}
 
@@ -671,6 +699,20 @@ Następnie dokonując przekształcenia algebraiczne, dostajemy
 $$  C^{(i)}_{1,0}- C^{(i)}_{0,0} \leq P_1 ( C^{(i)}_{0,1} -  C^{(i)}_{0,0} -  C^{(i)}_{1,1} +  C^{(i)}_{1,0}) \text{.} $$
 Zakładając, że $ C^{(i)}_{0,1} -  C^{(i)}_{0,0} -  C^{(i)}_{1,1} +  C^{(i)}_{1,0} > 0$ ostatecznie otrzymujemy
 $$ P_1 \geq \frac{ C^{(i)}_{1,0}- C^{(i)}_{0,0}}{ C^{(i)}_{0,1} -  C^{(i)}_{0,0} -  C^{(i)}_{1,1} +  C^{(i)}_{1,0}}. \qed $$
+
+\chapter{Skrypty}
+\label{scripts}
+W tej części prezentujemy skrypty, które zostały wykorzystane do przeprowadzenia eksperymentu.
+
+Główna część eksperymentu była wykonywana w skrypcie \textit{trainmodels.py}. Był on odpowiedzialny za wczytanie danych oraz konfiguracji, podział danych na odpowiednie podzbiory, a także rozdzielenie obliczeń na kilka wątków procesora.
+\lstinputlisting[language=Python, caption={Skrypt \textit{trainmodels.py} odpowiedzialny za główną część eksperymentu.}]{../../train_models.py}
+
+Zdecydowana większość funkcji została natomiast zawarta w skrypcie \textit{utils.py}.
+\lstinputlisting[language=Python, caption={Skrypt \textit{utils.py} zawierający funkcje pomocnicze do głównej części eksperymentu.}]{../../src/utils.py}
+
+Eksperyment uruchamiano za pomocą skryptu BASH, który wykonywał skrypt do trenowania modeli z~odpowiednimi argumentami.
+\lstinputlisting[language=bash, caption={Skrypt \textit{trainmodels.sh} odpowiedzialny za uruchamianie eksperymentu.}]{../../train_models.sh}
+
 \backmatter
 \nocite{*}
 
