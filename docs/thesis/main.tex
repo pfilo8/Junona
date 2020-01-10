@@ -333,14 +333,14 @@ oraz korzystając z faktu, że $y_i \in \{0,1\}$, możemy zapisać
 $$ P(Y = y_i|X = \iks_{i};\theta) = \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
 Następnie wyznaczamy funkcję wiarogodności, aby wyestymować parametry~$\theta$.
 $$ L(\theta | \es, \ytrue) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
-W celu znalezienia maksimum funkcji wiarogodności logarytmujemy funkcję $L(\theta | \es, \ytrue)$ i~otrzymujemy funkcję straty $J(\theta)$
-$$ J(\theta) = \log L(\theta | \es, \ytrue)  = -\sum_{i=1}^N J_i(\theta)\text{,}$$
+W celu znalezienia maksimum funkcji wiarogodności logarytmujemy funkcję $L(\theta | \es, \ytrue)$ i~otrzymujemy funkcję logarytmu wiarogodności $l(\theta | \es, \ytrue)$
+$$ l(\theta | \es, \ytrue) = \log L(\theta | \es, \ytrue)  = -\sum_{i=1}^N J_i(\theta) \text{,}$$
 gdzie $J_i(\theta)$ nazywana jest entropią krzyżową i przyjmuje postać
 \begin{equation}
 	\label{c-e}
 	J_i(\theta) = -\big(y_i\log(h_{\theta}(\boldsymbol{x_i})) + (1-y_i)\log(1 - h_{\theta}(\boldsymbol{x_i}))\big) \text{.}
 \end{equation}
-Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję straty $J(\theta)$, zatem wykorzystuje się w tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{ang. Iteratively Reweighted Least Squares}). Warto zaznaczyć, że w~literaturze najczęściej funkcja straty $J(\theta)$ podawana jest bez znaku minus, a~algorytm szuka odpowiednio minimum funkcji.
+Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki, które maksymalizują funkcję logarytmu wiarogodności $l(\theta | \es, \ytrue)$, zatem wykorzystuje się w~tym celu algorytmy optymalizacji numerycznej, np. IRLS (\textit{ang. Iteratively Reweighted Least Squares}).
 
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{images/cross_entropy.png}
@@ -348,9 +348,9 @@ Niestety nie jest możliwe znalezienie bezpośredniego wzoru na współczynniki,
 	\label{fig:cross-entropy-plot}
 \end{figure}
 
-Zauważmy, że funkcja straty składa się z~funkcji $J_i(\theta)$ dla poszczególnych obserwacji. W celu lepszego zrozumienia całości przyjrzymy się bliżej własnościom funkcji $J_i(\theta)$.
-
-Wykres \ref{fig:cross-entropy-plot} przedstawia przyjmowane wartości funkcji $J_i(\theta)$ w zależności od estymowanego prawdopodobieństwa $\htx$. Kolorem niebieskim jest oznaczony przebieg funkcji dla obiektu niesprzyjającego, a pomarańczowym dla sprzyjającego. Możemy zauważyć, że dla obu rodzajów obiektów, funkcja $J_i(\theta)$ jest odbiciem funkcji dla przeciwnego obiektu względem prostej pionowej dla prawdopodobieństwa równego $0.5$ . Oznacza to, że ten klasyfikator przykłada taką samą wagę dla obu rodzajów błędów. Ponadto rozważając następujące granice dla $y_i=0$
+W~literaturze dotyczącej uczenia maszynowego zamiast funkcji logarytmu wiarogodności $l(\theta | \es, \ytrue)$ definiuje się funkcję straty $J(\theta)$, która w~przypadku regresji logistycznej przyjmuje postać
+$$ J(\theta) =  - l(\theta | \es, \ytrue) = \sum_{i=1}^N J_i(\theta) \text{.}$$
+W~celu lepszego zrozumienia funkcji straty regresji logistycznej przyjrzymy się bliżej własnościom funkcji $J_i(\theta)$. Wykres \ref{fig:cross-entropy-plot} przedstawia przyjmowane wartości funkcji $J_i(\theta)$ w~zależności od estymowanego prawdopodobieństwa $\htx$. Kolorem niebieskim jest oznaczony przebieg funkcji dla obiektu niesprzyjającego, a pomarańczowym dla sprzyjającego. Możemy zauważyć, że dla obu rodzajów obiektów, funkcja $J_i(\theta)$ jest odbiciem funkcji dla przeciwnego obiektu względem prostej pionowej dla prawdopodobieństwa równego $0.5$. Oznacza to, że ten klasyfikator przykłada taką samą wagę dla obu rodzajów błędów. Ponadto rozważając następujące granice dla $y_i=0$
 $$ \lim\limits_{\htx\to 0^+} -\log(1-\htx) = 0 \text{,}$$
 $$ \lim\limits_{\htx\to 1^-} -\log(1-\htx) = \infty $$
 oraz dla $y_i=1$
@@ -365,7 +365,7 @@ J_i(\theta) \approx \left\{
 \end{array}{}
 \right.
 $$
-To znaczy, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
+Powyższe wyprowadzenie oznacza, że w przypadku prawidłowego zaklasyfikowania danej obserwacji funkcja przyjmuje wartość bliską zeru, natomiast w przypadku pomyłki nieskończoności. Stąd możemy wywnioskować, że koszty popełnienia bądź niepopełnienia błędu są następujące:
 $$ C^{(i)}_{1,1} = C^{(i)}_{0,0} \approx 0 \text{,}$$
 $$ C^{(i)}_{1,0} = C^{(i)}_{0,1} \approx \infty \text{.}$$
 Jest to wynik, który nie oddaje charakteru nierówności kosztu popełniania różnych błędów, stąd powstaje motywacja, aby zmodyfikować podaną funkcję i stworzyć regresję logistyczną, która będzie w stanie modyfikować koszty poszczególnych klasyfikacji. Przykład takiego modelu jest omówiony w~sekcji \ref{cslr}.
@@ -443,15 +443,15 @@ W~ogólności proces trenowania modeli w~uczeniu maszynowym polega na znalezieni
 \end{equation}
 gdzie $J(\theta)$ to funkcja straty, a $\Omega(\theta)$ to wyraz odpowiadający za regularyzację, która nakłada odpowiednie kary na współczynniki modelu, aby zapobiec zbytniemu dopasowaniu do danych. Za funkcję straty najczęściej przyjmujemy w przypadku zadań regresyjnych błąd średniokwadratowy
 $$ J(\theta) = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y_i})^2 \text{,}$$
-gdzie $\hat{y_i}$ to predykcja modelu dla $i$-tej obserwacji i~zależy ona od parametrów modelu $\theta$, lub w przypadku zadań klasyfikacyjnych entropię krzyżową daną równaniem \ref{c-e}.
+gdzie $\hat{y_i}$ to predykcja modelu dla $i$-tej obserwacji i~zależy ona od parametrów modelu $\theta$, lub w przypadku zadań klasyfikacyjnych entropię krzyżową daną równaniem \eqref{c-e}.
 
 Algorytm XGBoost (\textit{ang. Extreme Gradient Boosting}) to model, który w~iteracyjny sposób tworzy kolejne drzewa decyzyjne typu CART (patrz sekcja \ref{drzewo}). Na potrzeby algorytmu drzewa są zmodyfikowane i~na liściu nie zawierają samej decyzji binarnej, lecz przypisują liczbę rzeczywistą, która daje znacznie bogatszą reprezentację \cite{xgboost}. Podobnie jak w przypadku lasu losowego wykorzystujemy wiele klasyfikatorów bazowych, a następnie dzięki wykorzystywanej reprezentacji możemy zapisać predykcję $i$-tej obserwacji jako
 $$ \hat{y_i} = \sum_{k=1}^K f_k(\iks_i) \text{,} \quad f_k \in \ef \text{,} $$
 gdzie $K$ oznacza liczbę drzew decyzyjnych, $f_k$ funkcje z przestrzeni $\ef$ wszystkich możliwych drzew CART. Warto zaznaczyć, że w~przypadku zagadnienia regresyjnego predykcja $y_i$ jest bezpośrednim wynikiem, natomiast dla problemów klasyfikacyjnych wykorzystuje się funkcję sigmoidalną (podobnie jak w regresji logistycznej) w~celu zamiany wartości liczby rzeczywistej na predykcję z~przedziału $[0,1]$.
 
-Korzystając z ogólnej postaci funkcji celu danej równaniem \ref{obj-general} funkcja $\text{Obj}(\theta)$, którą będziemy optymalizować, przyjmuje następującą postać:
+Korzystając z ogólnej postaci funkcji celu danej równaniem \eqref{obj-general} na stronie \pageref{obj-general} funkcja $\text{Obj}(\theta)$, którą będziemy optymalizować, przyjmuje następującą postać
 $$ \text{Obj}(\theta) = \sum_{i=1}^{N} l(y_i, \hat{y_i}) + \sum_{k=1}^{K} \Omega(f_k) \text{,} $$
-gdzie $l(y_i, \hat{y_i})$ to funkcja straty, przykładowo błąd średniokwadratowy lub entropia krzyżowa, a $\Omega(f_k)$ to regularyzacja nałożona na drzewo $f_k$.
+gdzie $l(y_i, \hat{y_i})$ to funkcja straty, przykładowo błąd średniokwadratowy lub entropia krzyżowa, a $\Omega(f_k)$ to regularyzacja nałożona na drzewo $f_k$, przykładowo ograniczenie głębokości drzewa.
 
 Uczenie drzew decyzyjnych jest znacznie trudniejszym zadaniem niż standardowe zagadnienia optymalizacyjne, gdyż w tym przypadku nie jesteśmy w stanie wprost policzyć gradientu i~wyliczyć kolejnych wartości współczynników. Zamiast tego użyjemy uczenia addytywnego, które w~każdym kroku iteracji naprawia błędne klasyfikacje z~poprzedniego kroku oraz tworzy kolejne drzewo. Przez $\yht{t}$ będziemy oznaczać predykcję dla $i$-tej obserwacji w~kroku $t$. Zatem możemy zapisać kolejne predykcje w następujący sposób:
 $$ \yht{0} = 0 \text{,}$$
