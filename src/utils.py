@@ -9,7 +9,6 @@ from itertools import chain
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from costcla.metrics import cost_loss, savings_score
-
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -26,7 +25,6 @@ CST_MODELS = [CostSensitiveLogisticRegression, CostSensitiveDecisionTreeClassifi
 XGB_MODELS = [xgboost.XGBClassifier]
 ECSDT_MODELS = [CostSensitiveRandomForestClassifier, CostSensitiveBaggingClassifier,
                 CostSensitivePastingClassifier, CostSensitiveRandomPatchesClassifier]
-
 
 def dict_union(*args):
     return dict(chain.from_iterable(d.items() for d in args))

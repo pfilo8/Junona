@@ -49,12 +49,14 @@
 			\node (x) [var] {$\es$};
 			\node (model) [base, right of = x] {Model$(\es, \theta^{*})$};
 			\node (y_pred) [var, right of = model] {$\pred$};
-			\node (model2) [base, below = 1cm of y_pred] {CS Model($\pred, \ce)$};
+			\node (model2) [base, below = 1cm of model] {CS Model($\pred, \ce)$};
+			\node (C) [var, right of = model2] {$\ce$};
 			\node (y_final) [var, left of = model2] {$\boldsymbol{c}$};
 			
 			\draw[->] (x) -- (model);
 			\draw[->] (model) -- (y_pred);
 			\draw[->] (y_pred) -- (model2);
+			\draw[->] (C) -- (model2);
 			\draw[->] (model2) -- (y_final);
 			\end{tikzpicture}
 		\end{center}
