@@ -96,6 +96,17 @@
 	\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X%
 	\do\Y\do\Z\do\*\do\-\do\~\do\'\do\"\do\-}%
 
+\newenvironment{dedication}
+{
+	\thispagestyle{empty}% no header and footer
+	\vspace*{\stretch{11}}% some space at the top
+	\itshape             % the text is in italics
+	\raggedleft          % flush to the right margin
+}
+{\par % end the paragraph
+	\vspace{\stretch{3}} % space at bottom is three times that at the top
+	\clearpage           % finish off the page
+}
 
 \begin{document}
 	
@@ -111,14 +122,14 @@
 \frontmatter
 \maketitle
 \tableofcontents
+
+\chapter*{}
+\begin{dedication}
+	Dla rodziców \\
+	za bezgraniczną miłość oraz wsparcie
+\end{dedication}
+
 \mainmatter
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Dedykacja
-%\chapter*{}
-%Dla mamy i taty
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \chapter*{Wstęp}
 \addcontentsline{toc}{chapter}{Wstęp} \markboth{Wstęp}{}
