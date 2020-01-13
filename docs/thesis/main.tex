@@ -22,8 +22,7 @@
 \specjalnosc{--} 
 \specjalnoscang{--} 
 \streszczenie{W pracy zaimplementowano eksperyment, który pozwolił porównać klasyczne oraz wrażliwe na koszt metody predykcyjne w problemie detekcji oszustw na kartach płatniczych. W pracy rozważono dwa rodzaje podejść do modelowania wrażliwego na koszt -- klasyfikację wrażliwą na koszt oraz trening wrażliwy na koszt. Na podstawie wyników eksperymentów udało się pokazać, że takie podejście do modelowania daje znacznie lepsze rezultaty niż standradowe metody. Ponadto zostało pokazane, że niewykorzysytwany do tej pory w takich problemach algorytm XGBoost w połączeniu z minimalizacją ryzyka bayesowskiego uzyskuje lepsze rezultaty niż wcześniej wykorzysytwane metody.}
-\streszczenieang{An experiment has been implemented in the work that allowed to compare classical and cost-sensitive methods in credit card fraud detection. The study considers two types of cost-sensitive modeling approaches -- cost-sensitive classification and cost-sensitive training. Based on the results of the experiments, it was shown that this modeling approach gives much better results than standard methods. In addition, we have shown that the XGBoost algorithm not used so far in such problems in combination with Bayesian Minimum Risk achieves better results than the previously used methods.}
-
+\streszczenieang{The main purpose of this thesis was to implement an experiment that allowed to compare classical and cost-sensitive methods in credit card fraud detection. The study considers two types of cost-sensitive modeling approaches -- cost-sensitive classification and cost-sensitive training. Based on the results of the experiments, it was shown that this modeling approach gives much better results than standard methods. In addition, we have shown that the XGBoost algorithm not used so far in such problems in combination with Bayesian Minimum Risk achieves better results than the previously used methods.}
 \slowakluczowe{uczenie maszynowe; klasyfikacja wrażliwa na koszt; wykrywanie oszustw na kartach kredytowych}  
 \slowakluczoweang{Machine Learning; Cost Sensitive Classification; Credit Card Fraud Detection}
 
@@ -134,7 +133,7 @@
 \chapter*{Wstęp}
 \addcontentsline{toc}{chapter}{Wstęp} \markboth{Wstęp}{}
 
-Historia kart płatniczych zaczyna się już w~latach osiemdziesiątych XIX wieku, kiedy Edward Bellamy w~swojej powieści \textit{Looking Backward} wspomina o~możliwości skorzystania z~karty przedpłaconej, która umożliwiała dokonanie płatności z~wcześniej wpłaconych środków \cite{wiki:karta_platnicza}. Niestety pomysł takiej formy płatności nie został pozytywnie przyjęty w~tamtych czasach i~dopiero w~1914 roku amerykańska firma Western Union umożliwiła korzystanie z~kart obciążeniowych, w której bank udziela klientowi odpowiedniego limitu płatności, za które należy zapłacić później. Koncepcja karty bardzo szybko rozpowszechniła się i~mimo wybuchu II~Wojny Światowej, która wstrzymała jej rozwój, to już w~1950 roku firma Diners Club umożliwiła swoim klientom dokonywania płatności w~sklepach, restauracjach lub stacjach benzynowych bez użycia gotówki\footnote{Źródło: \url{https://www.kartyonline.pl/historia-kart-platniczych.php} (dostęp: 27.12.2019)}. Kilka lat później Bank of America wydał pierwszą prawdziwą kartę kredytową, która umożliwiała spłatę zadłużenia w~całości lub tylko pewnej wyliczonej kwoty minimalnej. Kolejnym przełomem było wprowadzenie w~roku 1972 paska magnetycznego, który umożliwiał korzystanie z numeru PIN i~dzięki temu zwiększał bezpieczeństwo klientów \cite{wiki:payment_card}. W~latach 1973 i~1974 wprowadzono odpowiednio system BASE~I oraz BASE~II, które były pierwszymi systemami elektronicznymi. Następnie w~latach dziewięćdziesiątych pojawiają się technologie, które mają zapewnić zwiększenie bezpieczeństwa oraz zmniejszenie skali oszustw.
+Historia kart płatniczych zaczyna się już w~latach osiemdziesiątych XIX wieku, kiedy Edward Bellamy w~swojej powieści \textit{Looking Backward} wspomina o~możliwości skorzystania z~karty przedpłaconej, która umożliwiała dokonanie płatności z~wcześniej wpłaconych środków\footnote{Źródło: {\url{https://pl.wikipedia.org/wiki/Karta_p\%C5\%82atnicza}} (dostęp: 27.12.2019)}. Niestety pomysł takiej formy płatności nie został pozytywnie przyjęty w~tamtych czasach i~dopiero w~1914 roku amerykańska firma Western Union umożliwiła korzystanie z~kart obciążeniowych, w której bank udziela klientowi odpowiedniego limitu płatności, za które należy zapłacić później. Koncepcja karty bardzo szybko rozpowszechniła się i~mimo wybuchu II~Wojny Światowej, która wstrzymała jej rozwój, to już w~1950 roku firma Diners Club umożliwiła swoim klientom dokonywania płatności w~sklepach, restauracjach lub stacjach benzynowych bez użycia gotówki\footnote{Źródło: \url{https://www.kartyonline.pl/historia-kart-platniczych.php} (dostęp: 27.12.2019)}. Kilka lat później Bank of America wydał pierwszą prawdziwą kartę kredytową, która umożliwiała spłatę zadłużenia w~całości lub tylko pewnej wyliczonej kwoty minimalnej. Kolejnym przełomem było wprowadzenie w~roku 1972 paska magnetycznego, który umożliwiał korzystanie z numeru PIN i~dzięki temu zwiększał bezpieczeństwo klientów\footnote{Źródło: \url{https://en.wikipedia.org/wiki/Payment_card} (dostęp: 27.12.2019)}. W~latach 1973 i~1974 wprowadzono odpowiednio system BASE~I oraz BASE~II, które były pierwszymi systemami elektronicznymi. Następnie w~latach dziewięćdziesiątych pojawiają się technologie, które mają zapewnić zwiększenie bezpieczeństwa oraz zmniejszenie skali oszustw.
 
 Dalszy rozwój technologiczny umożliwił nie tylko dokonywanie płatności kartą, lecz także wykorzystywanie do tego celu telefonu komórkowego lub zegarka. Ponadto transakcji nie dokonujemy już tylko w sklepach stacjonarnych, lecz także coraz częściej korzystamy ze sklepów internetowych. Wszystkie te czynniki powodują, że dokonywanie zakupów jest jeszcze prostsze, a~ilość dokonywanych transakcji z roku na rok rośnie\footnote{Źródło: \url{https://worldpaymentsreport.com/non-cash-payments-volume/} (dostęp: 27.12.2019)}. Niestety ten wzrost spowodował również rozwój sposobów dokonywania przestępstw związanych z~kartami płatniczymi, przykładowo przekazanie numeru karty nieznajomym, utrata lub kradzież karty, skopiowania danych karty lub kradzież przesyłki z kartą, które najczęściej kończą się nieautoryzowanymi płatności na koncie.
 
@@ -156,15 +155,15 @@ Wprowadzenie teoretyczne zawiera przegląd metod z~dziedziny statystyki oraz ucz
 
 W pracy wykorzysytwane są następujące oznaczenia:
 \begin{itemize}
-	\item $\es = \{\iks_1, \iks_2, \dots, \iks_N \}$ -- zbiór wszystkich $N$ obserwacji,
-	\item $\iks_{i} = \left(x_i^{(1)}, x_i^{(2)}, \dots, x_i^{(j)} \right)$ -- $i$-ty wektor obserwacji składający się z $j$ atrybutów,
-	\item $x_i^{(k)}$ -- $k$-ty atrybut $i$-tego wektora obserwacji,
-	\item $\ytrue = (y_1, y_2, \dots, y_N)$ -- wektor prawdziwych stanów klasyfikacji,
-	\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji,
-	\item $\boldsymbol{p} = (p_1, p_2, \dots, p_N)$ -- wektor estymowanych wartość prawdopodobieństwa,
-	\item $p_i = P(y_i = 1 | \es)$ -- estymowana wartość prawdopodobieństwa dla $i$-tej obserwacji,
-	\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ -- wektor przewidywanych klas,
-	\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji.
+	\item[--] $\es = \{\iks_1, \iks_2, \dots, \iks_N \}$ -- zbiór wszystkich $N$ obserwacji,
+	\item[--] $\iks_{i} = \left(x_i^{(1)}, x_i^{(2)}, \dots, x_i^{(j)} \right)$ -- $i$-ty wektor obserwacji składający się z $j$ atrybutów,
+	\item[--] $x_i^{(k)}$ -- $k$-ty atrybut $i$-tego wektora obserwacji,
+	\item[--] $\ytrue = (y_1, y_2, \dots, y_N)$ -- wektor prawdziwych stanów klasyfikacji,
+	\item[--] $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji,
+	\item[--] $\boldsymbol{p} = (p_1, p_2, \dots, p_N)$ -- wektor estymowanych wartość prawdopodobieństwa,
+	\item[--] $p_i = P(y_i = 1 | \es)$ -- estymowana wartość prawdopodobieństwa dla $i$-tej obserwacji,
+	\item[--] $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ -- wektor przewidywanych klas,
+	\item[--] $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji.
 \end{itemize}
 Wartość $y_i = 0$ oznacza wartość niesprzyjającą a $y_i = 1$ sprzyjającą. Ponadto $c_i = 0$ oznacza klasyfikację negatywną, natomiast $c_i = 1$ pozytywną.
 
@@ -179,12 +178,12 @@ Jedną z metod wykorzystywanych do oceny skuteczności modeli w zadaniach klasyf
 	\item[--] Fałszywie negatywny wynik klasyfikacji (FN, z angielskiego \textit{False Negative}) -- obserwacja miała stan sprzyjający i zaklasyfikowaliśmy ją jako negatywną. W~nomenklaturze statystycznej nazywamy ją również błędem drugiego rodzaju;
 	\item[--] Prawdziwie negatywny wynik klasyfikacji (TN, z angielskiego \textit{True Negative}) -- obserwacja miała stan niesprzyjający i zaklasyfikowaliśmy ją jako negatywną.
 \end{itemize}
-\noindent Liczbę obserwacji należących do poszczególnych kategorii możemy reprezentować tak jak w~tabeli \ref{tab:macierz-pomylek}, gdzie
+\noindent Liczbę obserwacji należących do poszczególnych kategorii możemy reprezentować tak jak w~tabeli \ref{tab:macierz-pomylek}, gdzie:
 \begin{itemize}
-	\item TP $ = \#\{i: i \in \{1,\dots,N\}, y_i = c_i = 1\}$,
-	\item FP $ = \#\{i: i \in \{1,\dots,N\}, y_i = 0, c_i = 1\}$,
-	\item FN $ = \#\{i: i \in \{1,\dots,N\}, y_i = 1, c_i = 0\}$,
-	\item TN $ = \#\{i: i \in \{1,\dots,N\}, y_i = c_i = 0\}$.
+	\item[--] TP $ = \#\{i: i \in \{1,\dots,N\}, y_i = c_i = 1\}$,
+	\item[--] FP $ = \#\{i: i \in \{1,\dots,N\}, y_i = 0, c_i = 1\}$,
+	\item[--] FN $ = \#\{i: i \in \{1,\dots,N\}, y_i = 1, c_i = 0\}$,
+	\item[--] TN $ = \#\{i: i \in \{1,\dots,N\}, y_i = c_i = 0\}$.
 \end{itemize}
 
 \begin{table}[h]
@@ -263,14 +262,14 @@ $$ \big( (1 - \text{Swoistość})^p + (1 - \text{Czułość})^p \big)^{\frac{1}{
 $\text{F}_1$ Score to miara łącząca w sobie precyzję oraz czułość za pomocą średniej harmonicznej. Z~uwagi na wykorzystanie tych dwóch wartości nie bierze ona pod uwagę prawidłowo zaklasyfikowanych obserwacji negatywnych. Wykorzystanie średniej harmonicznej powoduje, że kładziemy równy nacisk na obie użyte miary. Standardowy wzór wygląda następująco
 $$ F_1 = \left(\frac{2}{\text{Precyzja}^{-1} + \text{Czułość}^{-1}}\right) = 2 \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{\text{Precyzja} + \text{Czułość}} \text{.}$$
 
-W przypadku, gdy interesuje nas bardziej precyzja lub czułość, to definiujemy bardziej ogólną formułę na $\text{F}_{\beta}$ Score:
+W przypadku, gdy interesuje nas bardziej precyzja lub czułość, to definiujemy bardziej ogólną formułę na $\text{F}_{\beta}$ Score
 $$ F_{\beta} = (1 + \beta^2) \cdot \frac{\text{Precyzja} \cdot \text{Czułość}}{(\beta^2 \cdot \text{Czułość}) + \text{Precyzja}} \text{,}$$
 gdzie parametr $\beta>0$ odpowiada na pytanie, ile razy bardziej czułość jest ważna niż precyzja. Najczęściej wykorzystuje się parametr $\beta = 2$ lub $\beta = \frac{1}{2}$, który odpowiednio zwiększa nacisk na czułość lub zmniejsza wpływ fałszywie negatywnie zaklasyfikowanych obserwacji, skupiając się bardziej na precyzji.
 
 \subsection{Macierz kosztu}
 \label{sec:macierz-kosztu}
 W celu wprowadzenia potrzebnych miar skuteczności wrażliwych na koszt, musimy zdefiniować wektor macierzy kosztu
-$$ \boldsymbol{C} = (C_1, C_2, \dots, C_N) $$
+$$ \boldsymbol{C} = (C_1, C_2, \dots, C_N) \text{,}$$
 gdzie $ C^{(i)} = [C^{(i)}_{j,k}]_{j,k=0}^1 $ oznacza macierz kosztu dla $i$-tej obserwacji \cite{CSCCFD, CS-Learning}. Ma ona postać analogiczną do macierzy pomyłek, lecz zamiast ilości obserwacji w odpowiednich komórkach wpisujemy koszt pomyłki dla $i$-tej obserwacji. Warto zaznaczyć, że koszt niekoniecznie musi być kwota pieniężną, lecz także możemy rozważać ilość poświęconego czasu, bądź inną dowolną mierzalną jednostkę. W szczególności dla przypadku klasyfikacji binarnej wyróżniamy cztery możliwe wartości:
 \begin{itemize}
 	\item[--] $C^{(i)}_{1,1}$ -- koszt prawdziwie pozytywnego zaklasyfikowania $i$-tej obserwacji,
@@ -281,15 +280,14 @@ gdzie $ C^{(i)} = [C^{(i)}_{j,k}]_{j,k=0}^1 $ oznacza macierz kosztu dla $i$-tej
 
 W zależności od praktycznego zastosowania wartości w macierzy kosztu przyjmują różne wielkości. Poniżej przedstawiamy kilka intuicji na podstawie macierzy kosztu zdefiniowanych dla różnych eksperymentów w~pracy A. Bahnsena \cite{alej2015ensemble}.
 \begin{itemize}
-	\item W przypadku, gdy predykcja klasy pozytywnej wiąże się z podjęciem jakiejś akcji, np. sprawdzenie transakcji kartą kredytową, wysłanie oferty reklamowej, to koszt pozytywnej predykcji jest dodatni, to znaczy $C^{(i)}_{1,1}$, $C^{(i)}_{1,0}$ $>0$. Ponadto najczęściej te koszty są równe i przyjmują stałą wartość dla wszystkich przypadków, to znaczy $C^{(i)}_{1,1} = C^{(i)}_{1,0} =  \text{const.}$, ponieważ podejmowana zawsze jest ta sama akcja dla wszystkich obserwacji. Dodatkowo koszt pozytywnego zaklasyfikowania dla każdej obserwacji negatywnej jest zerowy, to znaczy $C^{(i)}_{0,0} = 0$, ponieważ słusznie nie została podjęta żadna akcja. Zatem ostatecznie jedyną wartością, która różni się między przypadkami, jest koszt fałszywie negatywnej klasyfikacji i on również jest większy od zera.
-	\item W~przypadku, gdy predykcja dokonywana jest przez zautomatyzowany system, to koszt prawidłowej klasyfikacji jest równy zero, to znaczy $C^{(i)}_{1,1} = C^{(i)}_{0,0} = 0$. Jest to spowodowane faktem, że maszynie nie musimy płacić pensji, a~koszt czasowy i~sprzętowy jest pomijalny. Natomiast koszty pomyłek są inne i~zazwyczaj różnią się między obserwacjami. Biorąc jako przykład ryzyko kredytowe, możemy zauważyć, że koszty mogą być zarówno dodatnie, jak i ujemne. W tym konkretnym przypadku, gdy stwierdzimy, że dana osoba spłaci kredyt, natomiast w rzeczywistości nie zrobi tego, to będziemy stratni pewną sumę pieniędzy, co da nam dodatni koszt. Z~drugiej strony, gdy uznamy, że dana osoba nie spłaci kredytu, a w rzeczywistości wywiązałaby się ze zobowiązań, to utracimy pewien zarobek, zatem koszt będzie ujemny.
+	\item[--] W przypadku, gdy predykcja klasy pozytywnej wiąże się z podjęciem jakiejś akcji, np. sprawdzenie transakcji kartą kredytową, wysłanie oferty reklamowej, to koszt pozytywnej predykcji jest dodatni, to znaczy $C^{(i)}_{1,1}$, $C^{(i)}_{1,0}$ $>0$. Ponadto najczęściej te koszty są równe i przyjmują stałą wartość dla wszystkich przypadków, to znaczy $C^{(i)}_{1,1} = C^{(i)}_{1,0} =  \text{const.}$, ponieważ podejmowana zawsze jest ta sama akcja dla wszystkich obserwacji. Dodatkowo koszt pozytywnego zaklasyfikowania dla każdej obserwacji negatywnej jest zerowy, to znaczy $C^{(i)}_{0,0} = 0$, ponieważ słusznie nie została podjęta żadna akcja. Zatem ostatecznie jedyną wartością, która różni się między przypadkami, jest koszt fałszywie negatywnej klasyfikacji i on również jest większy od zera.
+	\item[--] W~przypadku, gdy predykcja dokonywana jest przez zautomatyzowany system, to koszt prawidłowej klasyfikacji jest równy zero, to znaczy $C^{(i)}_{1,1} = C^{(i)}_{0,0} = 0$. Jest to spowodowane faktem, że maszynie nie musimy płacić pensji, a~koszt czasowy i~sprzętowy jest pomijalny. Natomiast koszty pomyłek są inne i~zazwyczaj różnią się między obserwacjami. Biorąc jako przykład ryzyko kredytowe, możemy zauważyć, że koszty mogą być zarówno dodatnie, jak i ujemne. W tym konkretnym przypadku, gdy stwierdzimy, że dana osoba spłaci kredyt, natomiast w rzeczywistości nie zrobi tego, to będziemy stratni pewną sumę pieniędzy, co da nam dodatni koszt. Z~drugiej strony, gdy uznamy, że dana osoba nie spłaci kredytu, a w rzeczywistości wywiązałaby się ze zobowiązań, to utracimy pewien zarobek, zatem koszt będzie ujemny.
 \end{itemize}
 
 Koncepcyjnie koszt popełnienia błędu dla każdej obserwacji powinien być większy niż koszt poprawnej klasyfikacji, to znaczy
 
 $$ C^{(i)}_{1,0} > C^{(i)}_{1,1} \text{ i } C^{(i)}_{0,1} > C^{(i)}_{0,0} \quad \forall_{i \in \{1, 2, \dots, N\}} \text{.}$$
-
-Ilustracja takiej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}.
+Ilustracja tak zdefiniowanej macierzy kosztu znajduje się w tabeli \ref{tab:macierz-kosztu}.
 \begin{table}[h]
 	\begin{center}
 		\begin{tabular}{c|c|c}
@@ -318,16 +316,16 @@ Koszt całkowity (TC, z angielskiego \textit{ang. Total Cost}) to suma kosztów 
 \end{equation} 
 
 \subsubsection{Oszczędności}
-Oszczędności (\textit{ang. Savings}) to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od naiwnego klasyfikatora. Przy czym naiwnym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych.
+Oszczędności (\textit{ang. Savings}) to miara, którą intuicyjnie możemy rozumieć jako procentową wartość, o~ile testowany model jest lepszy od naiwnego klasyfikatora. Przy czym naiwnym klasyfikatorem nazywamy model, który zwraca same predykcje pozytywne lub same predykcje negatywne, w~zależności od tego, co bardziej się opłaca dla danego zestawu danych
 \begin{equation}
 	\label{oszczednosci}
 	\text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, \boldsymbol{C}) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, \boldsymbol{C})} \text{,}
 \end{equation}
 gdzie:
 \begin{itemize}
-	\item $ \text{koszt bazowy}(\ytrue, \boldsymbol{C}) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\} \neq 0$ -- koszt poniesiony w~przypadku używania naiwnego klasyfikatora,
-	\item $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ -- $N$-elementowy wektor predykcji równych $0$,
-	\item $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ -- $N$-elementowy wektor predykcji równych $1$.
+	\item[--] $ \text{koszt bazowy}(\ytrue, \boldsymbol{C}) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\} \neq 0$ -- koszt poniesiony w~przypadku używania naiwnego klasyfikatora,
+	\item[--] $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ -- $N$-elementowy wektor predykcji równych $0$,
+	\item[--] $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ -- $N$-elementowy wektor predykcji równych $1$.
 \end{itemize}{}
 
 \section{Standardowe modele}
@@ -342,7 +340,7 @@ Jednocześnie zauważmy, że
 $$ P(Y = 0|X = \iks_{i};\theta) = 1 - P(Y = 1|X = \iks_{i};\theta) = 1 - \htx $$
 oraz korzystając z faktu, że $y_i \in \{0,1\}$, możemy zapisać 
 $$ P(Y = y_i|X = \iks_{i};\theta) = \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
-Następnie wyznaczamy funkcję wiarogodności, aby wyestymować parametry~$\theta$.
+Następnie wyznaczamy funkcję wiarogodności, aby wyestymować parametry~$\theta$
 $$ L(\theta | \es, \ytrue) = \prod_{i=1}^N P(Y = y_i | X = \iks_{i}; \theta) = \prod_{i=1}^N \htx^{y_i}(1-\htx)^{(1-y_i)} \text{.}$$
 W celu znalezienia maksimum funkcji wiarogodności logarytmujemy funkcję $L(\theta | \es, \ytrue)$ i~otrzymujemy funkcję logarytmu wiarogodności $l(\theta | \es, \ytrue)$
 $$ l(\theta | \es, \ytrue) = \log L(\theta | \es, \ytrue)  = -\sum_{i=1}^N J_i(\theta) \text{,}$$
@@ -385,15 +383,15 @@ Jest to wynik, który nie oddaje charakteru nierówności kosztu popełniania r�
 \label{drzewo}
 Drzewo decyzyjne to nieparametryczny model uczenia nadzorowanego, który jest wykorzystywany do regresji oraz klasyfikacji. Jego celem jest nauczenie się na podstawie dostępnych danych prostych reguł decyzyjnych. Do jego największych zalet należy łatwość interpretacji otrzymanych wyników oraz niewielka ilość niezbędnych przygotowań danych, ponieważ między innymi nie wymagają one normalizacji, skalowania lub transformacji zmiennych kategorycznych.
 
-Poniżej opiszemy trzy rodzaje najpopularniejszych algorytmów, które są odpowiedzialne za proces uczenia drzew.
+Poniżej opiszemy trzy rodzaje najpopularniejszych algorytmów, które są odpowiedzialne za proces uczenia drzew:
 \begin{itemize}
-	\item ID3 (Iterative Dichotomiser 3) -- algorytm pozwala na tworzenie drzew decyzyjnych, które w poszczególnych węzłach mogą mieć więcej niż dwa podziały. Działa jedynie dla zmiennych kategorycznych. Drzewo rośnie do maksymalnego rozmiaru, a następnie jest przycinane;
-	\item C4.5 -- następca ID3, który znosi restrykcję używania tylko kategorycznych atrybutów poprzez dyskretyzację zmiennych ciągłych. Nauczone drzewo zamieniane jest w zestaw reguł, które są szeregowane względem poprawy skuteczności. Przycinanie w tym wypadku polega na usuwanie reguł, które nie poprawiają wyniku modelu;
-	\item CART (z angielskiego \textit{Classification and Regression Tree}) -- bardzo podobny algorytm do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia maksymalizującego przyrost informacji.
+	\item[--] ID3 (Iterative Dichotomiser 3) -- algorytm pozwala na tworzenie drzew decyzyjnych, które w poszczególnych węzłach mogą mieć więcej niż dwa podziały. Działa jedynie dla zmiennych kategorycznych. Drzewo rośnie do maksymalnego rozmiaru, a następnie jest przycinane;
+	\item[--] C4.5 -- następca ID3, który znosi restrykcję używania tylko kategorycznych atrybutów poprzez dyskretyzację zmiennych ciągłych. Nauczone drzewo zamieniane jest w zestaw reguł, które są szeregowane względem poprawy skuteczności. Przycinanie w tym wypadku polega na usuwanie reguł, które nie poprawiają wyniku modelu;
+	\item[--] CART (z angielskiego \textit{Classification and Regression Tree}) -- bardzo podobny algorytm do C4.5, który umożliwia tworzenie drzew regresyjnych (w poprzednich algorytmach mamy do czynienia jedynie z zadaniami klasyfikacyjnymi) oraz nie tworzy zestawu reguł. Konstruuje on binarne drzewa, które do podziału używa atrybutu oraz progu odcięcia maksymalizującego przyrost informacji.
 \end{itemize}
 Warto zaznaczyć, że implementacja w bibliotece \textit{sklearn} w Pythonie wykorzystuje zmodyfikowaną wersję algorytmu CART, który nie obsługuje zmiennych kategorycznych. Poniżej prezentujemy teorię matematyczną stojącą za implementacją tego algorytmu \cite{sklearn_api}.
 
-Niech $\ku$ będzie zbiorem obserwacji dla danego węzła $m$. Ponadto niech podział będzie reprezentowany przez parę $\theta = (j, t_m)$, gdzie $j$ odpowiada $j$-temu atrybutowi wektora $\iks_i$, natomiast $t_m$ to warunek podziału danych na podzbiory $\ku_l$ oraz $\ku_r$, gdzie
+Niech $\ku$ będzie zbiorem obserwacji dla danego węzła $m$. Ponadto niech podział będzie reprezentowany przez parę $\theta = (j, t_m)$, gdzie $j$ odpowiada $j$-temu atrybutowi wektora $\iks_i$, natomiast $t_m$ to warunek podziału danych na podzbiory $\ku_l$ oraz $\ku_r$, gdzie:
 $$ \ku_l (\theta) = \{ \iks_i : \iks_i \in \ku \land x^{(j)}_i \leq t_m \} \text{,} $$
 $$ \ku_r (\theta) = \ku \setminus \ku_l(\theta) \text{.} $$
 Czystość danego węzła jest wyznaczana w następujący sposób
@@ -404,16 +402,16 @@ Dalej następuje rekurencyjny podział na podzbiory wyznaczonego $\ku_l (\theta^
 W~momencie predykcji wykorzystujemy utworzone podziały, aby dla zadanej obserwacji znaleźć odpowiedni liść. Następnie model zwraca prawdopodobieństwo należenia do poszczególnych klas, które jest równe procentowi próbek z~danej klasy w~danych treningowych w~znalezionym liściu.
 
 
-W~zależności od rodzaju problemu, wykorzystujemy różne miary zanieczyszczenia \cite{sklearn_api}. Dla zadań klasyfikacyjnych są to
+W~zależności od rodzaju problemu, wykorzystujemy różne miary zanieczyszczenia \cite{sklearn_api}. Dla zadań klasyfikacyjnych są to:
 \begin{itemize}
-	\item Misclassification: $I_m(\ku) = 1 - \max(p(\ku), 1 - p(\ku))$,
-	\item Entropy: $I_e(\ku) = -p(\ku) \log_2 p(\ku) - (1 - p(\ku)) \log_2(1 - p(\ku))$,
-	\item Gini: $I_g(\ku) = 2p(\ku)(1 - p(\ku))$,
+	\item[--] Misclassification: $I_m(\ku) = 1 - \max(p(\ku), 1 - p(\ku))$,
+	\item[--] Entropy: $I_e(\ku) = -p(\ku) \log_2 p(\ku) - (1 - p(\ku)) \log_2(1 - p(\ku))$,
+	\item[--] Gini: $I_g(\ku) = 2p(\ku)(1 - p(\ku))$
 \end{itemize}{}
-a dla zadań regresyjnych
+a dla zadań regresyjnych:
 \begin{itemize}
-	\item $ \displaystyle I_{mse}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} (y_i - q(\ku))^2$,
-	\item $ \displaystyle I_{mae}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} |y_i - q(\ku)|$,
+	\item[--] $ \displaystyle I_{mse}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} (y_i - q(\ku))^2$,
+	\item[--] $ \displaystyle I_{mae}(\ku) = \frac{1}{|\ku|} \sum_{i \in \ku} |y_i - q(\ku)|$,
 \end{itemize}
 gdzie:
 $$ p(\ku) = \frac{| \{ \iks_i : \iks_i \in \ku \land y_i = 1 \}|}{|\ku|} \text{,} $$
@@ -422,18 +420,18 @@ $$ q(\ku) = \frac{\sum_{i \in \ku} y_i}{|\ku|} \text{.} $$
 \subsection{Las losowy}
 Las losowy oraz algorytm XGBoost są przedstawicielami szerokiej klasy modeli typu \textit{ensemble}. Głównym celem tej metodologii jest wprowadzenie losowych perturbacji do zbioru treningowego, w~celu utworzenia różnych klasyfikatorów bazowych, których wspólne predykcje będą lepsze niż każdego z modeli bazowych osobno. Ponadto istnieją trzy główne powody, dlaczego te metody działają znacznie lepiej niż pojedyncze modele:
 \begin{itemize}
-	\item Statystyczny -- w przypadku, gdy mamy do czynienia z małym zbiorem danych, istnieje możliwość stworzenia kilku bardzo dobryh klasyfikatorów, które na zbiorze treningowym mają taką samą skuteczność. W przypadku dodatkowego zbioru testowego istnieje szansa wybrania nieoptymalnego;
-	\item Obliczeniowy -- większość algorytmów polega na optymalizacji numerycznej, która może zatrzymać się w minimum lokalnym. Dzięki zastosowaniu kilku modeli uzyskujemy szansę przeszukania większej części przestrzeni parametrów modeli;
-	\item Reprezentacyjny -- często funkcja $f$ reprezentująca prawdziwy model jest bardzo skomplikowana i niemożliwe jest przedstawienie jej za pomocą jednego modelu. Wykorzystując złożenie kilku modeli bazowych, mamy szansę lepiej przybliżać prawdziwą funkcję $f$.
+	\item[--] Statystyczny -- w przypadku, gdy mamy do czynienia z małym zbiorem danych, istnieje możliwość stworzenia kilku bardzo dobryh klasyfikatorów, które na zbiorze treningowym mają taką samą skuteczność. W przypadku dodatkowego zbioru testowego istnieje szansa wybrania nieoptymalnego;
+	\item[--] Obliczeniowy -- większość algorytmów polega na optymalizacji numerycznej, która może zatrzymać się w minimum lokalnym. Dzięki zastosowaniu kilku modeli uzyskujemy szansę przeszukania większej części przestrzeni parametrów modeli;
+	\item[--] Reprezentacyjny -- często funkcja $f$ reprezentująca prawdziwy model jest bardzo skomplikowana i niemożliwe jest przedstawienie jej za pomocą jednego modelu. Wykorzystując złożenie kilku modeli bazowych, mamy szansę lepiej przybliżać prawdziwą funkcję $f$.
 \end{itemize}
 
 W celu utworzenia $T$ klasyfikatorów bazowych, należy ze zbioru treningowego $\es$ wybrać $S_j$ dla $j=1,2,\dots,T$ losowych podzbiorów obserwacji, które wykorzystamy do uczenia. W tym celu wykorzystuje się następujące procedury losowania.
 
 \begin{itemize}
-	\item Wklejanie (\textit{ang. Pasting}) -- Polega na niezależnym losowaniu $K < N$ próbek ze zbioru $\es$ bez powtórzeń. Najczęściej wykorzystywana jest na bardzo dużych zbiorów danych, gdzie zasoby obliczeniowe są ograniczone i nie jest możliwe wczytanie wszystkich danych do pamięci komputera. Ponadto dzięki możliwości wykorzystania obliczeń równoległych skraca się czas tworzenia całego modelu. Próbki mogą być losowane z rozkładu jednostajnego, bądź wykorzystując metody biorące pod uwagę ważność poszczególnych obserwacji \cite{Pasting}.
-	\item Workowanie (\textit{ang. Bagging}) -- Polega na niezależnym losowaniu $K \leq N$ próbek ze zbioru $\es$ z powtórzeniami. Najczęściej jest wykorzystywany w przypadku małych zbiorów danych, kiedy chcemy wykorzystać maksymalnie dużą ilość obserwacji, lecz także wprowadzić losowość do kolejnych klasyfikatorów bazowych.
-	\item Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych \cite{Random_Subspace}.
-	\item Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci \cite{Random_Patches}.
+	\item[--] Wklejanie (\textit{ang. Pasting}) -- Polega na niezależnym losowaniu $K < N$ próbek ze zbioru $\es$ bez powtórzeń. Najczęściej wykorzystywana jest na bardzo dużych zbiorów danych, gdzie zasoby obliczeniowe są ograniczone i nie jest możliwe wczytanie wszystkich danych do pamięci komputera. Ponadto dzięki możliwości wykorzystania obliczeń równoległych skraca się czas tworzenia całego modelu. Próbki mogą być losowane z rozkładu jednostajnego, bądź wykorzystując metody biorące pod uwagę ważność poszczególnych obserwacji \cite{Pasting}.
+	\item[--] Workowanie (\textit{ang. Bagging}) -- Polega na niezależnym losowaniu $K \leq N$ próbek ze zbioru $\es$ z powtórzeniami. Najczęściej jest wykorzystywany w przypadku małych zbiorów danych, kiedy chcemy wykorzystać maksymalnie dużą ilość obserwacji, lecz także wprowadzić losowość do kolejnych klasyfikatorów bazowych.
+	\item[--] Losowe podprzestrzenie (\textit{ang. Random Subspaces}) -- Metoda polegająca na wybraniu do każdego klasyfikatora bazowego wszystkich obserwacji, lecz losuje się tylko część atrybutów opisujące dane. Głównym celem tego zabiegu jest poprawa skuteczności poprzez zwiększenie różnorodności klasyfikatorów bazowych \cite{Random_Subspace}.
+	\item[--] Losowe łaty (\textit{ang. Random Patches}) -- Procedura łącząca metodę wklejania z losowymi podprzestrzeniami. Jej celem jest połączenie zalet obu metod i ostatecznie poprawienie skuteczności modelu z~jednoczesną optymalizacją wykorzystywanego czasu oraz pamięci \cite{Random_Patches}.
 \end{itemize}
 Na rysunku \ref{fig:sampling_plot} na stronie \pageref{fig:sampling_plot} schematycznie przedstawiono wyżej omówione zasady działania poszczególnych procedur losowania. Należy zwrócić uwagę zarówno na powtarzające się lub nie numery wierszy, jak i~na kolory kolumny symbolizujące odpowiednie zmienne z~oryginalnego zbioru danych.
 \begin{figure}[h]
@@ -474,7 +472,7 @@ Podczas każdego z~kroków iteracji będziemy chcieli minimalizować odpowiedni�
 $$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} l(y_i, \yht{t}) + \sum_{k=1}^{t} \Omega(f_k) \text{.} $$
 Wykorzystując powyższe wzory, otrzymujemy następujące wyrażenie
 $$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} l(y_i, \yht{t-1} + f_t(x_i)) + \Omega(f_t) + \text{const.}$$
-Korzystając z rozwinięcia szeregu Taylora dla funkcji straty, otrzymujemy ogólny wzór:
+Korzystając z rozwinięcia szeregu Taylora dla funkcji straty, otrzymujemy ogólny wzór
 $$ \text{Obj}^{(t)}(\theta) = \sum_{i=1}^{N} \left[ l(y_i, \yht{t-1}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) + \text{const. ,} $$
 gdzie:
 $$ g_i = \partial_{\yht{t-1}} l(y_i, \yht{t-1}) \text{,} $$
@@ -495,21 +493,21 @@ Metoda optymalizacji progu (TO, z angielskiego \textit{threshold optimization}) 
 $$ t^{*} = \argmax_{t \in [0,1]} f(\ytrue, \boldsymbol{c}) \text{,} $$
 gdzie:
 \begin{itemize}
-	\item $f(\cdot, \cdot) $ -- funkcja miary skuteczności modelu, która jako argumenty przyjmuje wektor prawdziwych wartości klasyfikacji oraz wektor binarnych predykcji, np. dokładność,
-	\item $\boldsymbol{c} = (\mathbbm{1}_{\{p_i > t\}})_{i=1}^n $ -- wektor binarnych klasyfikacji modelu,
-	\item $ \text{t} $ -- wartość progu decyzyjnego.
+	\item[--] $f(\cdot, \cdot) $ -- funkcja miary skuteczności modelu, która jako argumenty przyjmuje wektor prawdziwych wartości klasyfikacji oraz wektor binarnych predykcji, np. dokładność,
+	\item[--] $\boldsymbol{c} = (\mathbbm{1}_{\{p_i > t\}})_{i=1}^n $ -- wektor binarnych klasyfikacji modelu,
+	\item[--] $ \text{t} $ -- wartość progu decyzyjnego.
 \end{itemize}{}
 W naszym przypadku funkcją $f$ będzie funkcja oszczędności (\ref{oszczednosci}). Innymi słowy, będziemy szukać takiego progu decyzyjnego, który zmaksymalizuje wartość oszczędności.
 
 \subsection{Minimalizacja ryzyka bayesowskiego}
 \label{bmr}
-Minimalizacja ryzyka bayesowskiego (BMR, z angielskiego \textit{Bayesian Minimum Risk}) to model decyzyjny, którego celem jest zmierzenie oraz porównanie wartości prawdopodobieństw wystąpienia pewnych zdarzeń i kosztów związanych z podjęciem określonych decyzji  \cite{CSCCFD}. Polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób
+Minimalizacja ryzyka bayesowskiego (BMR, z angielskiego \textit{Bayesian Minimum Risk}) to model decyzyjny, którego celem jest zmierzenie oraz porównanie wartości prawdopodobieństw wystąpienia pewnych zdarzeń i kosztów związanych z podjęciem określonych decyzji  \cite{CSCCFD}. Polega na przypisaniu odpowiedniej wartości reprezentującej ryzyko zaklasyfikowania danej obserwacji jako pozytywnej lub negatywnej, które definiujemy w następujący sposób:
 $$ R(c_i = 1|\iks_{i}) = L(c_i = 1|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 1|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
 $$ R(c_i = 0|\iks_{i}) = L(c_i = 0|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = 0|y_i = 0)P(y_i = 0|\iks_{i}) \text{,}$$
-gdzie
+gdzie:
 \begin{itemize}
-	\item $P(y_i = 1|\iks_{i})$, $P(y_i = 0|\iks_{i})$ -- oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(y_i = 0|\iks_{i}) = 1 - P(y_i = 1|\iks_{i})$,
-	\item $L(c_i = j|y_i = k)$ oraz $j,k \in \{0, 1\}$ -- funkcja kosztu, która określa stratę, którą poniesiemy w zależności od wyniku poprawności klasyfikacji.
+	\item[--] $P(y_i = 1|\iks_{i})$, $P(y_i = 0|\iks_{i})$ -- oznaczają estymowane przez model prawdopodobieństwa zaklasyfikowania obserwacji jako odpowiednio pozytywna oraz negatywna klasa i~$P(y_i = 0|\iks_{i}) = 1 - P(y_i = 1|\iks_{i})$,
+	\item[--] $L(c_i = j|y_i = k)$ oraz $j,k \in \{0, 1\}$ -- funkcja kosztu, która określa stratę, którą poniesiemy w zależności od wyniku poprawności klasyfikacji.
 \end{itemize}{}
 Zauważmy, że powyższe równania możemy zapisać jako
 $$ R(c_i = c|\iks_{i}) = L(c_i = c|y_i = 1)P(y_i = 1|\iks_{i}) + L(c_i = c|y_i = 0)P(y_i = 0|\iks_{i})\text{.} $$
@@ -601,9 +599,9 @@ Mimo tego, że dane zostały poddane anonimizacji, to na podstawie artykułu A.~
 
 Na podstawie wiedzy dotyczącej modelowania detekcji oszustw z~artykułu A. Bahnsena~\cite{alej2015ensemble} w~tabeli \ref{tab:macierz-kosztu-eksperyment} na stronie \pageref{tab:macierz-kosztu-eksperyment} definiujemy wartości kosztu dla tego eksperymentu. Poniżej krótkie objaśnienie.
 \begin{itemize}
-	\item Wartość $C_a = 1$ to stały koszt administracyjny podjęcia sprawy przez analityka, który sprawdza, czy dana obserwacja jest faktycznie oszustwem, niezależnie od tego, jaki był jego ostateczny werdykt.
-	\item $\text{Amt}_i$ to wartość transakcji, jaką utracimy w~przypadku niewskazanie fałszywej transakcji jako oszustwa.
-	\item Zerowa wartość kosztu dla normalnej obserwacji, która była prawidłowo wskazana, pochodzi z~braku konieczności podjęcia inwestygacji oraz strat z tego wynikających.
+	\item[--] Wartość $C_a = 1$ to stały koszt administracyjny podjęcia sprawy przez analityka, który sprawdza, czy dana obserwacja jest faktycznie oszustwem, niezależnie od tego, jaki był jego ostateczny werdykt.
+	\item[--] $\text{Amt}_i$ to wartość transakcji, jaką utracimy w~przypadku niewskazanie fałszywej transakcji jako oszustwa.
+	\item[--] Zerowa wartość kosztu dla normalnej obserwacji, która była prawidłowo wskazana, pochodzi z~braku konieczności podjęcia inwestygacji oraz strat z tego wynikających.
 \end{itemize} 
 
 \begin{table}[h]
@@ -717,11 +715,11 @@ W niniejszej części zostaną zaprezentowane skrypty, które były wykorzystane
 
 Zdecydowana większość kodu została zawarta w~skrypcie \textit{utils.py} i~została oddzielona od poprzedniego programu, aby ułatwić zarządzanie częścią programistyczną projektu. Składa się on z~funkcji służących między innymi do:
 \begin{itemize}
-	\item wywoływania skryptu z~poziomu linii komend,
-	\item wczytywania plików \textit{json} z~konifugracją,
-	\item generowania macierzy kosztu w~odpowiednim formacie,
-	\item trenowania modeli,
-	\item tworzenia podsumowania wyników.
+	\item[--] wywoływania skryptu z~poziomu linii komend,
+	\item[--] wczytywania plików \textit{json} z~konifugracją,
+	\item[--] generowania macierzy kosztu w~odpowiednim formacie,
+	\item[--] trenowania modeli,
+	\item[--] tworzenia podsumowania wyników.
 \end{itemize}
 \lstinputlisting[language=Python, caption={Skrypt \textit{utils.py} zawierający funkcje pomocnicze do głównej części eksperymentu.}]{../../src/utils.py}
 
