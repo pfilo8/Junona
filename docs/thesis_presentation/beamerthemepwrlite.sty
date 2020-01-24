@@ -12,7 +12,7 @@
 \definecolor{pwrliteLogo}{RGB}{159,46,28}
 \definecolor{pwrliteLogoText}{RGB}{43,40,40}
 \definecolor{pwrliteBlack}{RGB}{43,40,40}
-\definecolor{pwrliteBlue}{RGB}{22,190,207}
+\definecolor{pwrliteBlue}{RGB}{100,139,204}
 \definecolor{pwrliteWhite}{RGB}{255,255,243}
 \definecolor{pwrliteGrey}{RGB}{107,110,108}
 
@@ -21,10 +21,6 @@
 \setbeamercolor{description item}{fg=pwrliteBlue}
 \setbeamercolor{alerted text}{fg=pwrliteBlue}
 \setbeamercolor{section in toc}{fg=pwrliteBlack}
-
-\setbeamerfont{itemize/enumerate body}{size=\large}
-\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
-\setbeamerfont{itemize/enumerate subsubbody}{size=\small}
 
 \setbeamertemplate{itemize item}{
     \tikz{
@@ -44,7 +40,7 @@
 
 \setbeamertemplate{sidebar right}{}
 
-\setbeamertemplate{caption}{\tiny\insertcaption}
+\setbeamertemplate{caption}{\insertcaption}
 
 \setbeamertemplate{caption label separator}{}
 
@@ -1242,7 +1238,7 @@
             \begin{scope}[shift={(0.48cm,\the\paperheight-0.98cm)}]
               \draw@logo
             \end{scope}
-            \node[anchor=south,text width=\the\paperwidth-1cm,inner xsep=0.5cm] at (0.5*\the\paperwidth,0.42*\the\paperheight) {\color{pwrliteWhite}\Huge\textbf{\nohyphens{\inserttitle}}};
+            \node[anchor=south,text width=\the\paperwidth-1cm,inner xsep=0.5cm] at (0.5*\the\paperwidth,0.42*\the\paperheight) {\color{pwrliteWhite}\textbf{\nohyphens{\inserttitle}}};
             \node[anchor=north east,text width=\the\paperwidth-1cm,align=right] at (\the\paperwidth-0.5cm,0.4*\the\paperheight) {\hfil\color{pwrliteGrey}\tiny\insertinstitute};
             \node at (0.5*\the\paperwidth,2cm) {\color{pwrliteBlack}\LARGE\insertauthor};
             \node[anchor=south east] at (\the\paperwidth-0.25cm,\the\paperheight-0.6cm) {\color{pwrliteGrey}\tiny\insertdate};
@@ -1251,11 +1247,8 @@
           \useasboundingbox (0,0) rectangle(\the\paperwidth,\the\paperheight);
           \fill[color=pwrliteWhite] (0,0) rectangle(\the\paperwidth,\the\paperheight);
           \fill[color=pwrliteRed] (0,\the\paperheight-1cm) rectangle(\the\paperwidth,\the\paperheight);
-          \node[anchor=north,text width=\the\paperwidth-1cm,inner xsep=0.5cm,inner ysep=0.25cm] at (0.5*\the\paperwidth,\the\paperheight) {\color{pwrliteWhite}\huge\textbf{\insertframetitle}};
-          \draw[fill=pwrliteGrey,draw=none] (0cm,0cm) rectangle(\the\paperwidth,0.25cm);
-          \draw[fill=pwrliteRed,draw=none] (0cm,0cm) rectangle(\progressbar@size,0.25cm);
-          \node[anchor=south west] at(0cm,0.25cm) {\color{pwrliteGrey}\tiny\insertsection};
-          \node[anchor=south east] at(\the\paperwidth,0.25cm) {\color{pwrliteGrey}\tiny\the\progressbar@current/\the\progressbar@total};
+          \node[anchor=north,text width=\the\paperwidth-1cm,inner xsep=0.5cm,inner ysep=0.3cm] at (0.5*\the\paperwidth,\the\paperheight) {\color{pwrliteWhite}\textbf{\insertframetitle}};
+          \draw[fill=pwrliteRed,draw=none] (0cm,0cm) rectangle(\the\paperwidth,0.25cm);
         \fi
     \end{tikzpicture}
 }
@@ -1266,7 +1259,7 @@
       \begin{scope}[shift={(-1cm,-4pt)}]
         \fill[color=pwrliteWhite] (0, \the\paperheight-2cm) rectangle(\the\paperwidth,\the\paperheight);
         \fill[color=pwrliteRed] (0, 0.4*\the\paperheight) rectangle(\the\paperwidth,0.4*\the\paperheight+2cm);
-        \node[text width=\the\paperwidth,align=center] at (0.5*\the\paperwidth,0.4*\the\paperheight+1cm) {\color{pwrliteWhite}\Huge\textbf{\insertsection}};
+        \node[text width=\the\paperwidth,align=center] at (0.5*\the\paperwidth,0.4*\the\paperheight+1cm) {\color{pwrliteWhite}\Large\textbf{\insertsection}};
       \end{scope}
     \end{tikzpicture}
 }

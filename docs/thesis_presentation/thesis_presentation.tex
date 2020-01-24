@@ -4,6 +4,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage{polski}
 
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{makecell}
+\setcellgapes{5pt}
+
 \usetheme{pwrlite}
 %\usetheme[nosections]{pwrlite}  % wyłączenie stron z sekcjami
 %\usetheme[en]{pwrlite}  % logo w wersji angielskiej
@@ -11,74 +16,162 @@
 
 %\pdfmapfile{+lato.map}  % jeśli nie działa font Lato (a jest zainstalowany), odkomentuj przy pierwszej kompilacji
 
-\title{\large Wykrywanie oszustw na kartach płatniczych z~wykorzystaniem metod wrażliwych na koszt}
-\institute{Wydział Matematyki Politechniki Wrocławskiej \\ Promotor: dr inż. Andrzej Giniewicz}
+\title{Wykrywanie oszustw na kartach płatniczych \\z~wykorzystaniem metod wrażliwych na koszt}
+\institute{Promotor: dr inż. Andrzej Giniewicz \hfill Wydział Matematyki Politechniki Wrocławskiej}
 \author{Patryk Wielopolski}
-\date{06-02-2020}
 
 \begin{document}
+	
+	\newcommand{\htx}{h_{\theta}(\boldsymbol{x_i})}
+	\newcommand{\es}{\mathcal{S}}
+	\newcommand{\ef}{\mathcal{F}}
+	\newcommand{\ku}{\mathcal{Q}}
+	\newcommand{\iks}{\boldsymbol{x}}
+	\newcommand{\yht}[1]{\hat{y_i}^{(#1)}}
+	\newcommand{\ytrue}{\boldsymbol{y}}
 
 \section{Wstęp}
 
 \begin{frame}{Problem detekcji oszustw}
-	Możliwości popełnienia przestępstwa
+	Możliwości popełnienia przestępstwa:
+	\begin{itemize}
+		\item przekazanie numeru karty nieznajomemu,
+		\item utrata lub kradzież karty,
+		\item skopiowanie danych karty,
+		\item kradzież przesyłki z kartą.
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{Schemat pracy systemu}
-	Rysunek
-\end{frame}
-
-\begin{frame}{Oznaczenia}
-	Oznaczenia
+	
 \end{frame}
 
 \section{Część teoretyczna}
 
-\begin{frame}{Miary skuteczności modeli, cz. I}
-	Macierz pomyłek
-	Precyzja
-	Czułość
-	F1 Score
+\begin{frame}{Miary skuteczności modeli}
+	\begin{table}[h]
+		\begin{center}
+			\begin{tabular}{c|c|c}
+				\multirow{2}{8em}{} & Stan sprzyjający & Stan niesprzyjający \\
+				& $y_i = 1$            & $y_i = 0$ \\
+				\hline
+				Predykcja pozytywna & \multirow{2}{8em}{\centering TP}& \multirow{2}{8em}{\centering FP} \\
+				$c_i = 1$ &  &                 \\
+				\hline
+				Predykcja negatywna & \multirow{2}{8em}{\centering FN} & \multirow{2}{8em}{\centering TN} \\
+				$c_i = 0$ &  &  \\
+			\end{tabular}
+		\end{center}
+		\caption{Macierz pomyłek.}
+		\label{tab:macierz-pomylek}
+	\end{table}
+	$$ \text{Precyzja} = \frac{TP}{TP + FP} $$ 
+	$$ \text{Czułość}= \frac{TP}{TP + FN} $$
+	$$ F_1 = \left(\frac{2}{\text{Precyzja}^{-1} + \text{Czułość}^{-1}}\right) $$
 \end{frame}
 
-\begin{frame}{Miary skuteczności modeli, cz. II}
-	Koszt całkowity
-	Oszczędności
+\begin{frame}{Miary skuteczności modeli wrażliwych na koszt}
+	\begin{table}[h]
+		\begin{center}
+			\begin{tabular}{c|c|c}
+				\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
+				& $y_i = 1$            & $y_i = 0$ \\
+				\hline
+				Predykcja pozytywna & \multirow{2}{4em}{\centering $C^{(i)}_{1,1}$} & \multirow{2}{4em}{\centering $C^{(i)}_{1,0}$} \\
+				$c_i = 1$         &                    &                    \\
+				\hline
+				Predykcja negatywna & \multirow{2}{4em}{\centering $C^{(i)}_{0,1}$} & \multirow{2}{4em}{\centering $C^{(i)}_{0,0}$} \\
+				$c_i = 0$         &                    &                    \\
+			\end{tabular}
+		\end{center}
+		\caption{Macierz kosztu dla $i$-tej obserwacji.}
+		\label{tab:macierz-kosztu}
+	\end{table}
 \end{frame}
 
-\begin{frame}{Standardowe modele predykcyjne}
+\begin{frame}{Miary skuteczności modeli wrażliwych na koszt}
+	$$ \text{Koszt całkowity}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})= \sum_{i=1}^N C^{(i)}_{c_i,y_i} $$
+	$$ \text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, \boldsymbol{C}) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, \boldsymbol{C})} $$
 	\begin{itemize}
-		\item Regresja logistyczna
-		\item Drzewo decyzyjne
-		\item Las losowy
-		\item XGBoost
+		\item $\ytrue = (y_1, y_2, \dots, y_N)$ -- wektor prawdziwych stanów klasyfikacji,
+%		\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji,
+		\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ -- wektor przewidywanych klas,
+%		\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji,
+		\item $ \boldsymbol{C} = (C_1, C_2, \dots, C_N) $ -- wektor macierzy kosztu,
+%		\item $ C^{(i)} = [C^{(i)}_{j,k}]_{j,k=0}^1 $ -- macierz kosztu dla $i$-tej obserwacji.
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Klasyfikacja wrażliwa na koszt}
-	BMR
-	TO
+\begin{frame}{Modele predykcyjne}
+	\begin{itemize}
+		\item Standardowe modele predykcyjne:
+		\begin{itemize}
+			\item Regresja logistyczna
+			\item Drzewo decyzyjne
+			\item Las losowy
+			\item XGBoost
+		\end{itemize}
+		\item Klasyfikacja wrażliwa na koszt:
+		\begin{itemize}
+			\item Minimalizacja ryzyka bayesowskiego
+			\item Optymalizacja progu
+		\end{itemize}
+		\item Trening wrażliwy na koszt:
+		\begin{itemize}
+			\item Regresja logistyczna wrażliwa na koszt
+			\item Drzewo decyzyjne wrażliwe na koszt
+		\end{itemize}
+	\end{itemize}
 \end{frame}
-
-\begin{frame}
-	Regresja logistyczna wrażliwa na koszt
-	Drzewo decyzyjne wrażliwe na koszt
-\end{frame}
-
 
 \section{Wyniki}
 
-\begin{frame}{Oszczędności}
-	Oszczędności
+\begin{frame}{Zbiór danych}
+	Wykorzystano zbiór danych \emph{Credit Card Fraud Detection}.
+	\begin{itemize}
+		\item Zawiera transakcje zawarte europejskimi kartami kredytowymi w~ciągu dwóch dni we wrześniu 2013 roku.
+		\item Składa się z~284,807 transakcji, w~tym z~492 oszustw.
+		\item Obserwacje są opisane 30 atrybutami, w~tym 28 z~nich to zanonimizowane zmienne numeryczne, które były wcześniej poddane transformacji PCA (\textit{ang. Principal Component Analysis}).
+	\end{itemize}
 \end{frame}
 
-\begin{frame}{F1 Score}
-	F1 Score
+\begin{frame}{Metodologia eksperymentu}
+	\begin{itemize}
+		\item 50 powtórzeń symulacji Monte Carlo 
+		\item Podział zbioru danych:
+		\begin{itemize}
+			\item 50\% zbiór treningowy
+			\item 17\% zbiór walidacyjny
+			\item 33\% zbiór testowy
+		\end{itemize}
+		\item Wykorzystane modele:
+		\begin{itemize}
+			\item Modele standardowe: regresja logistyczna, drzewo decyzyjne, las losowy, XGBoost
+			\item Model wrażliwy na koszt: drzewo decyzyjne wrażliwe na koszt
+			\item Optymalizacja progu oraz minimalizacja ryzyka bayesowskiego nałożona na modele standardowe
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Wyniki dla oszczędności}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{images/100_config1-Savings.png}
+		\caption{Źródło: Opracowanie własne}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Wyniki dla F1 Score}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{images/100_config1-F1.png}
+		\caption{Źródło: Opracowanie własne}
+	\end{figure}
 \end{frame}
 
 \begin{frame}{Wnioski}
 	Wnioski
 \end{frame}
+
+\section[]{Dziękuję za uwagę!}
 
 \end{document}
 
