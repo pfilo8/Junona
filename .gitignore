@@ -16,4 +16,4 @@ src/__pycache__/
 *.bbl
 *.toc
 *.out
-
+*.nav

@@ -43,13 +43,13 @@
 \end{frame}
 
 \begin{frame}{Schemat pracy systemu}
-	
+	Bla, bla, bla ...
 \end{frame}
 
 \section{Część teoretyczna}
 
 \begin{frame}{Miary skuteczności modeli}
-	\begin{table}[h]
+	\begin{table}
 		\begin{center}
 			\begin{tabular}{c|c|c}
 				\multirow{2}{8em}{} & Stan sprzyjający & Stan niesprzyjający \\
@@ -71,7 +71,7 @@
 \end{frame}
 
 \begin{frame}{Miary skuteczności modeli wrażliwych na koszt}
-	\begin{table}[h]
+	\begin{table}
 		\begin{center}
 			\begin{tabular}{c|c|c}
 				\multirow{2}{4em}{} & Stan pozytywny & Stan negatywny \\
@@ -87,18 +87,26 @@
 		\caption{Macierz kosztu dla $i$-tej obserwacji.}
 		\label{tab:macierz-kosztu}
 	\end{table}
+
+	Oznaczenia:
+	\begin{itemize}
+		\item $\ytrue = (y_1, y_2, \dots, y_N)$ -- wektor prawdziwych stanów klasyfikacji,
+		\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ -- wektor przewidywanych klas,
+		\item $ \boldsymbol{C} = (C_1, C_2, \dots, C_N) $ -- wektor macierzy kosztu,
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{Miary skuteczności modeli wrażliwych na koszt}
-	$$ \text{Koszt całkowity}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})= \sum_{i=1}^N C^{(i)}_{c_i,y_i} $$
 	$$ \text{Oszczędności}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) = \frac{\text{Koszt bazowy}(\ytrue, \boldsymbol{C}) - \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})}{\text{Koszt bazowy}(\ytrue, \boldsymbol{C})} $$
+	
+	\vspace{0.7cm}
+	Oznaczenia:
 	\begin{itemize}
-		\item $\ytrue = (y_1, y_2, \dots, y_N)$ -- wektor prawdziwych stanów klasyfikacji,
-%		\item $y_i \in \{0,1\}$ -- prawdziwy stan klasyfikacji dla $i$-tej obserwacji,
-		\item $\boldsymbol{c} = (c_1, c_2, \dots, c_N) $ -- wektor przewidywanych klas,
-%		\item $c_i \in \{0,1\} $ -- przewidywana klasa dla $i$-tej obserwacji,
-		\item $ \boldsymbol{C} = (C_1, C_2, \dots, C_N) $ -- wektor macierzy kosztu,
-%		\item $ C^{(i)} = [C^{(i)}_{j,k}]_{j,k=0}^1 $ -- macierz kosztu dla $i$-tej obserwacji.
+		\item $ \text{Koszt całkowity}(\ytrue, \boldsymbol{c}, \boldsymbol{C}) \text{ lub } \text{TC}(\ytrue, \boldsymbol{c}, \boldsymbol{C})= \sum_{i=1}^N C^{(i)}_{c_i,y_i} $
+		\item $ \text{Koszt bazowy}(\ytrue, \boldsymbol{C}) = \min\{\text{TC}(\ytrue, \boldsymbol{c}_0, \boldsymbol{C}), \text{TC}(\ytrue, \boldsymbol{c}_1, \boldsymbol{C})\} \neq 0$
+		\item $\boldsymbol{c}_0 = (0, 0, \dots, 0)$ -- $N$-elementowy wektor predykcji równych $0$,
+		\item $\boldsymbol{c}_1 = (1, 1, \dots, 1)$ -- $N$-elementowy wektor predykcji równych $1$.
+
 	\end{itemize}
 \end{frame}
 
@@ -124,7 +132,7 @@
 	\end{itemize}
 \end{frame}
 
-\section{Wyniki}
+\section{Eksperyment}
 
 \begin{frame}{Zbiór danych}
 	Wykorzystano zbiór danych \emph{Credit Card Fraud Detection}.
@@ -147,8 +155,8 @@
 		\item Wykorzystane modele:
 		\begin{itemize}
 			\item Modele standardowe: regresja logistyczna, drzewo decyzyjne, las losowy, XGBoost
-			\item Model wrażliwy na koszt: drzewo decyzyjne wrażliwe na koszt
-			\item Optymalizacja progu oraz minimalizacja ryzyka bayesowskiego nałożona na modele standardowe
+			\item Drzewo decyzyjne wrażliwe na koszt
+			\item Optymalizacja progu oraz minimalizacja ryzyka bayesowskiego zastosowana dla modeli standardowych
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -156,19 +164,15 @@
 \begin{frame}{Wyniki dla oszczędności}
 	\begin{figure}
 		\includegraphics[width=0.8\linewidth]{images/100_config1-Savings.png}
-		\caption{Źródło: Opracowanie własne}
+		\caption{Źródło: Opracowanie własne.}
 	\end{figure}
 \end{frame}
 
 \begin{frame}{Wyniki dla F1 Score}
 	\begin{figure}
 		\includegraphics[width=0.8\linewidth]{images/100_config1-F1.png}
-		\caption{Źródło: Opracowanie własne}
+		\caption{Źródło: Opracowanie własne.}
 	\end{figure}
-\end{frame}
-
-\begin{frame}{Wnioski}
-	Wnioski
 \end{frame}
 
 \section[]{Dziękuję za uwagę!}
